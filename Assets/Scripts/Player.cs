@@ -10,13 +10,11 @@ public class Player : MonoBehaviour
 	private int wins = 0;
 	private int losses = 0;
 	//TODO initialize the villages
-	void Start ()
-	{
+	void Start () {
 
 	}
 
-	void Update ()
-	{
+	void Update () {
 
 	}
 

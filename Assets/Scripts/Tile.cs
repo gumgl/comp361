@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 
 
-public class Node {
+public class Tile {
 	
-	public List<Node> neighbours;
+	public List<Tile> neighbours;
 	public int x;
 	public int y;
 	
-	public Node(){
-		neighbours = new List<Node>();
+	public Tile(){
+		neighbours = new List<Tile>();
 	}
 	
-	public float DistanceTo(Node n){
+	public float DistanceTo(Tile n){
 		return Vector2.Distance (new Vector2(x,y), new Vector2(n.x,n.y));
 	}
 

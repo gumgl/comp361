@@ -10,7 +10,7 @@ public class TileMap : MonoBehaviour {
 	public TileType[] tileTypes;
 
 	int[,] tiles;
-	Node[,] graph;
+	Tile[,] graph;
 
 
 	int mapSizeX = 20;
@@ -94,12 +94,12 @@ public class TileMap : MonoBehaviour {
 	void GenerateGraph(){
 				
 
-		graph = new Node[mapSizeX, mapSizeY];
+		graph = new Tile[mapSizeX, mapSizeY];
 
 		for (int y=0; y < mapSizeY; y++) {
 			for (int x=0; x < mapSizeX; x++) {
 
-				graph [x, y] = new Node ();
+				graph [x, y] = new Tile ();
 			}
 		}
 
@@ -181,19 +181,19 @@ public class TileMap : MonoBehaviour {
 			return;
 		}
 
-		Dictionary<Node, float> dist = new Dictionary<Node, float> ();
-		Dictionary<Node, Node> prev = new Dictionary<Node, Node> ();
+		Dictionary<Tile, float> dist = new Dictionary<Tile, float> ();
+		Dictionary<Tile, Tile> prev = new Dictionary<Tile, Tile> ();
 
-		List<Node> unvisited = new List<Node>();
+		List<Tile> unvisited = new List<Tile>();
 
-		Node source = graph [selectedUnit.GetComponent<UnitScript> ().tileX, selectedUnit.GetComponent<UnitScript> ().tileY];
+		Tile source = graph [selectedUnit.GetComponent<UnitScript> ().tileX, selectedUnit.GetComponent<UnitScript> ().tileY];
 
-		Node target = graph [x, y];
+		Tile target = graph [x, y];
 
 		dist [source] = 0;
 		prev [source] = null;
 
-		foreach (Node v in graph) {
+		foreach (Tile v in graph) {
 			if(v != source){
 				dist[v] = Mathf.Infinity;
 				prev[v] = null;
@@ -205,9 +205,9 @@ public class TileMap : MonoBehaviour {
 
 		while (unvisited.Count > 0) {
 
-			Node u = null;
+			Tile u = null;
 
-			foreach(Node possibleU in unvisited){
+			foreach(Tile possibleU in unvisited){
 				if (u == null || dist[possibleU] < dist[u]){
 					u = possibleU;
 				}
@@ -219,7 +219,7 @@ public class TileMap : MonoBehaviour {
 
 			unvisited.Remove (u);
 
-			foreach(Node v in u.neighbours){
+			foreach(Tile v in u.neighbours){
 
 				//pure distance approach
 				//float alt = dist[u] + u.DistanceTo(v);
@@ -238,9 +238,9 @@ public class TileMap : MonoBehaviour {
 			return;
 		}
 
-		List<Node> currentPath = new List<Node> ();
+		List<Tile> currentPath = new List<Tile> ();
 
-		Node curr = target;
+		Tile curr = target;
 
 		while (curr != null) {
 			currentPath.Add (curr);
