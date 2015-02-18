@@ -21,9 +21,9 @@ public class TileMap : MonoBehaviour {
 
 	void Start(){
 
-		selectedUnit.GetComponent<UnitScript> ().tileX = (int)selectedUnit.transform.position.x;
-		selectedUnit.GetComponent<UnitScript> ().tileY = (int)selectedUnit.transform.position.y;
-		selectedUnit.GetComponent<UnitScript> ().map = this;
+		selectedUnit.GetComponent<Unit> ().tileX = (int)selectedUnit.transform.position.x;
+		selectedUnit.GetComponent<Unit> ().tileY = (int)selectedUnit.transform.position.y;
+		selectedUnit.GetComponent<Unit> ().map = this;
 		ProcedurallyGenerateWorld ();
 		GenerateGraph ();
 		DrawWorld ();
@@ -175,7 +175,7 @@ public class TileMap : MonoBehaviour {
 
 	public void GeneratePathTo(int x, int y){
 
-		selectedUnit.GetComponent<UnitScript> ().currentPath = null;
+		selectedUnit.GetComponent<Unit> ().currentPath = null;
 
 		if (UnitCanEnterTile (x, y) == false) {
 			return;
@@ -186,7 +186,7 @@ public class TileMap : MonoBehaviour {
 
 		List<Tile> unvisited = new List<Tile>();
 
-		Tile source = graph [selectedUnit.GetComponent<UnitScript> ().tileX, selectedUnit.GetComponent<UnitScript> ().tileY];
+		Tile source = graph [selectedUnit.GetComponent<Unit> ().tileX, selectedUnit.GetComponent<Unit> ().tileY];
 
 		Tile target = graph [x, y];
 
@@ -249,7 +249,7 @@ public class TileMap : MonoBehaviour {
 
 		currentPath.Reverse ();
 
-		selectedUnit.GetComponent<UnitScript> ().currentPath = currentPath;
+		selectedUnit.GetComponent<Unit> ().currentPath = currentPath;
 
 
 
