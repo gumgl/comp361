@@ -8,7 +8,9 @@ public class Unit : MonoBehaviour {
 
 	public TileMap map;
 
-	public List<Tile> currentPath = null; 
+	public List<Tile> currentPath = null;
+	UnitType myType;
+	ActionType currentAction;
 
 	// in theory if different units have different movespeed 
 	int moveSpeed = 1;
@@ -69,6 +71,42 @@ public class Unit : MonoBehaviour {
 		}		
 
 		remainingMovement = moveSpeed;
+	}
+
+	public Tile getTile() {
+		
+	}
+	
+	public ActionType getActionType() {
+		
+	}
+	
+	public void setActionType(ActionType at) {
+		
+	}
+	
+	public UnitType getUnitType() {
+		
+	}
+	
+	public int getSalary() {
+		// Depending on myType
+	}
+	
+	public void setUnitType(UnitType ut) {
+		
+	}
+	
+	public Village getVillage() {
+		
+	}
+	
+	public void setVillage(Village v) {
+		
+	}
+	
+	public Player getOwner() {
+		
 	}
 
 }
