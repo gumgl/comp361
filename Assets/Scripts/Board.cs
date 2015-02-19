@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,7 +7,7 @@ public class Board : MonoBehaviour {
 
     public GameObject selectedUnit;
 
-    public TileType[] tileTypes;
+    public LandType[] tileTypes;
 
     int[,] tiles;
     Tile[,] graph;
@@ -75,7 +75,7 @@ public class Board : MonoBehaviour {
 
     public float CostToEnterTile(int sourceX, int sourceY, int targetX, int targetY) {
 
-        TileType tt = tileTypes [tiles [targetX, targetY]];
+        LandType tt = tileTypes [tiles [targetX, targetY]];
 
         if (UnitCanEnterTile(targetX, targetY) == false) {
             return Mathf.Infinity;
@@ -147,7 +147,7 @@ public class Board : MonoBehaviour {
 
         for (int y=0; y < mapSizeY; y++) {
             for (int x=0; x < mapSizeX; x++) {
-                TileType tt = tileTypes [tiles [x, y]];
+                LandType tt = tileTypes [tiles [x, y]];
                 GameObject go = (GameObject)Instantiate(tt.tileVisualPrefab, new Vector3(x * tileWidth + (y % 2 * tileWidth / 2f), 0, y * 0.75f * tileHeight), Quaternion.Euler(0f, 90f, 0f));
                 ClickableTile ct = go.GetComponent<ClickableTile>();
                 ct.tileX = x;
