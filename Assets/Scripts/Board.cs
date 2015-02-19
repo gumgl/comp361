@@ -34,30 +34,30 @@ public class Board : MonoBehaviour {
         tiles = new int[mapSizeX, mapSizeY];
 		
         for (int x=0; x < mapSizeX; x++) {
-            tiles [x, 0] = 3;
-            tiles [x, mapSizeY - 1] = 3;
+            tiles[x, 0] = 3;
+            tiles[x, mapSizeY - 1] = 3;
         }
 		
         int random;
         for (int y=1; y < mapSizeY-1; y++) {
-            tiles [0, y] = 3;
-            tiles [mapSizeX - 1, y] = 3;
+            tiles[0, y] = 3;
+            tiles[mapSizeX - 1, y] = 3;
 			
 			
             if (y == 1 || y == mapSizeY - 2) {
                 for (int x=1; x < mapSizeX-1; x++) {
                     random = Random.Range(1, 10);
                     if (random <= 2) {
-                        tiles [x, y] = 3;
+                        tiles[x, y] = 3;
                     }
                 }
             }
             random = Random.Range(1, 10);
             if (random <= 2) {
-                tiles [1, y] = 3;
+                tiles[1, y] = 3;
             }
             if (random <= 2) {
-                tiles [mapSizeX - 2, y] = 3;
+                tiles[mapSizeX - 2, y] = 3;
             }
         }
 		
@@ -65,9 +65,9 @@ public class Board : MonoBehaviour {
             for (int x=1; x < mapSizeX-1; x++) {
                 random = Random.Range(1, 10);
                 if (random <= 2) {
-                    tiles [x, y] = 1;
+                    tiles[x, y] = 1;
                 } else if (random == 9) {
-                    tiles [x, y] = 2;
+                    tiles[x, y] = 2;
                 }
             }
         }
@@ -75,13 +75,13 @@ public class Board : MonoBehaviour {
 
     public float CostToEnterTile(int sourceX, int sourceY, int targetX, int targetY) {
 
-        LandType tt = tileTypes [tiles [targetX, targetY]];
+        LandType tt = tileTypes[tiles[targetX, targetY]];
 
         if (UnitCanEnterTile(targetX, targetY) == false) {
             return Mathf.Infinity;
         }
 
-        float cost = tt.movementCost;
+        float cost = tt.getMovementCost();
 
         if (sourceX != targetX && sourceY != targetY) {
             cost += 0.001f;
@@ -99,7 +99,7 @@ public class Board : MonoBehaviour {
         for (int y=0; y < mapSizeY; y++) {
             for (int x=0; x < mapSizeX; x++) {
 
-                graph [x, y] = new Tile();
+                graph[x, y] = new Tile();
             }
         }
 
@@ -107,35 +107,35 @@ public class Board : MonoBehaviour {
             for (int x=0; x < mapSizeX; x++) {				
 
 
-                graph [x, y].x = x;
-                graph [x, y].y = y;
+                graph[x, y].x = x;
+                graph[x, y].y = y;
 
                 if (x > 0) {
-                    graph [x, y].neighbours.Add(graph [x - 1, y]);
+                    graph[x, y].neighbours.Add(graph[x - 1, y]);
                 }
                 if (x < mapSizeX - 1) {
-                    graph [x, y].neighbours.Add(graph [x + 1, y]);
+                    graph[x, y].neighbours.Add(graph[x + 1, y]);
                 }
                 if (y > 0) {
-                    graph [x, y].neighbours.Add(graph [x, y - 1]);
+                    graph[x, y].neighbours.Add(graph[x, y - 1]);
                 }
                 if (y < mapSizeY - 1) {
-                    graph [x, y].neighbours.Add(graph [x, y + 1]);
+                    graph[x, y].neighbours.Add(graph[x, y + 1]);
                 }
 
                 if (y % 2 == 0) {
                     if (x - 1 >= 0 && y - 1 >= 0) {
-                        graph [x, y].neighbours.Add(graph [x - 1, y - 1]);
+                        graph[x, y].neighbours.Add(graph[x - 1, y - 1]);
                     }
                     if (x - 1 >= 0 && y != mapSizeY - 1) {
-                        graph [x, y].neighbours.Add(graph [x - 1, y + 1]);
+                        graph[x, y].neighbours.Add(graph[x - 1, y + 1]);
                     }
                 } else {
                     if (x != mapSizeX - 1 && y - 1 >= 0) {
-                        graph [x, y].neighbours.Add(graph [x + 1, y - 1]);
+                        graph[x, y].neighbours.Add(graph[x + 1, y - 1]);
                     }
                     if (x != mapSizeX - 1 && y != mapSizeY - 1) {
-                        graph [x, y].neighbours.Add(graph [x + 1, y + 1]);
+                        graph[x, y].neighbours.Add(graph[x + 1, y + 1]);
                     }
                 }
             }
@@ -143,20 +143,16 @@ public class Board : MonoBehaviour {
     }
 
     void DrawWorld() {
-
-
         for (int y=0; y < mapSizeY; y++) {
             for (int x=0; x < mapSizeX; x++) {
-                LandType tt = tileTypes [tiles [x, y]];
-                GameObject go = (GameObject)Instantiate(tt.tileVisualPrefab, new Vector3(x * tileWidth + (y % 2 * tileWidth / 2f), 0, y * 0.75f * tileHeight), Quaternion.Euler(0f, 90f, 0f));
+                LandType tt = tileTypes[tiles[x, y]];
+                GameObject go = (GameObject)Instantiate(tt.getPrefab(), new Vector3(x * tileWidth + (y % 2 * tileWidth / 2f), 0, y * 0.75f * tileHeight), Quaternion.Euler(0f, 90f, 0f));
                 ClickableTile ct = go.GetComponent<ClickableTile>();
                 ct.tileX = x;
                 ct.tileY = y;
                 ct.map = this;
             }
         }
-
-
     }
 
     public Vector3 TileCoordToWorldCoord(int x, int y) {
@@ -167,7 +163,7 @@ public class Board : MonoBehaviour {
 
         // we should test a unit's walktype on a clickable tile
 
-        return tileTypes [tiles [x, y]].isWalkable;
+        return false; // tileTypes [tiles [x, y]].isWalkable;
 
     }
 
@@ -186,17 +182,17 @@ public class Board : MonoBehaviour {
 
         List<Tile> unvisited = new List<Tile>();
 
-        Tile source = graph [selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileY];
+        Tile source = graph[selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileY];
 
-        Tile target = graph [x, y];
+        Tile target = graph[x, y];
 
-        dist [source] = 0;
-        prev [source] = null;
+        dist[source] = 0;
+        prev[source] = null;
 
         foreach (Tile v in graph) {
             if (v != source) {
-                dist [v] = Mathf.Infinity;
-                prev [v] = null;
+                dist[v] = Mathf.Infinity;
+                prev[v] = null;
             }
 
             unvisited.Add(v);
@@ -208,7 +204,7 @@ public class Board : MonoBehaviour {
             Tile u = null;
 
             foreach (Tile possibleU in unvisited) {
-                if (u == null || dist [possibleU] < dist [u]) {
+                if (u == null || dist[possibleU] < dist[u]) {
                     u = possibleU;
                 }
             }
@@ -225,15 +221,15 @@ public class Board : MonoBehaviour {
                 //float alt = dist[u] + u.DistanceTo(v);
 
                 //weighted move cost approach
-                float alt = dist [u] + CostToEnterTile(u.x, u.y, v.x, v.y);
-                if (alt < dist [v]) {
-                    dist [v] = alt;
-                    prev [v] = u;
+                float alt = dist[u] + CostToEnterTile(u.x, u.y, v.x, v.y);
+                if (alt < dist[v]) {
+                    dist[v] = alt;
+                    prev[v] = u;
                 }
             }
         }
 
-        if (prev [target] == null) {
+        if (prev[target] == null) {
             // unreachable
             return;
         }
@@ -244,14 +240,11 @@ public class Board : MonoBehaviour {
 
         while (curr != null) {
             currentPath.Add(curr);
-            curr = prev [curr];
+            curr = prev[curr];
         }
 
         currentPath.Reverse();
 
         selectedUnit.GetComponent<Unit>().currentPath = currentPath;
-
-
-
     }
 }
