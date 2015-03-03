@@ -2,21 +2,15 @@
 using System.Collections.Generic;
 
 public class Tile : MonoBehaviour {
-	public List<Tile> neighbours;
+	public Dictionary<Hex.Direction, Tile> neighbours = new Dictionary<Hex.Direction, Tile>();
 	public Hex pos;
 	public Board map;
 	public LandType type;
 	static public float size = 1;
     
-	public struct Hex {
-		public int q, r;
-		public Hex(int iq, int ir) {
-			q = iq;
-			r = ir;
-		}
-	}
+
+
 	public Tile() {
-		neighbours = new List<Tile>();
 	}
 	public float getWidth() {
 		return size * 2;
@@ -26,6 +20,12 @@ public class Tile : MonoBehaviour {
 	}
 	public Vector2 getPixelPos() {
 		return HexToPixel(pos);
+	}
+	public Tile getNeighbour(Hex.Direction dir) {
+		return neighbours[dir];
+	}
+	public void setNeighbour(Hex.Direction dir, Tile neighbour) {
+		neighbours[dir] = neighbour;
 	}
 	public float DistanceTo(Tile tile) {
 		return Vector2.Distance(this.getPixelPos(), tile.getPixelPos());
@@ -38,7 +38,13 @@ public class Tile : MonoBehaviour {
 		Vector2 center = HexToPixel(pos);
 		return new Vector2(center.x + size * Mathf.Cos(angle), center.y + size * Mathf.Sin(angle));
 	}
-	void OnMouseUp() {   
+
+	void OnMouseEnter() {
+		map.distanceText.text = HexDistanceTo(map.selectedUnit.tile).ToString();
+	}
+
+	void OnMouseDown() {
+		Debug.Log("clicked a tile!");
 		map.GeneratePathTo(this);
 	}
     

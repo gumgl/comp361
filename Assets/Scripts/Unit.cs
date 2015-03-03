@@ -2,14 +2,12 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public class Unit : MonoBehaviour {
-	public Board map;
+	public Board board;
 	Village village;
 
 	UnitType myType;
 	ActionType currentAction;
-	Tile tile;
-	public int tileX;
-	public int tileY;
+	public Tile tile;
 	public List<Tile> currentPath = null;
 
 	// in theory if different units have different movespeed 
