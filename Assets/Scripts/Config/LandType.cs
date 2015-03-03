@@ -1,6 +1,6 @@
 ﻿public enum LandType {
-    Grass,
-    Tree,
-    Meadow,
-    Water
+	Grass,
+	Tree,
+	Meadow,
+	Water
 }
