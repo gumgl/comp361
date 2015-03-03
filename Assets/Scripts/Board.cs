@@ -9,10 +9,10 @@ public class Board : MonoBehaviour {
 	public Tile[] landTypePrefabs;
 
 	LandType[,] tileTypes;
-	Tile[,] graph;
+	Tile[,] grid;
 
-	int mapSizeX = 20;
-	int mapSizeY = 20;
+	int mapSizeX = 10;
+	int mapSizeY = 10;
 
 	static float tileHeight = 3.0f;
 	static float tileWidth = Mathf.Sqrt(3) / 2 * tileHeight;
@@ -22,173 +22,110 @@ public class Board : MonoBehaviour {
 		selectedUnit.GetComponent<Unit>().tileX = (int)selectedUnit.transform.position.x;
 		selectedUnit.GetComponent<Unit>().tileY = (int)selectedUnit.transform.position.y;
 		selectedUnit.GetComponent<Unit>().map = this;
-		ProcedurallyGenerateWorld();
-		GenerateGraph();
-		DrawWorld();
+		GenerateGrid();
 	}
-
-	void ProcedurallyGenerateWorld() {
-		
+    
+	void GenerateGrid() {
+		grid = new Tile[mapSizeX, mapSizeY];
 		tileTypes = new LandType[mapSizeX, mapSizeY];
-		
-		/*for (int x=0; x < mapSizeX; x++) {
-			tiles[x, 0] = LandType.Water;
-			tiles[x, mapSizeY - 1] = LandType.Water;
-		}
-		
-		int random;
-		for (int y=1; y < mapSizeY-1; y++) {
-			tiles[0, y] = LandType.Water;
-			tiles[mapSizeX - 1, y] = LandType.Water;
-			
-			
-			if (y == 1 || y == mapSizeY - 2) {
-				for (int x=1; x < mapSizeX-1; x++) {
-					random = Random.Range(1, 10);
-					if (random <= 2) {
-						tiles[x, y] = LandType.Water;
-					}
-				}
-			}
-			random = Random.Range(1, 10);
-			if (random <= 2) {
-				tiles[1, y] = LandType.Water;
-			}
-			if (random <= 2) {
-				tiles[mapSizeX - 2, y] = LandType.Water;
-			}
-		}
-		
-		for (int y=1; y < mapSizeY-1; y++) {
-			for (int x=1; x < mapSizeX-1; x++) {
-				random = Random.Range(1, 10);
-				if (random <= 2) {
-					tiles[x, y] = LandType.Grass;
-				} else if (random == 9) {
-					tiles[x, y] = LandType.Tree;
-				}
-			}
-		} */
 
-		for (int y=1; y < mapSizeY-1; y++) {
-			for (int x=1; x < mapSizeX-1; x++) {
-				if (x == 0 || x == mapSizeY - 1 || y == 0 || y == mapSizeY - 1)
-					tileTypes[x, y] = LandType.Water;
+		for (int q=0; q < mapSizeY; q++) {
+			for (int r=0; r < mapSizeX; r++) {
+				LandType tt;
+				if (r == 0 || r == mapSizeY - 1 || q == 0 || q == mapSizeY - 1)
+					tt = LandType.Water;
 				else {
 					float random = Random.Range(0.0f, 100.0f);
 					if (random <= 20)
-						tileTypes[x, y] = LandType.Tree;
+						tt = LandType.Tree;
 					else if (random <= 30)
-						tileTypes[x, y] = LandType.Meadow;
+						tt = LandType.Meadow;
+					else
+						tt = LandType.Grass;
+				}
+				tileTypes[r, q] = tt;
+				Tile tile = (Tile)Instantiate(
+					landTypePrefabs[(int)tt], 
+                    new Vector3(0, 0, 0), 
+                    Quaternion.Euler(0f, 0f, 0f));
+				tile.pos.q = q;
+				tile.pos.r = r;
+				tile.transform.parent = gameObject.transform;
+				tile.transform.localPosition = TileCoordToWorldCoord(tile.getPixelPos());
+				//tile.transform.localScale = new Vector3(0.666666f, 0.666666f, 0.666666f);
+				tile.map = this;
+				tile.type = tt;
+				grid[q, r] = tile;
+			}
+		}
+
+		for (int q=0; q < mapSizeY; q++) {
+			for (int r=0; r < mapSizeX; r++) {
+
+				if (r > 0) {
+					grid[r, q].neighbours.Add(grid[r - 1, q]);
+				}
+				if (r < mapSizeX - 1) {
+					grid[r, q].neighbours.Add(grid[r + 1, q]);
+				}
+				if (q > 0) {
+					grid[r, q].neighbours.Add(grid[r, q - 1]);
+				}
+				if (q < mapSizeY - 1) {
+					grid[r, q].neighbours.Add(grid[r, q + 1]);
+				}
+
+				if (q % 2 == 0) {
+					if (r - 1 >= 0 && q - 1 >= 0) {
+						grid[r, q].neighbours.Add(grid[r - 1, q - 1]);
+					}
+					if (r - 1 >= 0 && q != mapSizeY - 1) {
+						grid[r, q].neighbours.Add(grid[r - 1, q + 1]);
+					}
+				} else {
+					if (r != mapSizeX - 1 && q - 1 >= 0) {
+						grid[r, q].neighbours.Add(grid[r + 1, q - 1]);
+					}
+					if (r != mapSizeX - 1 && q != mapSizeY - 1) {
+						grid[r, q].neighbours.Add(grid[r + 1, q + 1]);
+					}
 				}
 			}
 		}
 	}
-
-	public float CostToEnterTile(int sourceX, int sourceY, int targetX, int targetY) {
-
+    
+	public float CostToEnterTile(Tile source, Tile target) {/*(int sourceX, int sourceY, int targetX, int targetY) {
 		LandType tt = tileTypes[targetX, targetY];
 
-		if (UnitCanEnterTile(targetX, targetY) == false) {
+		if (UnitCanEnterTile(targetX, targetY) == false)
 			return Mathf.Infinity;
-		}
 
 		float cost = tt.getMovementCost();
 
-		if (sourceX != targetX && sourceY != targetY) {
+		if (sourceX != targetX && sourceY != targetY)
 			cost += 0.001f;
-		}
 
-		return cost;
+		return cost;*/
+		return 1.0f;
 	}
 
-
-	void GenerateGraph() {
-		graph = new Tile[mapSizeX, mapSizeY];
-
-		for (int y=0; y < mapSizeY; y++) {
-			for (int x=0; x < mapSizeX; x++) {
-
-				graph[x, y] = new Tile();
-			}
-		}
-
-		for (int y=0; y < mapSizeY; y++) {
-			for (int x=0; x < mapSizeX; x++) {				
-
-
-
-				graph[x, y].x = x;
-				graph[x, y].y = y;
-
-				if (x > 0) {
-					graph[x, y].neighbours.Add(graph[x - 1, y]);
-				}
-				if (x < mapSizeX - 1) {
-					graph[x, y].neighbours.Add(graph[x + 1, y]);
-				}
-				if (y > 0) {
-					graph[x, y].neighbours.Add(graph[x, y - 1]);
-				}
-				if (y < mapSizeY - 1) {
-					graph[x, y].neighbours.Add(graph[x, y + 1]);
-				}
-
-				if (y % 2 == 0) {
-					if (x - 1 >= 0 && y - 1 >= 0) {
-						graph[x, y].neighbours.Add(graph[x - 1, y - 1]);
-					}
-					if (x - 1 >= 0 && y != mapSizeY - 1) {
-						graph[x, y].neighbours.Add(graph[x - 1, y + 1]);
-					}
-				} else {
-					if (x != mapSizeX - 1 && y - 1 >= 0) {
-						graph[x, y].neighbours.Add(graph[x + 1, y - 1]);
-					}
-					if (x != mapSizeX - 1 && y != mapSizeY - 1) {
-						graph[x, y].neighbours.Add(graph[x + 1, y + 1]);
-					}
-				}
-			}
-		}
+	public Vector3 TileCoordToWorldCoord(Vector2 pos) {
+		//return new Vector3(x * tileWidth + (y % 2 * tileWidth / 2f), 0, y * 0.75f * tileHeight);
+		return new Vector3(pos.x, 0, pos.y);
 	}
 
-	void DrawWorld() {
-		for (int y=0; y < mapSizeY; y++) {
-			for (int x=0; x < mapSizeX; x++) {
-				LandType tt = tileTypes[x, y];
-				Tile tile = (Tile)Instantiate(
-                    landTypePrefabs[(int)tt], 
-                    new Vector3(x * tileWidth + (y % 2 * tileWidth / 2f), 0, y * 0.75f * tileHeight), 
-                    Quaternion.Euler(0f, 90f, 0f));
-				tile.x = x;
-				tile.y = y;
-				tile.map = this;
-				tile.type = tileTypes[x, y];
-				graph[x, y] = tile;
-			}
-		}
-	}
-
-	public Vector3 TileCoordToWorldCoord(int x, int y) {
-		return new Vector3(x * tileWidth + (y % 2 * tileWidth / 2f), 0, y * 0.75f * tileHeight);
-	}
-
-	public bool UnitCanEnterTile(int x, int y) {
-
+	public bool UnitCanEnterTile(Tile target) {
 		// we should test a unit's walktype on a clickable tile
-
-		return false; // tileTypes [tiles [x, y]].isWalkable;
-
+		return true; // tileTypes [tiles [x, y]].isWalkable;
 	}
 
 
 
-	public void GeneratePathTo(int x, int y) {
+	public void GeneratePathTo(Tile target) {
 
 		selectedUnit.GetComponent<Unit>().currentPath = null;
 
-		if (UnitCanEnterTile(x, y) == false) {
+		if (UnitCanEnterTile(target) == false) {
 			return;
 		}
 
@@ -197,21 +134,18 @@ public class Board : MonoBehaviour {
 
 		List<Tile> unvisited = new List<Tile>();
 
-		Tile source = graph[selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileY];
-
-		Tile target = graph[x, y];
+		Tile source = grid[selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileY];
 
 		dist[source] = 0;
 		prev[source] = null;
 
-		foreach (Tile v in graph) {
+		foreach (Tile v in grid) {
 			if (v != source) {
 				dist[v] = Mathf.Infinity;
 				prev[v] = null;
 			}
 
 			unvisited.Add(v);
-
 		}
 
 		while (unvisited.Count > 0) {
@@ -236,7 +170,7 @@ public class Board : MonoBehaviour {
 				//float alt = dist[u] + u.DistanceTo(v);
 
 				//weighted move cost approach
-				float alt = dist[u] + CostToEnterTile(u.x, u.y, v.x, v.y);
+				float alt = dist[u] + CostToEnterTile(u, v);
 				if (alt < dist[v]) {
 					dist[v] = alt;
 					prev[v] = u;

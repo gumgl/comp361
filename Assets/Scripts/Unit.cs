@@ -17,7 +17,7 @@ public class Unit : MonoBehaviour {
 	float remainingMovement = 1;
 
 	void Update() {
-		if (currentPath != null) {
+		/*if (currentPath != null) {
 
 			int currTile = 0;
 
@@ -37,11 +37,11 @@ public class Unit : MonoBehaviour {
 		}
 		
 
-		transform.position = Vector3.Lerp(transform.position, map.TileCoordToWorldCoord(tileX, tileY), 5f * Time.deltaTime);
+		transform.position = Vector3.Lerp(transform.position, map.TileCoordToWorldCoord(tileX, tileY), 5f * Time.deltaTime);*/
 	}
 
 	public void MoveNextTile() {
-
+		/*
 		if (currentPath == null) {
 			return;
 		}
@@ -62,7 +62,7 @@ public class Unit : MonoBehaviour {
 		if (currentPath.Count == 1) {
 			currentPath = null;
 		}
-
+		*/
 	}
 
 	public void Move() {
