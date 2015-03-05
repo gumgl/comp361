@@ -46,10 +46,22 @@ public class Tile : MonoBehaviour {
 		if(p != null){
 			owner = p;
 			transform.GetChild(0).renderer.material.color = p.getColor();
-			Debug.Log(p);
 		}
 	}
 
+	public void clearOwner(){
+		transform.GetChild(0).renderer.material.color = Color.white;
+		owner = null;
+	}
+
+	public int numAdjacentOwnedTiles(){
+		int i = 0;
+		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))) {
+			if(this.owner == getNeighbour(dir).owner)
+				i++;
+		}
+		return i;
+	}
 	void OnMouseEnter() {
 		map.distanceText.text = HexDistanceTo(map.selectedUnit.tile).ToString();
 	}
@@ -57,6 +69,7 @@ public class Tile : MonoBehaviour {
 	void OnMouseDown() {
 		Debug.Log("clicked a tile!");
 		map.GeneratePathTo(this);
+		Debug.Log(this.numAdjacentOwnedTiles());
 	}
     
 	static public int HexDistance(Tile a, Tile b) {

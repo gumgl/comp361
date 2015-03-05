@@ -6,13 +6,14 @@ public class DemoGame : MonoBehaviour {
 	private Player[] players = new Player[2];
 	public Player p1;
 	public Player p2;
-	void Start () {
+
+	public void initPlayers(){
 		p1.setActive();
 		p1.setColor(Color.red);
-
+		
 		p2.setActive();
 		p2.setColor(Color.blue);
-
+		
 		players[0] = p1;
 		players[1] = p2;
 	}
