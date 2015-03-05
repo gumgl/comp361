@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
 	private bool isActive = false;
 	private int wins = 0;
 	private int losses = 0;
+	private Color color = Color.clear;
+
 	//TODO initialize the villages
 	void Start () {
 
@@ -45,6 +47,14 @@ public class Player : MonoBehaviour
 
 	public void incrementLosses() {
 		losses ++;
+	}
+
+	public void setColor(Color cl){
+		color = cl;
+	}
+
+	public Color getColor() {
+		return color;
 	}
 }
 

@@ -91,6 +91,9 @@ public class Board : MonoBehaviour {
 					tile.transform.parent = gameObject.transform;
 					tile.transform.localPosition = TileCoordToWorldCoord(tile.getPixelPos());
 					//tile.transform.localScale = new Vector3(0.666666f, 0.666666f, 0.666666f);
+					if(tt != LandType.Water){
+						tile.setOwner(transform.parent.GetComponent<DemoGame>().getRandomPlayer());
+					}
 					tile.map = this;
 					tile.type = tt;
 					setTile(pos, tile);
@@ -173,8 +176,6 @@ public class Board : MonoBehaviour {
 		// we should test a unit's walktype on a clickable tile
 		return true; // tileTypes [tiles [x, y]].isWalkable;
 	}
-
-
 
 	public void GeneratePathTo(Tile target) {
 		/*selectedUnit.GetComponent<Unit>().currentPath = null;

@@ -7,8 +7,7 @@ public class Tile : MonoBehaviour {
 	public Board map;
 	public LandType type;
 	static public float size = 1;
-    
-
+	private Player owner;
 
 	public Tile() {
 	}
@@ -37,6 +36,18 @@ public class Tile : MonoBehaviour {
 		float angle = 2.0f * Mathf.PI / 6.0f * (i + 0.5f);
 		Vector2 center = HexToPixel(pos);
 		return new Vector2(center.x + size * Mathf.Cos(angle), center.y + size * Mathf.Sin(angle));
+	}
+
+	public Player getOwner() {
+		return owner;
+	}
+
+	public void setOwner(Player p) {
+		if(p != null){
+			owner = p;
+			transform.GetChild(0).renderer.material.color = p.getColor();
+			Debug.Log(p);
+		}
 	}
 
 	void OnMouseEnter() {
