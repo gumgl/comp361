@@ -5,11 +5,71 @@ public class Tile : MonoBehaviour {
 	public Dictionary<Hex.Direction, Tile> neighbours = new Dictionary<Hex.Direction, Tile>();
 	public Hex pos;
 	public Board map;
+	public Unit unit;
+	public Village village;  
+	public Structure structure; 
 	public LandType type;
 	static public float size = 1;
 	private Player owner;
 
 	public Tile() {
+		this.structure = Structure.NoStructure;	
+	}
+	public bool hasStructure () {
+		if (this.structure != Structure.NoStructure) return true;
+		else return false;
+	}	
+	public Structure getStructure () { 
+		return this.structure;	
+	}
+	public void setStructure (Structure s) { 
+		if (getStructure () != s) { 
+			this.structure = s;
+		}
+		//else do nothing
+	}
+	public void removeStructure () { 
+		if (hasStructure()) {
+			this.structure = Structure.NoStructure;
+		}
+		//else do nothing
+	}
+	public void upgradeStruct (Structure s) { //TODO
+		//need to rank enum type Structures so that we can prevent downgrading etc. 
+	}
+	public void setLandType (LandType t) {
+		if (getLandType() != t) {
+			this.type = t;
+		}
+	}
+	public LandType getLandType () { 
+		return this.type;
+	}
+	public Player getOwner() {
+		return this.owner;
+	}
+	
+	public void setOwner(Player p) {
+		if(p != null){
+			owner = p;
+			transform.GetChild(0).renderer.material.color = p.getColor();
+			Debug.Log(p);
+		}
+	}
+	public Dictionary<Hex.Direction, Tile> getNeighbours () { 
+		return this.neighbours;
+	}
+	public Unit getUnit () {
+		return this.unit; 
+	}
+	public void setUnit (Unit u){
+		this.unit = u;
+	}
+	public void removeUnit (Unit u) { 
+		this.unit = null; 
+	}
+	public Village getVillage () {
+		return this.village;
 	}
 	public float getWidth() {
 		return size * 2;
@@ -38,30 +98,6 @@ public class Tile : MonoBehaviour {
 		return new Vector2(center.x + size * Mathf.Cos(angle), center.y + size * Mathf.Sin(angle));
 	}
 
-	public Player getOwner() {
-		return owner;
-	}
-
-	public void setOwner(Player p) {
-		if(p != null){
-			owner = p;
-			transform.GetChild(0).renderer.material.color = p.getColor();
-		}
-	}
-
-	public void clearOwner(){
-		transform.GetChild(0).renderer.material.color = Color.white;
-		owner = null;
-	}
-
-	public int numAdjacentOwnedTiles(){
-		int i = 0;
-		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))) {
-			if(this.owner == getNeighbour(dir).owner)
-				i++;
-		}
-		return i;
-	}
 	void OnMouseEnter() {
 		map.distanceText.text = HexDistanceTo(map.selectedUnit.tile).ToString();
 	}
@@ -69,7 +105,6 @@ public class Tile : MonoBehaviour {
 	void OnMouseDown() {
 		Debug.Log("clicked a tile!");
 		map.GeneratePathTo(this);
-		Debug.Log(this.numAdjacentOwnedTiles());
 	}
     
 	static public int HexDistance(Tile a, Tile b) {

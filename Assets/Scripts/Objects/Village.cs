@@ -18,7 +18,24 @@ public class Village : MonoBehaviour {
 	}
 	
 	public void delete() {
-		
+		//remove struct if it exists
+		Tile hq = getStructTile();
+		if (hq.hasStructure()) {
+			hq.removeStructure();
+		}
+		//set tile ownership to null for all tiles part of the village
+		HashSet<Tile> tile = getTiles (); 
+		foreach (Tile t in tile) {
+			t.setOwner (null);
+		}
+		//for all units, find the tile they are on and set landtype to tombstone. Also remove the units from the tiles.
+		HashSet <Unit> units = getUnits();
+		foreach (Unit u in units) { 
+			Tile unitTile = u.getTile();
+			u.removeUnit();
+			unitTile.setLandType(LandType.Tombstone);
+		}
+	
 	}
 	
 	public void setStructTile(Tile t) {
@@ -56,7 +73,11 @@ public class Village : MonoBehaviour {
 	}
 	
 	public void tombPhase(HashSet<Tile> tiles) {
-		
+		foreach (Tile t in tiles) { 
+			if (t.getLandType () == LandType.Tombstone) {
+				t.setLandType(LandType.Tree);
+			}
+		}
 	}
 	
 	public void buildPhase(HashSet<Tile> tiles) {
