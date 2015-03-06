@@ -5,11 +5,59 @@ public class Tile : MonoBehaviour {
 	public Dictionary<Hex.Direction, Tile> neighbours = new Dictionary<Hex.Direction, Tile>();
 	public Hex pos;
 	public Board map;
+	public Unit unit;
+	public Village village;  
+	public Structure structure; 
 	public LandType type;
 	static public float size = 1;
 	private Player owner;
 
 	public Tile() {
+	}
+	public bool hasStructure () {
+		if (this.structure != Structure.NoStructure) return true;
+		else return false;
+	}	
+	public Structure getStructure () { 
+		return this.structure;	
+	}
+	public void setStructure (Structure s) { 
+		if (getStructure () != s) { 
+			this.structure = s;
+		}
+		//else do nothing
+	}
+	public void removeStructure () { 
+		if (hasStructure()) {
+			this.structure = Structure.NoStructure;
+		}
+		//else do nothing
+	}
+	public void upgradeStruct (Structure s) { //TODO
+		//need to rank enum type Structures so that we can prevent downgrading etc. 
+	}
+	public void setLandType (LandType t) {
+		if (getLandType() != t) {
+			this.type = t;
+		}
+	}
+	public LandType getLandType () { 
+		return this.type;
+	}
+	public Dictionary<Hex.Direction, Tile> getNeighbours () { 
+		return this.neighbours;
+	}
+	public Unit getUnit () {
+		return this.unit; 
+	}
+	public void setUnit (Unit u){
+		this.unit = u;
+	}
+	public void removeUnit (Unit u) { 
+		this.unit = null; 
+	}
+	public Village getVillage () {
+		return this.village;
 	}
 	public float getWidth() {
 		return size * 2;
