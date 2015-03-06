@@ -2,6 +2,5 @@
 	Grass,
 	Tree,
 	Meadow,
-	Water,
-	Tombstone
+	Water
 }
