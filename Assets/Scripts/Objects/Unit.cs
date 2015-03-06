@@ -107,5 +107,8 @@ public class Unit : MonoBehaviour {
 	public Player getOwner() {
 		return village.getOwner();
 	}
+	public void removeUnit () { 
+		
+	}
 
 }
