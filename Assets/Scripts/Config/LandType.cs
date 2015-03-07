@@ -3,5 +3,6 @@
 	Tree,
 	Meadow,
 	Water,
+	Road,
 	Tombstone
 }
