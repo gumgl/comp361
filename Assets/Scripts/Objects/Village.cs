@@ -140,7 +140,7 @@ public class Village : MonoBehaviour {
 		return gold;
 	}
 	
-	public int setGold (int newValue) { 
+	public void setGold (int newValue) { 
 		this.gold = newValue;
 	}
 	
