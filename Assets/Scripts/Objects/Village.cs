@@ -124,9 +124,22 @@ public class Village : MonoBehaviour {
 	}
 	
 	public void paymentPhase(HashSet<Tile> tiles) {
-		
+		foreach (Tile t in tiles) { 
+			Unit u = t.getUnit();
+			if (u!=null) { 
+				changeGold (-u.getSalary ());
+			}
+			if (getGold () < 0)  {
+				removeResources();
+				delete();
+				break;
+			}
+		}
 	}
-	
+	public void removeResources () { 
+		this.gold = 0;
+		this.wood = 0;
+	}
 	public bool areCultivating() {
 		return cultivating;
 	}
