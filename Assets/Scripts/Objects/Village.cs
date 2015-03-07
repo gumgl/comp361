@@ -110,6 +110,17 @@ public class Village : MonoBehaviour {
 	}
 	
 	public void incomePhase(HashSet<Tile> tiles) {
+		int phaseGold = 0;
+		foreach (Tile t in tiles) { 
+			LandType type = t.getLandType();	
+			if (type == LandType.Meadow || type == LandType.Road) { 
+				phaseGold += 2;
+			}
+			else if (type ==  LandType.Grass){
+				phaseGold += 1;
+			}
+		}
+		this.setGold (this.getGold() + phaseGold);
 		
 	}
 	
@@ -127,6 +138,10 @@ public class Village : MonoBehaviour {
 	
 	public int getGold() {
 		return gold;
+	}
+	
+	public int setGold (int newValue) { 
+		this.gold = newValue;
 	}
 	
 	public int getWood() {
