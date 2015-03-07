@@ -120,8 +120,7 @@ public class Village : MonoBehaviour {
 				phaseGold += 1;
 			}
 		}
-		this.setGold (this.getGold() + phaseGold);
-		
+		this.changeGold(phaseGold);	
 	}
 	
 	public void paymentPhase(HashSet<Tile> tiles) {
@@ -138,10 +137,6 @@ public class Village : MonoBehaviour {
 	
 	public int getGold() {
 		return gold;
-	}
-	
-	public void setGold (int newValue) { 
-		this.gold = newValue;
 	}
 	
 	public int getWood() {
