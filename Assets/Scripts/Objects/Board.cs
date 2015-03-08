@@ -23,6 +23,7 @@ public class Board : MonoBehaviour {
 	void Start() {
 		//selectedUnit.GetComponent<Unit>().tileX = (int)selectedUnit.transform.position.x;
 		//selectedUnit.GetComponent<Unit>().tileY = (int)selectedUnit.transform.position.y;
+		transform.parent.GetComponent<DemoGame>().initPlayers();
 		GenerateHexGrid();
 		ConnectNeighbours();
 		
@@ -30,6 +31,10 @@ public class Board : MonoBehaviour {
 		selectedUnit.board = this;
 	}
     
+	void Update() {
+		if(Input.GetKey("space"))
+			computeRegions();
+	}
 	void GenerateSquareGrid() {
 		/*map = new Dictionary<Hex, Tile>();
 		//grid = new Tile[mapSizeX, mapSizeY];
@@ -94,6 +99,7 @@ public class Board : MonoBehaviour {
 					if (tt != LandType.Water) {
 						tile.setOwner(transform.parent.GetComponent<DemoGame>().getRandomPlayer());
 					}
+					tile.setOwner(null);
 					tile.board = this;
 					tile.type = tt;
 					setTile(pos, tile);
@@ -145,6 +151,16 @@ public class Board : MonoBehaviour {
 		}*/
 	}
 
+	public void computeRegions(){
+		foreach (KeyValuePair<Hex, Tile> entry in map) {
+			if(entry.Value.type != LandType.Water){
+				if(entry.Value.numAdjacentOwnedTiles() < 1){
+					Debug.Log("CLEAR");
+					entry.Value.clearOwner();
+				}
+			}
+		}
+	}
 	public Tile getTile(Hex pos) {
 		return map[pos];
 	}

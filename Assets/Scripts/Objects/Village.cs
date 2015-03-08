@@ -18,7 +18,22 @@ public class Village : MonoBehaviour {
 	}
 	
 	public void delete() {
-		
+		Tile hq = getStructTile();
+		if (hq.hasStructure()) {
+			hq.removeStructure();
+		}
+		//set tile ownership to null for all tiles part of the village
+		HashSet<Tile> tile = getTiles (); 
+		foreach (Tile t in tile) {
+			t.setOwner (null);
+		}
+		//for all units, find the tile they are on and set landtype to tombstone. Also remove the units from the tiles.
+		HashSet <Unit> units = getUnits();
+		foreach (Unit u in units) { 
+			Tile unitTile = u.getTile();
+			u.removeUnit();
+			unitTile.setLandType(LandType.Tombstone);
+		}
 	}
 	
 	public void setStructTile(Tile t) {
@@ -56,21 +71,75 @@ public class Village : MonoBehaviour {
 	}
 	
 	public void tombPhase(HashSet<Tile> tiles) {
-		
+		foreach (Tile t in tiles) { 
+			if (t.getLandType () == LandType.Tombstone) {
+				t.setLandType(LandType.Tree);
+			}
+		}
 	}
 	
 	public void buildPhase(HashSet<Tile> tiles) {
+
+			foreach (Tile t in tiles) { 
+				Unit u = t.getUnit();
+				if (u != null) { 
+					ActionType type = u.getActionType();
+					UnitType unitType = u.getUnitType();
+					
+				if (unitType == UnitType.Peasant){
+						if (areCultivating ()){
+							if (type == ActionType.StartCultivating) {
+								u.setActionType(ActionType.FinishCultivating);
+							}
+							else if (type == ActionType.FinishCultivating){ 
+								u.setActionType(ActionType.ReadyForOrders);
+								t.setLandType(LandType.Meadow);
+							}
+						}
+						
+						else if (areBuilding ()) { 
+							if (type == ActionType.BuildingRoad){
+								u.setActionType(ActionType.ReadyForOrders);
+								t.setLandType(LandType.Road);
+							}		
+						}
+				}
+				}
+			}
 		
 	}
 	
 	public void incomePhase(HashSet<Tile> tiles) {
-		
+		int phaseGold = 0;
+		foreach (Tile t in tiles) { 
+			LandType type = t.getLandType();	
+			if (type == LandType.Meadow || type == LandType.Road) { 
+				phaseGold += 2;
+			}
+			else if (type ==  LandType.Grass){
+				phaseGold += 1;
+			}
+		}
+		this.changeGold(phaseGold);	
 	}
 	
 	public void paymentPhase(HashSet<Tile> tiles) {
-		
+		foreach (Tile t in tiles) { 
+			Unit u = t.getUnit();
+			if (u!=null) { 
+				changeGold (-u.getSalary ());
+			}
+			if (getGold () < 0)  {
+				removeResources();
+				delete();
+				break;
+			}
+		}
 	}
-	
+	public void removeResources () { 
+		this.gold = 0;
+		this.wood = 0;
+	}
 	public bool areCultivating() {
 		return cultivating;
 	}
