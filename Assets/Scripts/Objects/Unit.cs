@@ -71,6 +71,81 @@ public class Unit : MonoBehaviour {
 		remainingMovement = moveSpeed;
 	}
 
+	public void MoveTo(Tile target) {
+		currentPath = null;
+		
+		if (CanEnterTile(target) == false) {
+			return;
+		}
+		
+		Dictionary<Tile, float> dist = new Dictionary<Tile, float>();
+		Dictionary<Tile, Tile> prev = new Dictionary<Tile, Tile>();
+		
+		List<Tile> unvisited = new List<Tile>();
+		
+		Tile source = selectedUnit.GetComponent<Unit>().getTile();
+		
+		dist[source] = 0;
+		prev[source] = null;
+		
+		foreach (Tile v in grid) {
+			if (v != source) {
+				dist[v] = Mathf.Infinity;
+				prev[v] = null;
+			}
+			
+			unvisited.Add(v);
+		}
+		
+		while (unvisited.Count > 0) {
+			
+			Tile u = null;
+			
+			foreach (Tile possibleU in unvisited) {
+				if (u == null || dist[possibleU] < dist[u]) {
+					u = possibleU;
+				}
+			}
+			
+			if (u == target) {
+				break;
+			}
+			
+			unvisited.Remove(u);
+			
+			foreach (Tile v in u.neighbours) {
+				
+				//pure distance approach
+				//float alt = dist[u] + u.DistanceTo(v);
+				
+				//weighted move cost approach
+				float alt = dist[u] + board.CostToEnterTile(u, v);
+				if (alt < dist[v]) {
+					dist[v] = alt;
+					prev[v] = u;
+				}
+			}
+		}
+		
+		if (prev[target] == null) {
+			// unreachable
+			return;
+		}
+		
+		List<Tile> currentPath = new List<Tile>();
+		
+		Tile curr = target;
+		
+		while (curr != null) {
+			currentPath.Add(curr);
+			curr = prev[curr];
+		}
+		
+		currentPath.Reverse();
+		
+		selectedUnit.GetComponent<Unit>().currentPath = currentPath;
+	}
+
 	public Tile getTile() {
 		return tile;
 	}

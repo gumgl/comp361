@@ -91,10 +91,10 @@ public class Board : MonoBehaviour {
 					tile.transform.parent = gameObject.transform;
 					tile.transform.localPosition = TileCoordToWorldCoord(tile.getPixelPos());
 					//tile.transform.localScale = new Vector3(0.666666f, 0.666666f, 0.666666f);
-					if(tt != LandType.Water){
+					if (tt != LandType.Water) {
 						tile.setOwner(transform.parent.GetComponent<DemoGame>().getRandomPlayer());
 					}
-					tile.map = this;
+					tile.board = this;
 					tile.type = tt;
 					setTile(pos, tile);
 				}
@@ -178,78 +178,7 @@ public class Board : MonoBehaviour {
 	}
 
 	public void GeneratePathTo(Tile target) {
-		/*selectedUnit.GetComponent<Unit>().currentPath = null;
-
-		if (UnitCanEnterTile(target) == false) {
-			return;
-		}
-
-		Dictionary<Tile, float> dist = new Dictionary<Tile, float>();
-		Dictionary<Tile, Tile> prev = new Dictionary<Tile, Tile>();
-
-		List<Tile> unvisited = new List<Tile>();
-
-		Tile source = selectedUnit.GetComponent<Unit>().getTile();
-
-		dist[source] = 0;
-		prev[source] = null;
-
-		foreach (Tile v in grid) {
-			if (v != source) {
-				dist[v] = Mathf.Infinity;
-				prev[v] = null;
-			}
-
-			unvisited.Add(v);
-		}
-
-		while (unvisited.Count > 0) {
-
-			Tile u = null;
-
-			foreach (Tile possibleU in unvisited) {
-				if (u == null || dist[possibleU] < dist[u]) {
-					u = possibleU;
-				}
-			}
-
-			if (u == target) {
-				break;
-			}
-
-			unvisited.Remove(u);
-
-			foreach (Tile v in u.neighbours) {
-
-				//pure distance approach
-				//float alt = dist[u] + u.DistanceTo(v);
-
-				//weighted move cost approach
-				float alt = dist[u] + CostToEnterTile(u, v);
-				if (alt < dist[v]) {
-					dist[v] = alt;
-					prev[v] = u;
-				}
-			}
-		}
-
-		if (prev[target] == null) {
-			// unreachable
-			return;
-		}
-
-		List<Tile> currentPath = new List<Tile>();
-
-		Tile curr = target;
-
-		while (curr != null) {
-			currentPath.Add(curr);
-			curr = prev[curr];
-		}
-
-		currentPath.Reverse();
-
-		selectedUnit.GetComponent<Unit>().currentPath = currentPath;
+		/*
 		*/
 	}
 }

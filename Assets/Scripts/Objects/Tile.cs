@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class Tile : MonoBehaviour {
 	public Dictionary<Hex.Direction, Tile> neighbours = new Dictionary<Hex.Direction, Tile>();
 	public Hex pos;
-	public Board map;
+	public Board board;
 	public LandType type;
 	static public float size = 1;
 	private Player owner;
@@ -43,7 +43,7 @@ public class Tile : MonoBehaviour {
 	}
 
 	public void setOwner(Player p) {
-		if(p != null){
+		if (p != null) {
 			owner = p;
 			transform.GetChild(0).renderer.material.color = p.getColor();
 			Debug.Log(p);
@@ -51,12 +51,12 @@ public class Tile : MonoBehaviour {
 	}
 
 	void OnMouseEnter() {
-		map.distanceText.text = HexDistanceTo(map.selectedUnit.tile).ToString();
+		board.distanceText.text = HexDistanceTo(board.selectedUnit.tile).ToString();
 	}
 
 	void OnMouseDown() {
 		Debug.Log("clicked a tile!");
-		map.GeneratePathTo(this);
+		board.GeneratePathTo(this);
 	}
     
 	static public int HexDistance(Tile a, Tile b) {
