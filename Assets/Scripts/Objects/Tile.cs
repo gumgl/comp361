@@ -6,7 +6,7 @@ public class Tile : MonoBehaviour {
 	public Hex pos;
 	public Board board;
 	public Unit unit;
-	public Village village;  
+	Village village;  
 	public Structure structure;
 	public LandType type;
 	static public float size = 1;
@@ -139,6 +139,7 @@ public class Tile : MonoBehaviour {
 
 	void OnMouseDown() {
 		board.GeneratePathTo(this);
+		board.distanceText.text = this.getVillage().getWood().ToString();
 	}
     
 	static public int HexDistance(Tile a, Tile b) {

@@ -170,7 +170,7 @@ public class Board : MonoBehaviour {
 		foreach(KeyValuePair<Hex, Tile> entry in map) {
 			if(entry.Value.getVillage() == null && entry.Value.type != LandType.Water && entry.Value.getOwner() != null){
 				Village newVillage = Instantiate(villagePrefab, TileCoordToWorldCoord(entry.Value.getPixelPos()), Quaternion.identity) as Village;
-				entry.Value.village = newVillage;
+				entry.Value.setVillage(newVillage);
 				newVillage.create(entry.Value.getOwner(), VillageType.Hovel, 7, 0, entry.Value);
 				createVillageZone(entry.Value);
 			}
