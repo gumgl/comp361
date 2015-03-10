@@ -3,19 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Village : MonoBehaviour {
-	public int ID = 0;
-	public VillageType myType;
-	public 	int gold = 0;
-	public int wood = 0;
-	public bool cultivating = false;
-	public bool building = false;
-	public Player owner; // Should be set in constructor
+	VillageType myType;
+	int gold = 0;
+	int wood = 0;
+	bool cultivating = false;
+	bool building = false;
+    Player owner; // Should be set in constructor
 	HashSet<Tile> tiles = new HashSet<Tile>();
 	HashSet<Unit> units;
 	public Tile structTile; // Where the HQ is
 
 	public void create(Player own, VillageType type, int gl, int wd, Tile tile){
-		ID = Random.Range(0,100);
 		owner = own;
 		addTile(tile);
 		setStructTile(tile);
