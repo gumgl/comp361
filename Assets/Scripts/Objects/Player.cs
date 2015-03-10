@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class Player : MonoBehaviour
 {
 	private GameObject currGame;
-	private HashSet<Village> villages;
+	private HashSet<Village> villages = new HashSet<Village>();
 	private bool isActive = false;
 	private int wins = 0;
 	private int losses = 0;

@@ -72,6 +72,7 @@ public class Unit : MonoBehaviour {
 	}
 
 	public void MoveTo(Tile target) {
+		/*
 		currentPath = null;
 		
 		if (CanEnterTile(target) == false) {
@@ -143,7 +144,7 @@ public class Unit : MonoBehaviour {
 		
 		currentPath.Reverse();
 		
-		selectedUnit.GetComponent<Unit>().currentPath = currentPath;
+		selectedUnit.GetComponent<Unit>().currentPath = currentPath;*/
 	}
 
 	public Tile getTile() {

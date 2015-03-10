@@ -5,6 +5,7 @@ using System.Collections;
 
 public class Board : MonoBehaviour {
 
+	public Village villagePrefab;
 	public Unit selectedUnit;
 	public Tile[] landTypePrefabs;
 	public UnityEngine.UI.Text distanceText;
@@ -15,7 +16,7 @@ public class Board : MonoBehaviour {
 
 	int mapSizeX = 10;
 	int mapSizeY = 10;
-	int mapRadius = 6;
+	int mapRadius = 8;
 
 	static float tileHeight = 3.0f;
 	static float tileWidth = Mathf.Sqrt(3) / 2 * tileHeight;
@@ -26,14 +27,14 @@ public class Board : MonoBehaviour {
 		transform.parent.GetComponent<DemoGame>().initPlayers();
 		GenerateHexGrid();
 		ConnectNeighbours();
-		
+		computeRegions();
+		placeVillages();
 		selectedUnit.tile = getTile(new Hex(0, 0));
 		selectedUnit.board = this;
 	}
     
 	void Update() {
-		if(Input.GetKey("space"))
-			computeRegions();
+
 	}
 	void GenerateSquareGrid() {
 		/*map = new Dictionary<Hex, Tile>();
@@ -151,16 +152,42 @@ public class Board : MonoBehaviour {
 		}*/
 	}
 
-	public void computeRegions(){
+	void computeRegions(){
 		foreach (KeyValuePair<Hex, Tile> entry in map) {
 			if(entry.Value.type != LandType.Water){
-				if(entry.Value.numAdjacentOwnedTiles() < 1){
-					Debug.Log("CLEAR");
+				if(entry.Value.numAdjacentOwnedTiles() == 1 && entry.Value.adjacentDuo() != null){
+					entry.Value.adjacentDuo().clearOwner();
+					entry.Value.clearOwner();
+				}
+				else if(entry.Value.numAdjacentOwnedTiles() <1){
 					entry.Value.clearOwner();
 				}
 			}
 		}
 	}
+
+	void placeVillages(){
+		foreach(KeyValuePair<Hex, Tile> entry in map) {
+			if(entry.Value.getVillage() == null && entry.Value.type != LandType.Water && entry.Value.getOwner() != null){
+				Village newVillage = Instantiate(villagePrefab, TileCoordToWorldCoord(entry.Value.getPixelPos()), Quaternion.identity) as Village;
+				entry.Value.village = newVillage;
+				newVillage.create(entry.Value.getOwner(), VillageType.Hovel, 7, 0, entry.Value);
+				createVillageZone(entry.Value);
+			}
+		}
+	}
+
+	//Adds tiles to the village upon initial creation
+	void createVillageZone(Tile tile){
+		HashSet<Tile> tiles = tile.allAdjacentOwnedTiles();
+		foreach(Tile t in tiles){
+			if(t.getVillage() == null && t.getLandType() != LandType.Water){
+				t.setVillage(tile.getVillage());
+				createVillageZone(t);
+			}
+		}
+	}
+
 	public Tile getTile(Hex pos) {
 		return map[pos];
 	}

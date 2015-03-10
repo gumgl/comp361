@@ -59,6 +59,9 @@ public class Tile : MonoBehaviour {
 	public Village getVillage () {
 		return this.village;
 	}
+	public void setVillage(Village v){
+		village = v;
+	}
 	public float getWidth() {
 		return size * 2;
 	}
@@ -110,14 +113,32 @@ public class Tile : MonoBehaviour {
 		}
 		return i;
 	}
-	void OnMouseEnter() {
-		board.distanceText.text = HexDistanceTo(board.selectedUnit.tile).ToString();
+
+	//Returns the tile adjacent to the original tile if they both have the same owner and only one adjacent owned tile
+	public Tile adjacentDuo(){
+		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))){
+			if(this.owner == getNeighbour(dir).owner && getNeighbour(dir).numAdjacentOwnedTiles() == 1)
+				return getNeighbour(dir);
+		}
+		return null;
 	}
 
+	public HashSet<Tile> allAdjacentOwnedTiles(){
+		HashSet<Tile> tiles = new HashSet<Tile>();
+		foreach(Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))){
+			if(this.owner == getNeighbour(dir).owner){
+				tiles.Add(getNeighbour(dir));
+			}
+		}
+		return tiles;
+	}
+
+	//void OnMouseEnter() {
+	//	board.distanceText.text = HexDistanceTo(board.selectedUnit.tile).ToString();
+	//}
+
 	void OnMouseDown() {
-		Debug.Log("clicked a tile!");
 		board.GeneratePathTo(this);
-		Debug.Log(this.numAdjacentOwnedTiles());
 	}
     
 	static public int HexDistance(Tile a, Tile b) {
