@@ -139,7 +139,8 @@ public class Tile : MonoBehaviour {
 
 	void OnMouseDown() {
 		board.GeneratePathTo(this);
-		board.distanceText.text = "Wood: " + this.getVillage().getWood().ToString();
+		Debug.Log("Wood: " + this.getVillage().getWood().ToString());
+		//board.distanceText.text = "Wood: " + this.getVillage().getWood().ToString();
 	}
     
 	static public int HexDistance(Tile a, Tile b) {

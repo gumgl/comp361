@@ -29,8 +29,8 @@ public class Board : MonoBehaviour {
 		ConnectNeighbours();
 		computeRegions();
 		placeVillages();
-		selectedUnit.tile = getTile(new Hex(0, 0));
-		selectedUnit.board = this;
+		//selectedUnit.tile = getTile(new Hex(0, 0));
+		//selectedUnit.board = this;
 	}
     
 	void Update() {
