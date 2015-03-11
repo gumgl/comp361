@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class DemoGame : MonoBehaviour {
+public class DemoGame : Photon.MonoBehaviour {
 
 	private Player[] players = new Player[2];
 	public Player p1;

@@ -23,18 +23,17 @@ public class NetworkManager : MonoBehaviour {
 	// joins a random room, while no rooms exist, so this fails
 	void OnJoinedLobby() {
 		PhotonNetwork.JoinRandomRoom ();
+
 	}
 
 	// if no rooms, creates a room
 	void OnPhotonRandomJoinFailed(){
 		// replace 'null' with room name
-		PhotonNetwork.CreateRoom (null);
+		PhotonNetwork.CreateRoom("DEMOROOM");
 	}
 
 	void OnJoinedRoom(){
-
 		SpawnTheMap ();
-
 	}
 
 
@@ -50,7 +49,7 @@ public class NetworkManager : MonoBehaviour {
 		//the last parameter is a group number, of which group to identify about any updates
 
 		if (PhotonNetwork.isMasterClient) {
-			PhotonNetwork.Instantiate ("DemoGame", Vector3.zero, Quaternion.identity, 0);
+			PhotonNetwork.Instantiate("DemoGame", Vector3.zero, Quaternion.identity, 0);
 		}
 
 

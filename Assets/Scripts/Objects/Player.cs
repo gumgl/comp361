@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class Player : MonoBehaviour
+public class Player : Photon.MonoBehaviour
 {
 	private GameObject currGame;
 	private HashSet<Village> villages = new HashSet<Village>();

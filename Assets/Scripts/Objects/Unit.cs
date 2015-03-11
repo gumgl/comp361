@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class Unit : MonoBehaviour {
+public class Unit : Photon.MonoBehaviour {
 	public Board board;
 	Village village;
 

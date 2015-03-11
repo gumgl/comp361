@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class Tile : MonoBehaviour {
+public class Tile : Photon.MonoBehaviour {
 	public Dictionary<Hex.Direction, Tile> neighbours = new Dictionary<Hex.Direction, Tile>();
 	public Hex pos;
 	public Board board;

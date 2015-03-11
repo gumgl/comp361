@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
 
-public class Board : MonoBehaviour {
+public class Board : Photon.MonoBehaviour{
 
 	public Village villagePrefab;
 	public Unit selectedUnit;
@@ -25,15 +25,21 @@ public class Board : MonoBehaviour {
 		//selectedUnit.GetComponent<Unit>().tileX = (int)selectedUnit.transform.position.x;
 		//selectedUnit.GetComponent<Unit>().tileY = (int)selectedUnit.transform.position.y;
 		transform.parent.GetComponent<DemoGame>().initPlayers();
-		GenerateHexGrid();
+		GenerateHexGrid(98);
 		ConnectNeighbours();
 		computeRegions();
-		placeVillages();
+	    placeVillages();
 		//selectedUnit.tile = getTile(new Hex(0, 0));
 		//selectedUnit.board = this;
 	}
     
 	void Update() {
+		//if(Input.GetKeyDown("space")){
+		//	gameObject.GetComponent<PhotonView>().RPC("computeRegions",PhotonTargets.All, null);
+			//gameObject.GetComponent<PhotonView>().RPC("placeVillages",PhotonTargets.All, null);
+			//computeRegions();
+			//placeVillages();
+		//}
 
 	}
 	void GenerateSquareGrid() {
@@ -71,7 +77,8 @@ public class Board : MonoBehaviour {
 		}*/
 	}
 
-	public void GenerateHexGrid() {
+	public void GenerateHexGrid(int sd) {
+		Random.seed = sd;
 		map = new Dictionary<Hex, Tile>();
 		for (int q = -mapRadius; q <= mapRadius; q++) {
 			for (int r = -mapRadius; r <= mapRadius; r++) {
@@ -152,6 +159,7 @@ public class Board : MonoBehaviour {
 		}*/
 	}
 
+	[RPC]
 	void computeRegions(){
 		foreach (KeyValuePair<Hex, Tile> entry in map) {
 			if(entry.Value.type != LandType.Water){
@@ -166,6 +174,7 @@ public class Board : MonoBehaviour {
 		}
 	}
 
+	[RPC]
 	void placeVillages(){
 		foreach(KeyValuePair<Hex, Tile> entry in map) {
 			if(entry.Value.getVillage() == null && entry.Value.type != LandType.Water && entry.Value.getOwner() != null){

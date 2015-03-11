@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class Village : MonoBehaviour {
+public class Village : Photon.MonoBehaviour {
 	VillageType myType;
 	int gold = 0;
 	int wood = 0;
