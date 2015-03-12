@@ -9,7 +9,6 @@ public class Village : Photon.MonoBehaviour {
 	bool cultivating = false;
 	bool building = false;
 	bool isActive = false;
-	bool upgradeMode = false; 
     Player owner; // Should be set in constructor
 	HashSet<Tile> tiles = new HashSet<Tile>();
 	HashSet<Unit> units = new HashSet<Unit>(); 
@@ -64,14 +63,6 @@ public class Village : Photon.MonoBehaviour {
 		t.setOwner(owner);
 		t.setVillage(this);
 		tiles.Add(t);
-	}
-	
-	void setUpgradable (bool b) { 
-		upgradeMode = b; 
-	}
-	
-	bool getUpgradable () { 
-		return upgradeMode;
 	}
 	
 	public void addTiles(HashSet<Tile> tilesToAdd) {
@@ -199,10 +190,6 @@ public class Village : Photon.MonoBehaviour {
 	public void setVillageType(VillageType type) {
 		myType = type;
 	}
-	
-	public VillageType getVillageType () { 
-		return myType; 
-	}
 
 	public int[] getResources() {
 		return new int[3];
@@ -257,14 +244,13 @@ public class Village : Photon.MonoBehaviour {
 		u.setTile (t);
 		u.placeUnit ();
 		addUnit(u);
-		setUpgradable (false); 
 	}
 	
 	
-	
-	void OnMouseDown () { 
+	void OnMouseUp () { 
+		//board.setActiveVillage(this);
+		//this.isActive = true;
 		this.transform.renderer.material.color = Color.black;
-		//setUpgradable(true);
 		foreach(Tile t in tiles){
 			if(t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow){
 				t.setAcceptsUnit(true);
@@ -272,6 +258,5 @@ public class Village : Photon.MonoBehaviour {
 			}
 		}
 	}
-	
 }
 
