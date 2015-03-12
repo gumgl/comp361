@@ -9,6 +9,7 @@ public class Village : Photon.MonoBehaviour {
 	bool cultivating = false;
 	bool building = false;
 	bool isActive = false;
+	bool upgradable = false; 
     Player owner; // Should be set in constructor
 	HashSet<Tile> tiles = new HashSet<Tile>();
 	HashSet<Unit> units = new HashSet<Unit>(); 
@@ -27,11 +28,20 @@ public class Village : Photon.MonoBehaviour {
 		own.addVillage(this);
 		transform.parent = own.transform;
 	}
-
+	
+	public VillageType getVillageType () { 
+		return myType; 
+	}
+	
 	public HashSet<Tile> getTiles() {
 		return tiles;
 	}
-	
+	public bool getUpgradable () { 
+		return upgradable;
+	} 
+	public void setUpgradable (bool b) { 
+		upgradable = b;
+	}
 	public void delete() {
 		Tile hq = getStructTile();
 		if (hq.hasStructure()) {
@@ -235,28 +245,75 @@ public class Village : Photon.MonoBehaviour {
 
 	}
 	[RPC]
-	public void hireVillager(Tile t) { 
+	public void hireVillager(int q, int r) { 
+		Tile tempTile = null;
+		foreach(Tile t in board.getMap().Values){
+			if(t.pos.q == q && t.pos.r == r){
+				tempTile = t;
+			}
+		}
 		Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.identity) as Unit;
 		u.board = this.board;
 		u.setVillage(this);
 		u.setUnitType(UnitType.Peasant);
 		u.setActionType (ActionType.ReadyForOrders); 
-		u.setTile (t);
+		u.setTile (tempTile);
 		u.placeUnit ();
 		addUnit(u);
 	}
+
 	
-	
-	void OnMouseUp () { 
-		//board.setActiveVillage(this);
-		//this.isActive = true;
-		this.transform.renderer.material.color = Color.black;
+	void OnMouseUp () {
+		this.transform.GetChild(0).renderer.material.color = Color.black;
+		this.transform.GetChild(1).renderer.material.color = Color.black;
+		this.transform.GetChild(2).renderer.material.color = Color.black;
+		
 		foreach(Tile t in tiles){
 			if(t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow){
 				t.setAcceptsUnit(true);
 				t.transform.GetChild(0).renderer.material.color = Color.black;
 			}
 		}
+		Debug.Log(getUpgradable());
+		if (getUpgradable ()){
+			GetComponent<PhotonView>().RPC("upgradeVillage", PhotonTargets.All, this.getStructTile().pos.q, this.structTile.pos.r);
+			//upgradeVillage(this.getStructTile().pos.q, this.structTile.pos.r); 
+		}
+		else if (getVillageType() != VillageType.Fort) {
+			setUpgradable (true);
+		}
 	}
+
+	[RPC]
+	void upgradeVillage (int q, int r) {
+		Tile tempTile = null;
+		foreach(Tile t in board.getMap().Values){
+			if(t.pos.q == q && t.pos.r == r){
+				tempTile = t;
+			}
+		}
+
+		if (tempTile.getVillage().getVillageType() == VillageType.Hovel) { 
+			tempTile.getVillage().transform.GetChild(0).gameObject.SetActive(false);
+			tempTile.getVillage().transform.GetChild(1).gameObject.SetActive(true);
+			tempTile.getVillage().setVillageType(VillageType.Town);
+			tempTile.getVillage().setUpgradable(false);
+		}
+		else if (tempTile.getVillage().getVillageType() == VillageType.Town) { 
+			tempTile.getVillage().transform.GetChild(1).gameObject.SetActive(false);
+			tempTile.getVillage().transform.GetChild(2).gameObject.SetActive(true);
+			tempTile.getVillage().setVillageType(VillageType.Fort);
+			tempTile.getVillage().setUpgradable(false);
+		}
+		
+		foreach(Tile t in tempTile.getVillage().getTiles()){
+			t.setAcceptsUnit(false);
+			t.transform.GetChild(0).renderer.material.color = tempTile.getVillage().getOwner().getColor();
+			tempTile.getVillage().transform.GetChild(0).renderer.material.color = Color.clear;
+			tempTile.getVillage().transform.GetChild(1).renderer.material.color = Color.clear;
+			tempTile.getVillage().transform.GetChild(2).renderer.material.color = Color.clear;
+		}
+	}
+
 }
 

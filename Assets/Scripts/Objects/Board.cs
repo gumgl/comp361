@@ -27,7 +27,7 @@ public class Board : Photon.MonoBehaviour {
 		//selectedUnit.GetComponent<Unit>().tileX = (int)selectedUnit.transform.position.x;
 		//selectedUnit.GetComponent<Unit>().tileY = (int)selectedUnit.transform.position.y;
 		transform.parent.GetComponent<DemoGame>().initPlayers();
-		GenerateHexGrid(98);
+		GenerateHexGrid(12);
 		ConnectNeighbours();
 		computeRegions();
 		placeVillages();
@@ -40,6 +40,10 @@ public class Board : Photon.MonoBehaviour {
   
 	void Update() {
 
+	}
+
+	public Dictionary<Hex, Tile> getMap(){
+		return map;
 	}
 	
 	public Village getActiveVillage() { 
@@ -149,7 +153,7 @@ public class Board : Photon.MonoBehaviour {
 			if (entry.Value.getVillage() == null && entry.Value.type != LandType.Water && entry.Value.getOwner() != null) {
 				Village newVillage = Instantiate(villagePrefab, TileCoordToWorldCoord(entry.Value.getPixelPos()), Quaternion.identity) as Village;
 				entry.Value.setVillage(newVillage);
-				newVillage.create(entry.Value.getOwner(), this, VillageType.Hovel, 7, 0, entry.Value);
+				newVillage.create(entry.Value.getOwner(), this, VillageType.Hovel, 7, Random.Range(10,100), entry.Value);
 				entry.Value.setLandType(LandType.Grass);
 				createVillageZone(entry.Value);
 			}

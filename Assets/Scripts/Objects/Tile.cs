@@ -161,11 +161,13 @@ public class Tile : Photon.MonoBehaviour {
 		}
 		return tiles;
 	}
-
-//	void OnMouseEnter() {
-	//board.distanceText.text = HexDistanceTo(board.selectedUnit.tile).ToString();
-	//	transform.GetChild(0).renderer.material.color = Color.green;
-//	}
+	
+	void OnMouseEnter() {
+		if(this.getVillage() != null)
+			board.distanceText.text = "Wood: " + this.getVillage().getWood().ToString();
+		else
+			board.distanceText.text = "";
+	}
 	//void OnMouseExit(){
 	//	transform.GetChild(0).renderer.material.color = owner.getColor();
 	//}
@@ -190,13 +192,15 @@ public class Tile : Photon.MonoBehaviour {
 			Debug.Log("MouseUp fired!");
 			board.selectedUnit.MoveTo(this);
 		}
-		if (this.acceptsUnit) {
-			//village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, (Tile)this);
-			village.hireVillager(this); 
-			foreach (Tile t in village.getTiles()) {
+		if(this.acceptsUnit){
+			village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, this.pos.q, this.pos.r);
+			village.setUpgradable(false);
+			foreach(Tile t in village.getTiles()){
 				t.acceptsUnit = false;
 				t.transform.GetChild(0).renderer.material.color = village.getOwner().getColor();
-				village.renderer.material.color = Color.green;
+				t.transform.GetChild(1).renderer.material.color = village.getOwner().getColor();
+				t.transform.GetChild(2).renderer.material.color = village.getOwner().getColor();
+				village.transform.GetChild(0).renderer.material.color = Color.green;
 			}
 		}
 	}
