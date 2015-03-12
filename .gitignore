@@ -34,4 +34,4 @@ Thumbs.db
 # Executables  #
 # ============ #
 *.exe
-/*_Data/
+/*_Data/*
