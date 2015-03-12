@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public class Unit : Photon.MonoBehaviour {
-	public Board board;
+	public Board board = null;
 	Village village;
 
 	UnitType myType;
@@ -14,7 +14,7 @@ public class Unit : Photon.MonoBehaviour {
 	int moveSpeed = 1;
 	float remainingMovement = 1;
 
-	void Update() {
+	void Update() { /*
 		if (currentPath != null) {
 
 			int currTile = 0;
@@ -36,7 +36,7 @@ public class Unit : Photon.MonoBehaviour {
 		
 
 		transform.position = Vector3.Lerp(transform.position, board.TileCoordToWorldCoord(tile.getPixelPos()), 5f * Time.deltaTime);
-	}
+	*/}
 
 	public void MoveNextTile() {
 		if (currentPath == null) {
@@ -148,6 +148,15 @@ public class Unit : Photon.MonoBehaviour {
 
 	public Tile getTile() {
 		return tile;
+	}
+	
+	public void setTile(Tile t) { 
+		tile = t;
+	} 
+	
+	public void placeUnit () {
+		board = GameObject.Find("DemoGame/Board") as Board;
+		transform.position = board.TileCoordToWorldCoord(tile.getPixelPos());
 	}
 	
 	public ActionType getActionType() {

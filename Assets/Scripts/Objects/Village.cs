@@ -10,8 +10,9 @@ public class Village : Photon.MonoBehaviour {
 	bool building = false;
     Player owner; // Should be set in constructor
 	HashSet<Tile> tiles = new HashSet<Tile>();
-	HashSet<Unit> units;
+	HashSet<Unit> units = new HashSet<Unit>(); 
 	public Tile structTile; // Where the HQ is
+	public Unit unitPrefab;
 
 	public void create(Player own, VillageType type, int gl, int wd, Tile tile){
 		owner = own;
@@ -220,7 +221,7 @@ public class Village : Photon.MonoBehaviour {
 	}
 	
 	public void addUnit(Unit u) {
-		units.Add(u);
+		this.units.Add(u);
 	}
 	
 	public HashSet<Tile> getPath() {
@@ -233,6 +234,16 @@ public class Village : Photon.MonoBehaviour {
 	}
 	void Update() {
 
+	}
+	public void hireVillager () { 
+	Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.identity) as Unit;
+	u.setVillage(this);
+	u.setUnitType(UnitType.Peasant);
+	u.setActionType (ActionType.ReadyForOrders); 
+	u.setTile (this.getStructTile());
+	u.placeUnit ();
+	addUnit(u);
+	
 	}
 }
 
