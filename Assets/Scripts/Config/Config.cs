@@ -1,11 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
-/*
- * A class where a bunch of constants about the game get set
- */
+
+/// <summary>
+/// A class where a bunch of constants about the game get set
+/// </summary>
 public static class Config {
 	private static Dictionary<UnitType, int> unitUpkeep = new Dictionary<UnitType, int>();
-	private static Dictionary<LandType, int> landMovementCost = new Dictionary<LandType, int>();
+	private static Dictionary<LandType, bool> tileMovementAllowed = new Dictionary<LandType, bool>();
 	private static Dictionary<Hex.Direction, Hex> hexDirectionDelta = new Dictionary<Hex.Direction, Hex>();
 	private static int unitUpgradeCost = 10;
 	private static int villageUpgradeCost = 8;
@@ -20,10 +21,12 @@ public static class Config {
 		unitUpkeep[UnitType.Soldier] = 18;
 		unitUpkeep[UnitType.Knight] = 54;
 		
-		landMovementCost[LandType.Grass] = 1;
-		landMovementCost[LandType.Meadow] = 1;
-		landMovementCost[LandType.Tree] = 4;
-		landMovementCost[LandType.Water] = 99;
+		tileMovementAllowed[LandType.Grass] = true;
+		tileMovementAllowed[LandType.Meadow] = true;
+		tileMovementAllowed[LandType.Road] = true;
+		tileMovementAllowed[LandType.Tree] = false;
+		tileMovementAllowed[LandType.Water] = false;
+		tileMovementAllowed[LandType.Tombstone] = false;
 		
 		hexDirectionDelta[Hex.Direction.Up] = new Hex(0, -1);
 		hexDirectionDelta[Hex.Direction.RightUp] = new Hex(1, -1);
@@ -45,8 +48,8 @@ public static class Config {
 		return villageUpgradeCost;
 	}
 	
-	public static int getMovementCost(this LandType lt) {
-		return landMovementCost[lt];
+	public static bool isMovementAllowed(this LandType lt) {
+		return tileMovementAllowed[lt];
 	}
 
 	/*public static GameObject getPrefab(this LandType lt) {

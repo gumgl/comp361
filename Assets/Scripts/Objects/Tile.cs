@@ -15,69 +15,69 @@ public class Tile : Photon.MonoBehaviour {
 
 	public Tile() {
 	}
-	public bool hasStructure () {
-		if (this.structure != Structure.NoStructure) return true;
-		else return false;
+	public bool hasStructure() {
+		if (this.structure != Structure.NoStructure)
+			return true;
+		else
+			return false;
 	}	
-	public Structure getStructure () { 
+	public Structure getStructure() { 
 		return this.structure;	
 	}
-	public void setStructure (Structure s) { 
-		if (getStructure () != s) { 
+	public void setStructure(Structure s) { 
+		if (getStructure() != s) { 
 			this.structure = s;
 		}
 		//else do nothing
 	}
-	public void removeStructure () { 
+	public void removeStructure() { 
 		if (hasStructure()) {
 			this.structure = Structure.NoStructure;
 		}
 		//else do nothing
 	}
-	public void upgradeStruct (Structure s) { //TODO
+	public void upgradeStruct(Structure s) { //TODO
 		//need to rank enum type Structures so that we can prevent downgrading etc. 
 	}
 	[RPC]
-	public void setLandType (LandType t) {
+	public void setLandType(LandType t) {
 		this.type = t;
 		this.transform.GetChild(1).gameObject.SetActive(false);
 		this.transform.GetChild(2).gameObject.SetActive(false);
-		if(t == LandType.Water){
+		if (t == LandType.Water) {
 			transform.GetChild(0).renderer.material.color = Color.blue;
-		}
-		else if(t == LandType.Meadow){
+		} else if (t == LandType.Meadow) {
 			this.transform.GetChild(1).gameObject.SetActive(true);
-			this.transform.GetChild(1).localRotation = Quaternion.Euler(0, Random.Range(0,360), 0);
-		}
-		else if(t == LandType.Tree){
+			this.transform.GetChild(1).localRotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
+		} else if (t == LandType.Tree) {
 			this.transform.GetChild(2).gameObject.SetActive(true);
-			this.transform.GetChild(2).localRotation = Quaternion.Euler(0, Random.Range(0,360), 0);
+			this.transform.GetChild(2).localRotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
 		}
 	}
-	public LandType getLandType () { 
+	public LandType getLandType() { 
 		return this.type;
 	}
-	public Dictionary<Hex.Direction, Tile> getNeighbours () { 
+	public Dictionary<Hex.Direction, Tile> getNeighbours() { 
 		return this.neighbours;
 	}
 	
-	public void setAcceptsUnit(bool b){
+	public void setAcceptsUnit(bool b) {
 		acceptsUnit = b;
 	}
 	
-	public Unit getUnit () {
+	public Unit getUnit() {
 		return this.unit; 
 	}
-	public void setUnit (Unit u){
+	public void setUnit(Unit u) {
 		this.unit = u;
 	}
-	public void removeUnit (Unit u) { 
+	public void removeUnit(Unit u) { 
 		this.unit = null; 
 	}
-	public Village getVillage () {
+	public Village getVillage() {
 		return this.village;
 	}
-	public void setVillage(Village v){
+	public void setVillage(Village v) {
 		village = v;
 	}
 	public float getWidth() {
@@ -106,6 +106,17 @@ public class Tile : Photon.MonoBehaviour {
 		Vector2 center = HexToPixel(pos);
 		return new Vector2(center.x + size * Mathf.Cos(angle), center.y + size * Mathf.Sin(angle));
 	}
+	public bool canWalkThrough(Unit unit) {
+		if (getLandType().isMovementAllowed() /* TODO: check if owned by player */) {
+			// TODO: check that units in neighbouring tiles are not of higher level
+			return true;
+		} else
+			return false;
+	}
+	public bool canEnter(Unit unit) {
+		// TODO: check that units in neighbouring tiles are not of higher level
+		return (getLandType() != LandType.Water);
+	}
 
 	public Player getOwner() {
 		return owner;
@@ -118,33 +129,33 @@ public class Tile : Photon.MonoBehaviour {
 		}
 	}
 
-	public void clearOwner(){
+	public void clearOwner() {
 		transform.GetChild(0).renderer.material.color = Color.white;
 		owner = null;
 	}
 
-	public int numAdjacentOwnedTiles(){
+	public int numAdjacentOwnedTiles() {
 		int i = 0;
 		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))) {
-			if(this.owner == getNeighbour(dir).owner)
+			if (this.owner == getNeighbour(dir).owner)
 				i++;
 		}
 		return i;
 	}
 
 	//Returns the tile adjacent to the original tile if they both have the same owner and only one adjacent owned tile
-	public Tile adjacentDuo(){
-		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))){
-			if(this.owner == getNeighbour(dir).owner && getNeighbour(dir).numAdjacentOwnedTiles() == 1)
+	public Tile adjacentDuo() {
+		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))) {
+			if (this.owner == getNeighbour(dir).owner && getNeighbour(dir).numAdjacentOwnedTiles() == 1)
 				return getNeighbour(dir);
 		}
 		return null;
 	}
 
-	public HashSet<Tile> allAdjacentOwnedTiles(){
+	public HashSet<Tile> allAdjacentOwnedTiles() {
 		HashSet<Tile> tiles = new HashSet<Tile>();
-		foreach(Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))){
-			if(this.owner == getNeighbour(dir).owner){
+		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))) {
+			if (this.owner == getNeighbour(dir).owner) {
 				tiles.Add(getNeighbour(dir));
 			}
 		}
@@ -152,7 +163,7 @@ public class Tile : Photon.MonoBehaviour {
 	}
 
 //	void OnMouseEnter() {
-		//board.distanceText.text = HexDistanceTo(board.selectedUnit.tile).ToString();
+	//board.distanceText.text = HexDistanceTo(board.selectedUnit.tile).ToString();
 	//	transform.GetChild(0).renderer.material.color = Color.green;
 //	}
 	//void OnMouseExit(){
@@ -175,14 +186,18 @@ public class Tile : Photon.MonoBehaviour {
 		return new Vector2(x, y);
 	}
 	void OnMouseUp() {
-		if(this.acceptsUnit){
+		if (board.selectedUnit != null) {
+			Debug.Log("MouseUp fired!");
+			board.selectedUnit.MoveTo(this);
+		}
+		if (this.acceptsUnit) {
 			//village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, (Tile)this);
 			village.hireVillager(this); 
-			foreach(Tile t in village.getTiles()){
+			foreach (Tile t in village.getTiles()) {
 				t.acceptsUnit = false;
 				t.transform.GetChild(0).renderer.material.color = village.getOwner().getColor();
 				village.renderer.material.color = Color.green;
 			}
 		}
-	 }
+	}
 }

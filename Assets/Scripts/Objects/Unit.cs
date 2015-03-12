@@ -9,155 +9,125 @@ public class Unit : Photon.MonoBehaviour {
 	ActionType currentAction;
 	public Tile tile;
 	public List<Tile> currentPath = null;
+	public int currentPathIndex;
 
-	// in theory if different units have different movespeed 
-	int moveSpeed = 1;
-	float remainingMovement = 1;
+	float moveSpeed = 5f;
 
-	void Update() { /*
-		if (currentPath != null) {
-		origin/master
-
-			int currTile = 0;
-
-			while (currTile < currentPath.Count-1) {
-
-				Vector3 start = board.TileCoordToWorldCoord(currentPath[currTile].getPixelPos()) + new Vector3(0f, 4, 0f);
-				Vector3 end = board.TileCoordToWorldCoord(currentPath[currTile + 1].getPixelPos()) + new Vector3(0f, 4, 0f);
+	void Update() {
+		if (currentPath != null) { // Path animation
+			for (int i = 0; i < currentPath.Count-1; i++) { // Debug line
+				Vector3 start = board.TileCoordToWorldCoord(currentPath[i].getPixelPos()) + new Vector3(0f, 4, 0f);
+				Vector3 end = board.TileCoordToWorldCoord(currentPath[i + 1].getPixelPos()) + new Vector3(0f, 4, 0f);
 
 				Debug.DrawLine(start, end, Color.red);
+			}
+			if (Vector3.Distance(transform.position, tile.transform.position) < 0.1f) {
+				MoveToNextTile();
+			}
+			
+			transform.position = Vector3.Lerp(transform.position, tile.transform.position, moveSpeed * Time.deltaTime);
+		}
+	}
 
-				currTile++;
+	public void MoveToNextTile() {
+		if (currentPath != null) { // Unit is going somewhere
+			currentPathIndex ++; // Next tile!
+			if (currentPathIndex < currentPath.Count) { // Unit is still getting there
+				setTile(currentPath[currentPathIndex]);
+			} else { // Unit has arrived at target
+				currentPath = null;
 			}
 		}
-		if (Vector3.Distance(transform.position, board.TileCoordToWorldCoord(tile.getPixelPos())) < 0.1f) {
-			MoveNextTile();
-		}
-
-		transform.position = Vector3.Lerp(transform.position, board.TileCoordToWorldCoord(tile.getPixelPos()), 5f * Time.deltaTime);*/
-	}
 
 
-
-	public void MoveNextTile() {
-		/*
-		if (currentPath == null) {
-			return;
-		}
-
-		if (remainingMovement <= 0) {		
-			return;
-		}
-
-		transform.position = board.TileCoordToWorldCoord(tile.getPixelPos());
-
-		remainingMovement -= board.CostToEnterTile(currentPath[0], currentPath[1]);
-
-		//tileX = currentPath[1].x;
-		//tileY = currentPath[1].y;
-		tile = currentPath[1];
-
-		currentPath.RemoveAt(0);
-			
-		if (currentPath.Count == 1) {
-			currentPath = null;
-		}*/
-	}
-
-	public void Move() {/*
-		while (currentPath!=null && remainingMovement > 0) {
-			MoveNextTile();
-		}		
-
-		remainingMovement = moveSpeed;*/
 	}
 
 	public void MoveTo(Tile target) {
-		/*
-		currentPath = null;
+
+		if (currentPath != null && target.canEnter(this)) {
+
+			Dictionary<Tile, int> dist = new Dictionary<Tile, int>(); // Cost
+			Dictionary<Tile, Tile> prev = new Dictionary<Tile, Tile>(); // Came from
 		
-		if (CanEnterTile(target) == false) {
-			return;
-		}
+			List<Tile> frontier = new List<Tile>();
+
+			Tile source = getTile();
+			dist[source] = 0;
+			prev[source] = null;
 		
-		Dictionary<Tile, float> dist = new Dictionary<Tile, float>();
-		Dictionary<Tile, Tile> prev = new Dictionary<Tile, Tile>();
+			/*foreach (Tile v in board) {
+				if (v != source) {
+					dist[v] = Mathf.Infinity;
+					prev[v] = null;
+				}
+				frontier.Add(v);
+			}*/
+			frontier.Add(source);
 		
-		List<Tile> unvisited = new List<Tile>();
-		
-		Tile source = selectedUnit.GetComponent<Unit>().getTile();
-		
-		dist[source] = 0;
-		prev[source] = null;
-		
-		foreach (Tile v in grid) {
-			if (v != source) {
-				dist[v] = Mathf.Infinity;
-				prev[v] = null;
-			}
+			while (frontier.Count > 0) {
 			
-			unvisited.Add(v);
-		}
-		
-		while (unvisited.Count > 0) {
+				Tile current = null;
 			
-			Tile u = null;
-			
-			foreach (Tile possibleU in unvisited) {
-				if (u == null || dist[possibleU] < dist[u]) {
-					u = possibleU;
+				/*foreach (Tile possibleU in frontier) {
+					if (current == null || dist[possibleU] < dist[current]) {
+						current = possibleU;
+					}
+				}*/
+				current = frontier[0];
+				frontier.RemoveAt(0);
+				if (current == target)
+					break;
+				
+				foreach (KeyValuePair<Hex.Direction, Tile> kv in current.getNeighbours()) {
+					Tile neighbour = kv.Value;
+					int newDist = dist[current] + 1;
+					if (neighbour.canWalkThrough(this) &&
+						(dist.ContainsKey(neighbour) == false || newDist < dist[neighbour])) {
+						dist[neighbour] = newDist;
+						// TODO: add the HexDistance heurist and use priority queue
+						//priority = new_cost + heuristic(goal, next)
+						frontier.Add(neighbour);
+						prev[neighbour] = current;
+					}
+					//pure distance approach
+					//float alt = dist[u] + u.DistanceTo(v);
+				
+					//weighted move cost approach
+					/*float alt = dist[current] + board.CostToEnterTile(current, neighbour);
+					if (alt < dist[neighbour]) {
+						dist[neighbour] = alt;
+						prev[neighbour] = current;
+					}*/
 				}
 			}
-			
-			if (u == target) {
-				break;
-			}
-			
-			unvisited.Remove(u);
-			
-			foreach (Tile v in u.neighbours) {
-				
-				//pure distance approach
-				//float alt = dist[u] + u.DistanceTo(v);
-				
-				//weighted move cost approach
-				float alt = dist[u] + board.CostToEnterTile(u, v);
-				if (alt < dist[v]) {
-					dist[v] = alt;
-					prev[v] = u;
+			if (prev[target] != null) { // If reachable
+				currentPath = new List<Tile>();
+				Tile curr = target;
+		
+				while (curr != null) { // Add path by backtracking
+					currentPath.Add(curr);
+					curr = prev[curr];
 				}
+				currentPath.Reverse();
+				currentPathIndex = 0;
+				MoveToNextTile();
 			}
 		}
-		
-		if (prev[target] == null) {
-			// unreachable
-			return;
-		}
-		
-		List<Tile> currentPath = new List<Tile>();
-		
-		Tile curr = target;
-		
-		while (curr != null) {
-			currentPath.Add(curr);
-			curr = prev[curr];
-		}
-		
-		currentPath.Reverse();
-		
-		selectedUnit.GetComponent<Unit>().currentPath = currentPath;*/
 	}
 
 	public Tile getTile() {
 		return tile;
 	}
 
-	public void setTile(Tile t){
+	public void setTile(Tile t) {
+		if (tile != null)
+			tile.unit = null;
 		tile = t;
+		tile.unit = this;
 	}
 	
-	public void placeUnit () { 
-		this.transform.position = board.TileCoordToWorldCoord(tile.getPixelPos()) + new Vector3(0,1f,0);
+	public void placeUnit() { 
+		this.transform.position = board.TileCoordToWorldCoord(tile.getPixelPos()) + new Vector3(0, 1f, 0);
 	}
 	
 	public ActionType getActionType() {
@@ -192,7 +162,7 @@ public class Unit : Photon.MonoBehaviour {
 	public Player getOwner() {
 		return village.getOwner();
 	}
-	public void removeUnit () { 
+	public void removeUnit() { 
 		
 	}
 
