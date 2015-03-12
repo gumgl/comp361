@@ -60,7 +60,22 @@ public class Village : Photon.MonoBehaviour {
 			unitTile.setLandType(LandType.Tombstone);
 		}
 	}
-	
+
+	/*[RPC]
+	public void callCapture(int q, int r, int i){
+		Tile tempTile = null;
+		foreach(Tile t in board.getMap().Values){
+			if(t.pos.q == q && t.pos.r == r){
+				tempTile = t;
+			}
+		}
+		tempTile.setOwner(tempTile.nei
+		tempTile.setVillage(this);
+		this.addTile(tempTile);
+		//if(i == 1){
+		//}
+	}*/
+
 	public void setStructTile(Tile t) {
 		structTile = t;
 	}
@@ -199,6 +214,18 @@ public class Village : Photon.MonoBehaviour {
 	
 	public void setVillageType(VillageType type) {
 		myType = type;
+	}
+
+	[RPC]
+	public void harvestTree(int q, int r){
+		Tile tempTile = null;
+		foreach(Tile t in board.getMap().Values){
+			if(t.pos.q == q && t.pos.r == r){
+				tempTile = t;
+			}
+		}
+		tempTile.setLandType(LandType.Grass);
+		tempTile.getVillage().changeWood(2);
 	}
 
 	public int[] getResources() {

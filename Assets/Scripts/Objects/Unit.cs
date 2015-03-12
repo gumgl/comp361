@@ -38,16 +38,28 @@ public class Unit : Photon.MonoBehaviour {
 			if (currentPathIndex < currentPath.Count) { // Unit is still getting there
 				setTile(currentPath[currentPathIndex]);
 			} else { // Unit has arrived at target
-				this.tile.setOwner(this.getOwner());
-				this.tile.setVillage(this.getVillage());
-				this.getVillage().addTile(this.tile);
+				//if(this.owner.getColor() == Color.red){
+					//this.tile.getVillage().GetComponent<PhotonView>().RPC("callCapture", PhotonTargets.All, tile.pos.q, tile.pos.r, 1);
+				//}
+				//else if(this.owner.getColor() == Color.yellow){
+				//	this.tile.getVillage().GetComponent<PhotonView>().RPC("callCapture", PhotonTargets.All, tile.pos.q, tile.pos.r, 2);
+				//}
+				GetComponent<PhotonView>().RPC("captureTile", PhotonTargets.All, null);
 				if(this.tile.getLandType() == LandType.Tree){
-					this.tile.transform.GetComponent<PhotonView>().RPC("deleteTree", PhotonTargets.All, tile.pos.q, tile.pos.r);
+					//tile.deleteTree(tile.pos.q, tile.pos.r);
+					this.tile.getVillage().GetComponent<PhotonView>().RPC("harvestTree", PhotonTargets.All, tile.pos.q, tile.pos.r);
 				}
 				currentPath = null;
 				positionOverTile();
 			}
 		}
+	}
+
+	[RPC]
+	public void captureTile(){
+		this.tile.setOwner(this.getOwner());
+		this.tile.setVillage(this.getVillage());
+		this.getVillage().addTile(this.tile);
 	}
 
 	public void MoveTo(Tile target) {

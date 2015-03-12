@@ -163,7 +163,7 @@ public class Tile : Photon.MonoBehaviour {
 		return tiles;
 	}
 
-	[RPC]
+/*	[RPC]
 	public void deleteTree(int q, int r){
 		Tile tempTile = null;
 		foreach(Tile t in board.getMap().Values){
@@ -173,7 +173,9 @@ public class Tile : Photon.MonoBehaviour {
 		}
 		tempTile.setLandType(LandType.Grass);
 		tempTile.getVillage().changeWood(2);
-	}
+	}*/
+
+
 
 	void OnMouseEnter() {
 		if(this.getVillage() != null)
