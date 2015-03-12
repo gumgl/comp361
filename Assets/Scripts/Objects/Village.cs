@@ -8,6 +8,7 @@ public class Village : Photon.MonoBehaviour {
 	int wood = 0;
 	bool cultivating = false;
 	bool building = false;
+	bool isActive = false;
     Player owner; // Should be set in constructor
 	HashSet<Tile> tiles = new HashSet<Tile>();
 	HashSet<Unit> units = new HashSet<Unit>(); 
@@ -237,15 +238,29 @@ public class Village : Photon.MonoBehaviour {
 	void Update() {
 
 	}
-	public void hireVillager () { 
-	Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.identity) as Unit;
-	u.setVillage(this);
-	u.setUnitType(UnitType.Peasant);
-	u.setActionType (ActionType.ReadyForOrders); 
-	u.setTile (this.getStructTile());
-	u.placeUnit ();
-	addUnit(u);
+	[RPC]
+	public void hireVillager(Tile t) { 
+		Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.identity) as Unit;
+		u.board = this.board;
+		u.setVillage(this);
+		u.setUnitType(UnitType.Peasant);
+		u.setActionType (ActionType.ReadyForOrders); 
+		u.setTile (t);
+		u.placeUnit ();
+		addUnit(u);
+	}
 	
+	
+	void OnMouseUp () { 
+		//board.setActiveVillage(this);
+		//this.isActive = true;
+		this.transform.renderer.material.color = Color.black;
+		foreach(Tile t in tiles){
+			if(t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow){
+				t.setAcceptsUnit(true);
+				t.transform.GetChild(0).renderer.material.color = Color.black;
+			}
+		}
 	}
 }
 

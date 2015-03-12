@@ -156,9 +156,8 @@ public class Unit : Photon.MonoBehaviour {
 		tile = t;
 	}
 	
-	public void placeUnit () {
-	//	board = GameObject.Find("DemoGame/Board") as Board;
-		transform.position = board.TileCoordToWorldCoord(tile.getPixelPos());
+	public void placeUnit () { 
+		this.transform.position = board.TileCoordToWorldCoord(tile.getPixelPos()) + new Vector3(0,1f,0);
 	}
 	
 	public ActionType getActionType() {

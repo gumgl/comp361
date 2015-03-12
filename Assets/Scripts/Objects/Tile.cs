@@ -11,6 +11,7 @@ public class Tile : Photon.MonoBehaviour {
 	public LandType type;
 	static public float size = 1;
 	private Player owner;
+	bool acceptsUnit = false;
 
 	public Tile() {
 	}
@@ -59,6 +60,11 @@ public class Tile : Photon.MonoBehaviour {
 	public Dictionary<Hex.Direction, Tile> getNeighbours () { 
 		return this.neighbours;
 	}
+	
+	public void setAcceptsUnit(bool b){
+		acceptsUnit = b;
+	}
+	
 	public Unit getUnit () {
 		return this.unit; 
 	}
@@ -168,7 +174,15 @@ public class Tile : Photon.MonoBehaviour {
 		float y = size * Mathf.Sqrt(3) * (hex.r + hex.q / 2.0f);
 		return new Vector2(x, y);
 	}
-	void OnMouseDown () {
-		village.hireVillager (); 
+	void OnMouseUp() {
+		if(this.acceptsUnit){
+			//village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, (Tile)this);
+			village.hireVillager(this); 
+			foreach(Tile t in village.getTiles()){
+				t.acceptsUnit = false;
+				t.transform.GetChild(0).renderer.material.color = village.getOwner().getColor();
+				village.renderer.material.color = Color.green;
+			}
+		}
 	 }
 }
