@@ -107,7 +107,7 @@ public class Tile : Photon.MonoBehaviour {
 		return new Vector2(center.x + size * Mathf.Cos(angle), center.y + size * Mathf.Sin(angle));
 	}
 	public bool canWalkThrough(Unit unit) {
-		if (getLandType().isMovementAllowed() /* TODO: check if owned by player */) {
+		if (getLandType().isMovementAllowed() && getOwner() == unit.getVillage().getOwner() /* TODO: check if owned by player */) {
 			// TODO: check that units in neighbouring tiles are not of higher level
 			return true;
 		} else
@@ -189,7 +189,7 @@ public class Tile : Photon.MonoBehaviour {
 	}
 	void OnMouseUp() {
 		if (board.selectedUnit != null) {
-			Debug.Log("MouseUp fired!");
+			//Debug.Log("MouseUp fired!");
 			board.selectedUnit.MoveTo(this);
 		}
 		if(this.acceptsUnit){

@@ -10,7 +10,7 @@ public class Unit : Photon.MonoBehaviour {
 	public Tile tile;
 	public List<Tile> currentPath = null;
 	public int currentPathIndex;
-	public float height = 2f;
+	public float height = 1f;
 
 	public float moveSpeed = 5f;
 
@@ -106,7 +106,7 @@ public class Unit : Photon.MonoBehaviour {
 					}*/
 				}
 			}
-			if (prev[target] != null) { // If reachable
+			if (prev.ContainsKey(target)) { // If reachable
 				currentPath = new List<Tile>();
 				Tile curr = target;
 		
@@ -119,6 +119,8 @@ public class Unit : Photon.MonoBehaviour {
 				MoveToNextTile();
 			}
 		}
+		board.selectedUnit = null;
+		this.transform.renderer.material.color = Color.cyan;
 	}
 
 	public bool isMoving() {
@@ -185,6 +187,12 @@ public class Unit : Photon.MonoBehaviour {
 	}
 	public void removeUnit() { 
 		
+	}
+
+	void OnMouseUp(){
+
+		board.selectedUnit = this;
+		this.transform.renderer.material.color = Color.green;
 	}
 
 }

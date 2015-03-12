@@ -264,12 +264,13 @@ public class Village : Photon.MonoBehaviour {
 
 	
 	void OnMouseUp () {
+		Debug.Log(getOwner());
 		this.transform.GetChild(0).renderer.material.color = Color.black;
 		this.transform.GetChild(1).renderer.material.color = Color.black;
 		this.transform.GetChild(2).renderer.material.color = Color.black;
 		
 		foreach(Tile t in tiles){
-			if(t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow){
+			if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile()){
 				t.setAcceptsUnit(true);
 				t.transform.GetChild(0).renderer.material.color = Color.black;
 			}
