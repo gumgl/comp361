@@ -171,7 +171,7 @@ public class Board : Photon.MonoBehaviour{
 			if(entry.Value.getVillage() == null && entry.Value.type != LandType.Water && entry.Value.getOwner() != null){
 				Village newVillage = Instantiate(villagePrefab, TileCoordToWorldCoord(entry.Value.getPixelPos()), Quaternion.identity) as Village;
 				entry.Value.setVillage(newVillage);
-				newVillage.create(entry.Value.getOwner(), VillageType.Hovel, 7, 0, entry.Value);
+				newVillage.create(entry.Value.getOwner(), this, VillageType.Hovel, 7, 0, entry.Value);
 				entry.Value.setLandType(LandType.Grass);
 				createVillageZone(entry.Value);
 			}

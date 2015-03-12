@@ -11,9 +11,11 @@ public class Village : Photon.MonoBehaviour {
     Player owner; // Should be set in constructor
 	HashSet<Tile> tiles = new HashSet<Tile>();
 	HashSet<Unit> units;
+	Board board;
 	public Tile structTile; // Where the HQ is
 
-	public void create(Player own, VillageType type, int gl, int wd, Tile tile){
+	public void create(Player own, Board bor, VillageType type, int gl, int wd, Tile tile){
+		board = bor;
 		owner = own;
 		addTile(tile);
 		setStructTile(tile);
