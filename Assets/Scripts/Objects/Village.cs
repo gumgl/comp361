@@ -338,6 +338,14 @@ public class Village : Photon.MonoBehaviour {
 			tempTile.getVillage().setVillageType(VillageType.Town);
 			tempTile.getVillage().changeWood(-1);
 			tempTile.getVillage().setUpgradable(false);
+			tempTile.getVillage().transform.GetChild(0).renderer.material.color = Color.clear;
+			tempTile.getVillage().transform.GetChild(1).renderer.material.color = Color.clear;
+			tempTile.getVillage().transform.GetChild(2).renderer.material.color = Color.clear;
+			foreach(Tile t in tempTile.getVillage().getTiles()){
+				t.setAcceptsUnit(false);
+				t.transform.GetChild(0).renderer.material.color = tempTile.getVillage().getOwner().getColor();
+				
+			}
 		}
 		else if (tempTile.getVillage().getVillageType() == VillageType.Town && tempTile.getVillage().getWood () >= 1) { 
 			tempTile.getVillage().transform.GetChild(1).gameObject.SetActive(false);
@@ -345,15 +353,16 @@ public class Village : Photon.MonoBehaviour {
 			tempTile.getVillage().setVillageType(VillageType.Fort);
 			tempTile.getVillage().changeWood(-1);
 			tempTile.getVillage().setUpgradable(false);
-		}
-		
-		foreach(Tile t in tempTile.getVillage().getTiles()){
-			t.setAcceptsUnit(false);
-			t.transform.GetChild(0).renderer.material.color = tempTile.getVillage().getOwner().getColor();
 			tempTile.getVillage().transform.GetChild(0).renderer.material.color = Color.clear;
 			tempTile.getVillage().transform.GetChild(1).renderer.material.color = Color.clear;
 			tempTile.getVillage().transform.GetChild(2).renderer.material.color = Color.clear;
+			foreach(Tile t in tempTile.getVillage().getTiles()){
+				t.setAcceptsUnit(false);
+				t.transform.GetChild(0).renderer.material.color = tempTile.getVillage().getOwner().getColor();
+				
+			}
 		}
+
 	}
 
 }
