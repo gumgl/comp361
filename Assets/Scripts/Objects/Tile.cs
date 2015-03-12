@@ -145,10 +145,13 @@ public class Tile : Photon.MonoBehaviour {
 		return tiles;
 	}
 
-	void OnMouseEnter() {
+//	void OnMouseEnter() {
 		//board.distanceText.text = HexDistanceTo(board.selectedUnit.tile).ToString();
-		transform.GetChild(0).renderer.material.color = Color.green;
-	}
+	//	transform.GetChild(0).renderer.material.color = Color.green;
+//	}
+	//void OnMouseExit(){
+	//	transform.GetChild(0).renderer.material.color = owner.getColor();
+	//}
 
 	void OnMouseDown() {
 		board.GeneratePathTo(this);
