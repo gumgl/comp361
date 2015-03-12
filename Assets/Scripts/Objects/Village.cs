@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Village : Photon.MonoBehaviour {
+	
 	VillageType myType;
 	int gold = 0;
 	int wood = 0;
@@ -10,8 +11,9 @@ public class Village : Photon.MonoBehaviour {
 	bool building = false;
     Player owner; // Should be set in constructor
 	HashSet<Tile> tiles = new HashSet<Tile>();
-	HashSet<Unit> units;
+	HashSet<Unit> units = new HashSet<Unit> ();
 	public Tile structTile; // Where the HQ is
+	public Unit unitPrefab; 
 
 	public void create(Player own, VillageType type, int gl, int wd, Tile tile){
 		owner = own;
@@ -234,5 +236,18 @@ public class Village : Photon.MonoBehaviour {
 	void Update() {
 
 	}
+	
+	[RPC]
+	public void hireVillager () {
+		Unit u = Instantiate(this.unitPrefab, new Vector3(0f,5f,0f), Quaternion.identity) as Unit; 
+		addUnit (u);
+		u.setUnitType (UnitType.Peasant);
+		u.setActionType (ActionType.ReadyForOrders); 
+			
+	}
+	
+	
+	
+	
 }
 

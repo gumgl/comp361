@@ -13,6 +13,10 @@ public class Unit : Photon.MonoBehaviour {
 	// in theory if different units have different movespeed 
 	int moveSpeed = 1;
 	float remainingMovement = 1;
+	
+	void onMouseDown () { 
+	}
+	
 
 	void Update() {
 		/*if (currentPath != null) {
@@ -185,6 +189,10 @@ public class Unit : Photon.MonoBehaviour {
 	}
 	public void removeUnit () { 
 		
+	}
+	
+	public void setTile (Tile tile) { 
+		this.tile = tile; 
 	}
 
 }
