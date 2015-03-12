@@ -46,9 +46,11 @@ public class Tile : Photon.MonoBehaviour {
 		}
 		else if(t == LandType.Meadow){
 			this.transform.GetChild(1).gameObject.SetActive(true);
+			this.transform.GetChild(1).localRotation = Quaternion.Euler(0, Random.Range(0,360), 0);
 		}
 		else if(t == LandType.Tree){
 			this.transform.GetChild(2).gameObject.SetActive(true);
+			this.transform.GetChild(2).localRotation = Quaternion.Euler(0, Random.Range(0,360), 0);
 		}
 	}
 	public LandType getLandType () { 
