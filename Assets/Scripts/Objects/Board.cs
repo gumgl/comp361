@@ -27,7 +27,7 @@ public class Board : Photon.MonoBehaviour {
 		//selectedUnit.GetComponent<Unit>().tileX = (int)selectedUnit.transform.position.x;
 		//selectedUnit.GetComponent<Unit>().tileY = (int)selectedUnit.transform.position.y;
 		transform.parent.GetComponent<DemoGame>().initPlayers();
-		GenerateHexGrid(12);
+		GenerateHexGrid(int.Parse(PhotonNetwork.room.name));
 		ConnectNeighbours();
 		computeRegions();
 		placeVillages();

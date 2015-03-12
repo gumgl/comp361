@@ -29,7 +29,7 @@ public class NetworkManager : MonoBehaviour {
 	// if no rooms, creates a room
 	void OnPhotonRandomJoinFailed(){
 		// replace 'null' with room name
-		PhotonNetwork.CreateRoom("DEMOROOM");
+		PhotonNetwork.CreateRoom(Random.Range(1,1000).ToString());
 	}
 
 	void OnJoinedRoom(){
