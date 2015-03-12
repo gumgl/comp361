@@ -15,7 +15,7 @@ public class Unit : Photon.MonoBehaviour {
 	float remainingMovement = 1;
 
 	void Update() {
-		if (currentPath != null) {
+		/*if (currentPath != null) {
 
 			int currTile = 0;
 
@@ -29,16 +29,16 @@ public class Unit : Photon.MonoBehaviour {
 				currTile++;
 			}
 		}
-
 		if (Vector3.Distance(transform.position, board.TileCoordToWorldCoord(tile.getPixelPos())) < 0.1f) {
 			MoveNextTile();
 		}
 		
 
-		transform.position = Vector3.Lerp(transform.position, board.TileCoordToWorldCoord(tile.getPixelPos()), 5f * Time.deltaTime);
+		transform.position = Vector3.Lerp(transform.position, board.TileCoordToWorldCoord(tile.getPixelPos()), 5f * Time.deltaTime);*/
 	}
 
 	public void MoveNextTile() {
+		/*
 		if (currentPath == null) {
 			return;
 		}
@@ -59,15 +59,15 @@ public class Unit : Photon.MonoBehaviour {
 			
 		if (currentPath.Count == 1) {
 			currentPath = null;
-		}
+		}*/
 	}
 
-	public void Move() {
+	public void Move() {/*
 		while (currentPath!=null && remainingMovement > 0) {
 			MoveNextTile();
 		}		
 
-		remainingMovement = moveSpeed;
+		remainingMovement = moveSpeed;*/
 	}
 
 	public void MoveTo(Tile target) {
@@ -148,6 +148,10 @@ public class Unit : Photon.MonoBehaviour {
 
 	public Tile getTile() {
 		return tile;
+	}
+
+	public void setTile(Tile t){
+		tile = t;
 	}
 	
 	public ActionType getActionType() {
