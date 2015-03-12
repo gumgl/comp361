@@ -190,11 +190,7 @@ public class Village : Photon.MonoBehaviour {
 	public void setVillageType(VillageType type) {
 		myType = type;
 	}
-	
-	public void upgradeUnit(Unit u, UnitType newLevel) {
-		
-	}
-	
+
 	public int[] getResources() {
 		return new int[3];
 	}
