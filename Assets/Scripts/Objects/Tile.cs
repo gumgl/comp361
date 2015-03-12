@@ -36,9 +36,21 @@ public class Tile : Photon.MonoBehaviour {
 	public void upgradeStruct (Structure s) { //TODO
 		//need to rank enum type Structures so that we can prevent downgrading etc. 
 	}
+	[RPC]
 	public void setLandType (LandType t) {
-		if (getLandType() != t) {
-			this.type = t;
+		this.type = t;
+		this.transform.GetChild(1).gameObject.SetActive(false);
+		this.transform.GetChild(2).gameObject.SetActive(false);
+		if(t == LandType.Water){
+			transform.GetChild(0).renderer.material.color = Color.blue;
+		}
+		else if(t == LandType.Meadow){
+			this.transform.GetChild(1).gameObject.SetActive(true);
+			this.transform.GetChild(1).localRotation = Quaternion.Euler(0, Random.Range(0,360), 0);
+		}
+		else if(t == LandType.Tree){
+			this.transform.GetChild(2).gameObject.SetActive(true);
+			this.transform.GetChild(2).localRotation = Quaternion.Euler(0, Random.Range(0,360), 0);
 		}
 	}
 	public LandType getLandType () { 
@@ -133,13 +145,18 @@ public class Tile : Photon.MonoBehaviour {
 		return tiles;
 	}
 
-	//void OnMouseEnter() {
-	//	board.distanceText.text = HexDistanceTo(board.selectedUnit.tile).ToString();
+//	void OnMouseEnter() {
+		//board.distanceText.text = HexDistanceTo(board.selectedUnit.tile).ToString();
+	//	transform.GetChild(0).renderer.material.color = Color.green;
+//	}
+	//void OnMouseExit(){
+	//	transform.GetChild(0).renderer.material.color = owner.getColor();
 	//}
 
 	void OnMouseDown() {
 		board.GeneratePathTo(this);
-		Debug.Log("Wood: " + this.getVillage().getWood().ToString());
+		//Debug.Log("Wood: " + this.getVillage().getWood().ToString());
+		Debug.Log(this.owner);
 		//board.distanceText.text = "Wood: " + this.getVillage().getWood().ToString();
 	}
     

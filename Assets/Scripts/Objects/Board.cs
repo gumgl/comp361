@@ -7,7 +7,7 @@ public class Board : Photon.MonoBehaviour{
 
 	public Village villagePrefab;
 	public Unit selectedUnit;
-	public Tile[] landTypePrefabs;
+	public Tile landPrefab;
 	public UnityEngine.UI.Text distanceText;
 
 	//LandType[,] tileTypes;
@@ -34,12 +34,6 @@ public class Board : Photon.MonoBehaviour{
 	}
     
 	void Update() {
-		//if(Input.GetKeyDown("space")){
-		//	gameObject.GetComponent<PhotonView>().RPC("computeRegions",PhotonTargets.All, null);
-			//gameObject.GetComponent<PhotonView>().RPC("placeVillages",PhotonTargets.All, null);
-			//computeRegions();
-			//placeVillages();
-		//}
 
 	}
 	void GenerateSquareGrid() {
@@ -97,19 +91,18 @@ public class Board : Photon.MonoBehaviour{
 							tt = LandType.Grass;
 					}
 					Tile tile = (Tile)Instantiate(
-						landTypePrefabs[(int)tt], 
+						landPrefab, 
 						new Vector3(0, 0, 0), 
 						Quaternion.Euler(0f, 0f, 0f));
 					tile.pos = pos;
 					tile.transform.parent = gameObject.transform;
 					tile.transform.localPosition = TileCoordToWorldCoord(tile.getPixelPos());
-					//tile.transform.localScale = new Vector3(0.666666f, 0.666666f, 0.666666f);
 					if (tt != LandType.Water) {
 						tile.setOwner(transform.parent.GetComponent<DemoGame>().getRandomPlayer());
 					}
-					tile.setOwner(null);
+					//tile.setOwner(null);
 					tile.board = this;
-					tile.type = tt;
+					tile.setLandType(tt);
 					setTile(pos, tile);
 				}
 			}
@@ -158,8 +151,7 @@ public class Board : Photon.MonoBehaviour{
 			}
 		}*/
 	}
-
-	[RPC]
+	
 	void computeRegions(){
 		foreach (KeyValuePair<Hex, Tile> entry in map) {
 			if(entry.Value.type != LandType.Water){
@@ -173,14 +165,14 @@ public class Board : Photon.MonoBehaviour{
 			}
 		}
 	}
-
-	[RPC]
+	
 	void placeVillages(){
 		foreach(KeyValuePair<Hex, Tile> entry in map) {
 			if(entry.Value.getVillage() == null && entry.Value.type != LandType.Water && entry.Value.getOwner() != null){
 				Village newVillage = Instantiate(villagePrefab, TileCoordToWorldCoord(entry.Value.getPixelPos()), Quaternion.identity) as Village;
 				entry.Value.setVillage(newVillage);
 				newVillage.create(entry.Value.getOwner(), VillageType.Hovel, 7, 0, entry.Value);
+				entry.Value.setLandType(LandType.Grass);
 				createVillageZone(entry.Value);
 			}
 		}
