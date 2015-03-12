@@ -139,7 +139,7 @@ public class Tile : Photon.MonoBehaviour {
 
 	void OnMouseDown() {
 		board.GeneratePathTo(this);
-		//Debug.Log("Wood: " + this.getVillage().getWood().ToString());
+		Debug.Log("Wood: " + this.getVillage().getWood().ToString());
 		//board.distanceText.text = "Wood: " + this.getVillage().getWood().ToString();
 	}
     
@@ -156,11 +156,5 @@ public class Tile : Photon.MonoBehaviour {
 		float x = size * 3.0f / 2.0f * hex.q;
 		float y = size * Mathf.Sqrt(3) * (hex.r + hex.q / 2.0f);
 		return new Vector2(x, y);
-	}
-	void OnMouseEnter() { 
-		this.transform.GetChild(0).renderer.material.color = Color.yellow; 
-	}
-	void onMouseExit() {
-		this.transform.GetChild(0).renderer.material.color = this.owner.getColor ();
 	}
 }
