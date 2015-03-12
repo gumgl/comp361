@@ -36,9 +36,19 @@ public class Tile : Photon.MonoBehaviour {
 	public void upgradeStruct (Structure s) { //TODO
 		//need to rank enum type Structures so that we can prevent downgrading etc. 
 	}
+	[RPC]
 	public void setLandType (LandType t) {
-		if (getLandType() != t) {
-			this.type = t;
+		this.type = t;
+		this.transform.GetChild(1).gameObject.SetActive(false);
+		this.transform.GetChild(2).gameObject.SetActive(false);
+		if(t == LandType.Water){
+			transform.GetChild(0).renderer.material.color = Color.blue;
+		}
+		else if(t == LandType.Meadow){
+			this.transform.GetChild(1).gameObject.SetActive(true);
+		}
+		else if(t == LandType.Tree){
+			this.transform.GetChild(2).gameObject.SetActive(true);
 		}
 	}
 	public LandType getLandType () { 
@@ -139,7 +149,8 @@ public class Tile : Photon.MonoBehaviour {
 
 	void OnMouseDown() {
 		board.GeneratePathTo(this);
-		Debug.Log("Wood: " + this.getVillage().getWood().ToString());
+		//Debug.Log("Wood: " + this.getVillage().getWood().ToString());
+		Debug.Log(this.owner);
 		//board.distanceText.text = "Wood: " + this.getVillage().getWood().ToString();
 	}
     
