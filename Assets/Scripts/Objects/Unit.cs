@@ -10,41 +10,43 @@ public class Unit : Photon.MonoBehaviour {
 	public Tile tile;
 	public List<Tile> currentPath = null;
 	public int currentPathIndex;
+	public float height = 2f;
 
 	public float moveSpeed = 5f;
 
 	void Update() {
-		if (currentPath != null) { // Path animation
+		if (isMoving()) { // Path animation
 			for (int i = 0; i < currentPath.Count-1; i++) { // Debug line
 				Vector3 start = board.TileCoordToWorldCoord(currentPath[i].getPixelPos()) + new Vector3(0f, 4, 0f);
 				Vector3 end = board.TileCoordToWorldCoord(currentPath[i + 1].getPixelPos()) + new Vector3(0f, 4, 0f);
 
 				Debug.DrawLine(start, end, Color.red);
 			}
-			if (Vector3.Distance(transform.position, tile.transform.position) < 0.1f) {
+			var unitPos = new Vector2(transform.position.x, transform.position.z);
+			var tilePos = new Vector2(tile.transform.position.x, tile.transform.position.z);
+			if (Vector2.Distance(unitPos, tilePos) < 0.1f) {
 				MoveToNextTile();
 			}
-			
 			transform.position = Vector3.Lerp(transform.position, tile.transform.position, moveSpeed * Time.deltaTime);
+			setHeightAboveBoard();
 		}
 	}
 
 	public void MoveToNextTile() {
-		if (currentPath != null) { // Unit is going somewhere
+		if (isMoving()) { // Unit is going somewhere
 			currentPathIndex ++; // Next tile!
 			if (currentPathIndex < currentPath.Count) { // Unit is still getting there
 				setTile(currentPath[currentPathIndex]);
 			} else { // Unit has arrived at target
 				currentPath = null;
+				positionOverTile();
 			}
 		}
-
-
 	}
 
 	public void MoveTo(Tile target) {
 
-		if (currentPath != null)
+		if (isMoving())
 			Debug.LogError("Unit already moving");
 		else if (target.canEnter(this) == false)
 			Debug.LogError("Cannot move to this tile");
@@ -119,6 +121,10 @@ public class Unit : Photon.MonoBehaviour {
 		}
 	}
 
+	public bool isMoving() {
+		return (currentPath != null && currentPath.Count > 0);
+	}
+
 	public Tile getTile() {
 		return tile;
 	}
@@ -128,6 +134,17 @@ public class Unit : Photon.MonoBehaviour {
 			tile.unit = null;
 		tile = t;
 		tile.unit = this;
+	}
+	public void positionOverTile() {
+		if (tile != null) {
+			transform.position = tile.transform.position;
+			setHeightAboveBoard();
+		}
+	}
+	public void setHeightAboveBoard() {
+		var tmp = transform.localPosition;
+		tmp.y = height;
+		transform.localPosition = tmp;
 	}
 	
 	public void placeUnit() { 
