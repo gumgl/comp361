@@ -12,7 +12,7 @@ public class Unit : Photon.MonoBehaviour {
 	public int currentPathIndex;
 	public float height = 1f;
 	public Player owner = null;
-	public float moveSpeed = 5f;
+	public float moveSpeed = 5f; // In portion of length 
 
 	void Update() {
 		if (isMoving()) { // Path animation
@@ -45,9 +45,9 @@ public class Unit : Photon.MonoBehaviour {
 				this.tile.setVillage(this.getVillage());
 				this.tile.getVillage().callCapture(tile.pos.q, tile.pos.r);
 				//this.tile.getVillage().GetComponent<PhotonView>().RPC("callCapture", PhotonTargets.All, tile.pos.q, tile.pos.r);
-				if(this.tile.getLandType() == LandType.Tree){
+				if (this.tile.getLandType() == LandType.Tree) {
 					tile.getVillage().harvestTree(tile.pos.q, tile.pos.r);
-				//	this.tile.getVillage().GetComponent<PhotonView>().RPC("harvestTree", PhotonTargets.All, tile.pos.q, tile.pos.r);
+					//	this.tile.getVillage().GetComponent<PhotonView>().RPC("harvestTree", PhotonTargets.All, tile.pos.q, tile.pos.r);
 				}
 				currentPath = null;
 				positionOverTile();
@@ -56,7 +56,7 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	//[RPC]
-	public void captureTile(){
+	public void captureTile() {
 		this.tile.setOwner(this.getOwner());
 		this.tile.setVillage(this.getVillage());
 		this.getVillage().addTile(this.tile);
@@ -74,54 +74,37 @@ public class Unit : Photon.MonoBehaviour {
 			Dictionary<Tile, Tile> prev = new Dictionary<Tile, Tile>(); // Came from
 		
 			List<Tile> frontier = new List<Tile>();
+			Dictionary<Tile, int> priorities = new Dictionary<Tile, int>(); // Came from
 
 			Tile source = getTile();
 			dist[source] = 0;
 			prev[source] = null;
-		
-			/*foreach (Tile v in board) {
-				if (v != source) {
-					dist[v] = Mathf.Infinity;
-					prev[v] = null;
-				}
-				frontier.Add(v);
-			}*/
 			frontier.Add(source);
 		
 			while (frontier.Count > 0) {
 			
 				Tile current = null;
-			
-				/*foreach (Tile possibleU in frontier) {
-					if (current == null || dist[possibleU] < dist[current]) {
+				for (int i=0; i<frontier.Count; i++) { // Pick tile with least priority value
+					Tile possibleU = frontier[i];
+					if (current == null || priorities[possibleU] < priorities[current]) {
 						current = possibleU;
 					}
-				}*/
-				current = frontier[0];
-				frontier.RemoveAt(0);
+				}
+				frontier.Remove(current);
 				if (current == target)
-					break;
+					break; // First time we find the target, we exit as it is the shortest path
 				
 				foreach (KeyValuePair<Hex.Direction, Tile> kv in current.getNeighbours()) {
 					Tile neighbour = kv.Value;
 					int newDist = dist[current] + 1;
 					if (((neighbour.canWalkThrough(this) || neighbour == target)) &&
-					    (dist.ContainsKey(neighbour) == false || newDist < dist[neighbour])) {
+						(dist.ContainsKey(neighbour) == false || newDist < dist[neighbour])) {
 						dist[neighbour] = newDist;
-						// TODO: add the HexDistance heurist and use priority queue
-						//priority = new_cost + heuristic(goal, next)
+
 						frontier.Add(neighbour);
+						priorities[neighbour] = newDist + Tile.HexDistance(target.pos, neighbour.pos); // heuristic
 						prev[neighbour] = current;
 					}
-					//pure distance approach
-					//float alt = dist[u] + u.DistanceTo(v);
-				
-					//weighted move cost approach
-					/*float alt = dist[current] + board.CostToEnterTile(current, neighbour);
-					if (alt < dist[neighbour]) {
-						dist[neighbour] = alt;
-						prev[neighbour] = current;
-					}*/
 				}
 			}
 			if (prev.ContainsKey(target)) { // If reachable
@@ -207,7 +190,7 @@ public class Unit : Photon.MonoBehaviour {
 		
 	}
 
-	void OnMouseUp(){
+	void OnMouseUp() {
 		owner = this.tile.getOwner();
 		board.selectedUnit = this;
 		this.transform.renderer.material.color = Color.green;

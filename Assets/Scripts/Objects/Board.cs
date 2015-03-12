@@ -6,7 +6,6 @@ using System.Collections;
 public class Board : Photon.MonoBehaviour {
 	#region Prefabs
 	public Village villagePrefab;
-	public Unit unitPrefab;
 	public Tile landPrefab;
 	#endregion
 	public Unit selectedUnit;
@@ -31,18 +30,13 @@ public class Board : Photon.MonoBehaviour {
 		ConnectNeighbours();
 		computeRegions();
 		placeVillages();
-		selectedUnit = (Unit)Instantiate(unitPrefab, Vector3.zero, Quaternion.identity);
-		selectedUnit.setTile(getTile(new Hex(3, 3)));
-		selectedUnit.transform.position = selectedUnit.getTile().transform.position + Vector3.up * 2;
-		selectedUnit.setUnitType(UnitType.Peasant);
-		selectedUnit.board = this;
 	}
   
 	void Update() {
 
 	}
 
-	public Dictionary<Hex, Tile> getMap(){
+	public Dictionary<Hex, Tile> getMap() {
 		return map;
 	}
 	
