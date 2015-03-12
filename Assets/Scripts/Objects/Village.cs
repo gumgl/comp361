@@ -61,20 +61,16 @@ public class Village : Photon.MonoBehaviour {
 		}
 	}
 
-	/*[RPC]
-	public void callCapture(int q, int r, int i){
+	[RPC]
+	public void callCapture(int q, int r){
 		Tile tempTile = null;
 		foreach(Tile t in board.getMap().Values){
 			if(t.pos.q == q && t.pos.r == r){
 				tempTile = t;
 			}
 		}
-		tempTile.setOwner(tempTile.nei
-		tempTile.setVillage(this);
-		this.addTile(tempTile);
-		//if(i == 1){
-		//}
-	}*/
+		tempTile.getUnit().captureTile();
+	}
 
 	public void setStructTile(Tile t) {
 		structTile = t;
@@ -285,7 +281,7 @@ public class Village : Photon.MonoBehaviour {
 		u.setUnitType(UnitType.Peasant);
 		u.setActionType (ActionType.ReadyForOrders); 
 		u.setTile (tempTile);
-		u.placeUnit ();
+		u.placeUnit();
 		addUnit(u);
 	}
 
