@@ -108,7 +108,7 @@ public class Tile : Photon.MonoBehaviour {
 		return new Vector2(center.x + size * Mathf.Cos(angle), center.y + size * Mathf.Sin(angle));
 	}
 	public bool canWalkThrough(Unit unit) {
-		if (getLandType().isMovementAllowed() && getOwner() == unit.getOwner() /* TODO: check if owned by player */) {
+		if (getLandType().isMovementAllowed() && getOwner() == unit.getTile().getOwner() /* TODO: check if owned by player */) {
 			// TODO: check that units in neighbouring tiles are not of higher level
 			return true;
 		} else
@@ -204,8 +204,9 @@ public class Tile : Photon.MonoBehaviour {
 	}
 	void OnMouseUp() {
 		if (board.selectedUnit != null) {
-			//Debug.Log("MouseUp fired!");
-			board.selectedUnit.MoveTo(this);
+			//Debug.Log(board.selectedUnit.getVillage());
+			board.selectedUnit.getVillage().GetComponent<PhotonView>().RPC("moveUnit", PhotonTargets.All, board.selectedUnit.getTile().pos.q, board.selectedUnit.getTile().pos.r, this.pos.q, this.pos.r); 
+			//board.selectedUnit.MoveTo(this);
 		}
 		if(this.acceptsUnit){
 			village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, this.pos.q, this.pos.r);

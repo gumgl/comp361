@@ -287,7 +287,6 @@ public class Village : Photon.MonoBehaviour {
 
 	
 	void OnMouseUp () {
-		Debug.Log(getOwner());
 		this.transform.GetChild(0).renderer.material.color = Color.black;
 		this.transform.GetChild(1).renderer.material.color = Color.black;
 		this.transform.GetChild(2).renderer.material.color = Color.black;
@@ -298,7 +297,6 @@ public class Village : Photon.MonoBehaviour {
 				t.transform.GetChild(0).renderer.material.color = Color.black;
 			}
 		}
-		Debug.Log(getUpgradable());
 		if (getUpgradable ()){
 			GetComponent<PhotonView>().RPC("upgradeVillage", PhotonTargets.All, this.getStructTile().pos.q, this.structTile.pos.r);
 			//upgradeVillage(this.getStructTile().pos.q, this.structTile.pos.r); 
@@ -309,6 +307,23 @@ public class Village : Photon.MonoBehaviour {
 	}
 
 	[RPC]
+	public void moveUnit(int q, int r, int q1, int r1){
+		Tile tempTile = board.getTile(new Hex(q, r));
+		board.selectedUnit = tempTile.getUnit();
+		board.selectedUnit.tile.getOwner();
+		Tile tempTile2 = board.getTile(new Hex(q1, r1));
+	//	foreach(Tile t in board.getMap().Values){
+	//		if(t.pos.q == q && t.pos.r == r){
+		//		tempTile = t;
+		//	}
+		//	else if(t.pos.q == q1 && t.pos.r == r1){
+		//		tempTile2 = t;
+			//}
+		//}
+		tempTile.getUnit().MoveTo(tempTile2);
+	}
+
+	[RPC]
 	void upgradeVillage (int q, int r) {
 		Tile tempTile = null;
 		foreach(Tile t in board.getMap().Values){
@@ -316,17 +331,19 @@ public class Village : Photon.MonoBehaviour {
 				tempTile = t;
 			}
 		}
-
-		if (tempTile.getVillage().getVillageType() == VillageType.Hovel) { 
+		
+		if (tempTile.getVillage().getVillageType() == VillageType.Hovel && tempTile.getVillage().getWood () >= 1) { 
 			tempTile.getVillage().transform.GetChild(0).gameObject.SetActive(false);
 			tempTile.getVillage().transform.GetChild(1).gameObject.SetActive(true);
 			tempTile.getVillage().setVillageType(VillageType.Town);
+			tempTile.getVillage().changeWood(-1);
 			tempTile.getVillage().setUpgradable(false);
 		}
-		else if (tempTile.getVillage().getVillageType() == VillageType.Town) { 
+		else if (tempTile.getVillage().getVillageType() == VillageType.Town && tempTile.getVillage().getWood () >= 1) { 
 			tempTile.getVillage().transform.GetChild(1).gameObject.SetActive(false);
 			tempTile.getVillage().transform.GetChild(2).gameObject.SetActive(true);
 			tempTile.getVillage().setVillageType(VillageType.Fort);
+			tempTile.getVillage().changeWood(-1);
 			tempTile.getVillage().setUpgradable(false);
 		}
 		
