@@ -323,35 +323,45 @@ public class Village : Photon.MonoBehaviour {
 	}
 
 	[RPC]
-	void upgradeVillage(int q, int r) {
+	void upgradeVillage (int q, int r) {
 		Tile tempTile = null;
-		foreach (Tile t in board.getMap().Values) {
-			if (t.pos.q == q && t.pos.r == r) {
+		foreach(Tile t in board.getMap().Values){
+			if(t.pos.q == q && t.pos.r == r){
 				tempTile = t;
 			}
 		}
 		
-		if (tempTile.getVillage().getVillageType() == VillageType.Hovel && tempTile.getVillage().getWood() >= 1) { 
+		if (tempTile.getVillage().getVillageType() == VillageType.Hovel && tempTile.getVillage().getWood () >= 1) { 
 			tempTile.getVillage().transform.GetChild(0).gameObject.SetActive(false);
 			tempTile.getVillage().transform.GetChild(1).gameObject.SetActive(true);
 			tempTile.getVillage().setVillageType(VillageType.Town);
 			tempTile.getVillage().changeWood(-1);
 			tempTile.getVillage().setUpgradable(false);
-		} else if (tempTile.getVillage().getVillageType() == VillageType.Town && tempTile.getVillage().getWood() >= 1) { 
+			tempTile.getVillage().transform.GetChild(0).renderer.material.color = Color.clear;
+			tempTile.getVillage().transform.GetChild(1).renderer.material.color = Color.clear;
+			tempTile.getVillage().transform.GetChild(2).renderer.material.color = Color.clear;
+			foreach(Tile t in tempTile.getVillage().getTiles()){
+				t.setAcceptsUnit(false);
+				t.transform.GetChild(0).renderer.material.color = tempTile.getVillage().getOwner().getColor();
+				
+			}
+		}
+		else if (tempTile.getVillage().getVillageType() == VillageType.Town && tempTile.getVillage().getWood () >= 1) { 
 			tempTile.getVillage().transform.GetChild(1).gameObject.SetActive(false);
 			tempTile.getVillage().transform.GetChild(2).gameObject.SetActive(true);
 			tempTile.getVillage().setVillageType(VillageType.Fort);
 			tempTile.getVillage().changeWood(-1);
 			tempTile.getVillage().setUpgradable(false);
-		}
-		
-		foreach (Tile t in tempTile.getVillage().getTiles()) {
-			t.setAcceptsUnit(false);
-			t.transform.GetChild(0).renderer.material.color = tempTile.getVillage().getOwner().getColor();
 			tempTile.getVillage().transform.GetChild(0).renderer.material.color = Color.clear;
 			tempTile.getVillage().transform.GetChild(1).renderer.material.color = Color.clear;
 			tempTile.getVillage().transform.GetChild(2).renderer.material.color = Color.clear;
+			foreach(Tile t in tempTile.getVillage().getTiles()){
+				t.setAcceptsUnit(false);
+				t.transform.GetChild(0).renderer.material.color = tempTile.getVillage().getOwner().getColor();
+				
+			}
 		}
+
 	}
 
 }

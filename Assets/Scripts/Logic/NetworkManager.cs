@@ -7,7 +7,8 @@ public class NetworkManager : MonoBehaviour {
 	void Start () {
 		Connect ();
 	}
-	
+
+
 
 	void Connect() {
 		// connects to the server that is defined in our usersettings file, checking version names match
