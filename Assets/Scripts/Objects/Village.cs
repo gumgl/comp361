@@ -235,22 +235,29 @@ public class Village : Photon.MonoBehaviour {
 
 	}
 	[RPC]
-	public void hireVillager(Tile t) { 
+	public void hireVillager(int q, int r) { 
+		Tile tempTile = null;
+		foreach(Tile t in board.getMap().Values){
+			if(t.pos.q == q && t.pos.r == r){
+				tempTile = t;
+			}
+		}
 		Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.identity) as Unit;
 		u.board = this.board;
 		u.setVillage(this);
 		u.setUnitType(UnitType.Peasant);
 		u.setActionType (ActionType.ReadyForOrders); 
-		u.setTile (t);
+		u.setTile (tempTile);
 		u.placeUnit ();
 		addUnit(u);
 	}
-	
-	
+
 	void OnMouseUp () { 
 		//board.setActiveVillage(this);
 		//this.isActive = true;
-		this.transform.renderer.material.color = Color.black;
+		this.transform.GetChild(0).renderer.material.color = Color.black;
+		this.transform.GetChild(1).renderer.material.color = Color.black;
+		this.transform.GetChild(2).renderer.material.color = Color.black;
 		foreach(Tile t in tiles){
 			if(t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow){
 				t.setAcceptsUnit(true);
