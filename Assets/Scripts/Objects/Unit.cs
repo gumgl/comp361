@@ -14,13 +14,9 @@ public class Unit : Photon.MonoBehaviour {
 	int moveSpeed = 1;
 	float remainingMovement = 1;
 
-<<<<<<< HEAD
-	void Update() {
-		/*if (currentPath != null) {
-=======
 	void Update() { /*
 		if (currentPath != null) {
->>>>>>> origin/master
+		origin/master
 
 			int currTile = 0;
 
@@ -37,15 +33,11 @@ public class Unit : Photon.MonoBehaviour {
 		if (Vector3.Distance(transform.position, board.TileCoordToWorldCoord(tile.getPixelPos())) < 0.1f) {
 			MoveNextTile();
 		}
-		
 
-<<<<<<< HEAD
 		transform.position = Vector3.Lerp(transform.position, board.TileCoordToWorldCoord(tile.getPixelPos()), 5f * Time.deltaTime);*/
 	}
-=======
-		transform.position = Vector3.Lerp(transform.position, board.TileCoordToWorldCoord(tile.getPixelPos()), 5f * Time.deltaTime);
-	*/}
->>>>>>> origin/master
+
+
 
 	public void MoveNextTile() {
 		/*
@@ -164,12 +156,8 @@ public class Unit : Photon.MonoBehaviour {
 		tile = t;
 	}
 	
-	public void setTile(Tile t) { 
-		tile = t;
-	} 
-	
 	public void placeUnit () {
-		board = GameObject.Find("DemoGame/Board") as Board;
+	//	board = GameObject.Find("DemoGame/Board") as Board;
 		transform.position = board.TileCoordToWorldCoord(tile.getPixelPos());
 	}
 	
