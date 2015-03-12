@@ -9,7 +9,7 @@ public class Board : Photon.MonoBehaviour{
 	public Unit selectedUnit;
 	public Tile landPrefab;
 	public UnityEngine.UI.Text distanceText;
-
+	Village activeVillage; 
 	//LandType[,] tileTypes;
 	//Tile[,] grid;
 	Dictionary<Hex, Tile> map;
@@ -36,6 +36,15 @@ public class Board : Photon.MonoBehaviour{
 	void Update() {
 
 	}
+	
+	public Village getActiveVillage () { 
+		return activeVillage; 	
+	}
+	
+	public void setActiveVillage (Village v) {
+		this.activeVillage = v;
+	}
+	
 	void GenerateSquareGrid() {
 		/*map = new Dictionary<Hex, Tile>();
 		//grid = new Tile[mapSizeX, mapSizeY];
@@ -184,6 +193,7 @@ public class Board : Photon.MonoBehaviour{
 		foreach(Tile t in tiles){
 			if(t.getVillage() == null && t.getLandType() != LandType.Water){
 				t.setVillage(tile.getVillage());
+				t.getVillage().addTile(t);
 				createVillageZone(t);
 			}
 		}
