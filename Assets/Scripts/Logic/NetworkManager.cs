@@ -11,7 +11,7 @@ public class NetworkManager : MonoBehaviour {
 
 	void Connect() {
 		// connects to the server that is defined in our usersettings file, checking version names match
-		PhotonNetwork.ConnectUsingSettings ("NetworkingDemo v001");
+		PhotonNetwork.ConnectUsingSettings ("NetworkingDemo v002");
 
 	}
 

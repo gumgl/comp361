@@ -254,7 +254,7 @@ public class Village : Photon.MonoBehaviour {
 		}
 		Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.identity) as Unit;
 		u.board = this.board;
-		u.setVillage(this);
+		u.setVillage(tempTile.getVillage());
 		u.setUnitType(UnitType.Peasant);
 		u.setActionType (ActionType.ReadyForOrders); 
 		u.setTile (tempTile);

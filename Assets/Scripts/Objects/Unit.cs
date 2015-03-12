@@ -11,7 +11,7 @@ public class Unit : Photon.MonoBehaviour {
 	public List<Tile> currentPath = null;
 	public int currentPathIndex;
 	public float height = 1f;
-
+	public Player owner = null;
 	public float moveSpeed = 5f;
 
 	void Update() {
@@ -38,6 +38,12 @@ public class Unit : Photon.MonoBehaviour {
 			if (currentPathIndex < currentPath.Count) { // Unit is still getting there
 				setTile(currentPath[currentPathIndex]);
 			} else { // Unit has arrived at target
+				this.tile.setOwner(this.getOwner());
+				this.tile.setVillage(this.getVillage());
+				this.getVillage().addTile(this.tile);
+				if(this.tile.getLandType() == LandType.Tree){
+					this.tile.transform.GetComponent<PhotonView>().RPC("deleteTree", PhotonTargets.All, tile.pos.q, tile.pos.r);
+				}
 				currentPath = null;
 				positionOverTile();
 			}
@@ -87,8 +93,8 @@ public class Unit : Photon.MonoBehaviour {
 				foreach (KeyValuePair<Hex.Direction, Tile> kv in current.getNeighbours()) {
 					Tile neighbour = kv.Value;
 					int newDist = dist[current] + 1;
-					if (neighbour.canWalkThrough(this) &&
-						(dist.ContainsKey(neighbour) == false || newDist < dist[neighbour])) {
+					if (((neighbour.canWalkThrough(this) || neighbour == target)) &&
+					    (dist.ContainsKey(neighbour) == false || newDist < dist[neighbour])) {
 						dist[neighbour] = newDist;
 						// TODO: add the HexDistance heurist and use priority queue
 						//priority = new_cost + heuristic(goal, next)
@@ -183,14 +189,14 @@ public class Unit : Photon.MonoBehaviour {
 	}
 	
 	public Player getOwner() {
-		return village.getOwner();
+		return owner;
 	}
 	public void removeUnit() { 
 		
 	}
 
 	void OnMouseUp(){
-
+		owner = this.tile.getOwner();
 		board.selectedUnit = this;
 		this.transform.renderer.material.color = Color.green;
 	}

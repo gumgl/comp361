@@ -39,6 +39,7 @@ public class Tile : Photon.MonoBehaviour {
 	public void upgradeStruct(Structure s) { //TODO
 		//need to rank enum type Structures so that we can prevent downgrading etc. 
 	}
+
 	[RPC]
 	public void setLandType(LandType t) {
 		this.type = t;
@@ -107,7 +108,7 @@ public class Tile : Photon.MonoBehaviour {
 		return new Vector2(center.x + size * Mathf.Cos(angle), center.y + size * Mathf.Sin(angle));
 	}
 	public bool canWalkThrough(Unit unit) {
-		if (getLandType().isMovementAllowed() && getOwner() == unit.getVillage().getOwner() /* TODO: check if owned by player */) {
+		if (getLandType().isMovementAllowed() && getOwner() == unit.getOwner() /* TODO: check if owned by player */) {
 			// TODO: check that units in neighbouring tiles are not of higher level
 			return true;
 		} else
@@ -161,7 +162,19 @@ public class Tile : Photon.MonoBehaviour {
 		}
 		return tiles;
 	}
-	
+
+	[RPC]
+	public void deleteTree(int q, int r){
+		Tile tempTile = null;
+		foreach(Tile t in board.getMap().Values){
+			if(t.pos.q == q && t.pos.r == r){
+				tempTile = t;
+			}
+		}
+		tempTile.setLandType(LandType.Grass);
+		tempTile.getVillage().changeWood(2);
+	}
+
 	void OnMouseEnter() {
 		if(this.getVillage() != null)
 			board.distanceText.text = "Wood: " + this.getVillage().getWood().ToString();
