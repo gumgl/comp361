@@ -11,7 +11,7 @@ public class Unit : Photon.MonoBehaviour {
 	public List<Tile> currentPath = null;
 	public int currentPathIndex;
 
-	float moveSpeed = 5f;
+	public float moveSpeed = 5f;
 
 	void Update() {
 		if (currentPath != null) { // Path animation
@@ -44,7 +44,11 @@ public class Unit : Photon.MonoBehaviour {
 
 	public void MoveTo(Tile target) {
 
-		if (currentPath != null && target.canEnter(this)) {
+		if (currentPath != null)
+			Debug.LogError("Unit already moving");
+		else if (target.canEnter(this) == false)
+			Debug.LogError("Cannot move to this tile");
+		else {
 
 			Dictionary<Tile, int> dist = new Dictionary<Tile, int>(); // Cost
 			Dictionary<Tile, Tile> prev = new Dictionary<Tile, Tile>(); // Came from

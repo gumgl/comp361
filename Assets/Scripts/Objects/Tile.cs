@@ -187,7 +187,7 @@ public class Tile : Photon.MonoBehaviour {
 	}
 	void OnMouseUp() {
 		if (board.selectedUnit != null) {
-			Debug.Log("MouseUp fired!");
+			Debug.LogError("MouseUp fired!");
 			board.selectedUnit.MoveTo(this);
 		}
 		if (this.acceptsUnit) {
