@@ -12,7 +12,7 @@ public class Unit : Photon.MonoBehaviour {
 	public int currentPathIndex;
 	public float height = 1f;
 	public Player owner = null;
-	public float moveSpeed = 5f;
+	public float moveSpeed = 5f; // In portion of length 
 
 	void Update() {
 		if (isMoving()) { // Path animation
@@ -45,9 +45,9 @@ public class Unit : Photon.MonoBehaviour {
 				this.tile.setVillage(this.getVillage());
 				this.tile.getVillage().callCapture(tile.pos.q, tile.pos.r);
 				//this.tile.getVillage().GetComponent<PhotonView>().RPC("callCapture", PhotonTargets.All, tile.pos.q, tile.pos.r);
-				if(this.tile.getLandType() == LandType.Tree){
+				if (this.tile.getLandType() == LandType.Tree) {
 					tile.getVillage().harvestTree(tile.pos.q, tile.pos.r);
-				//	this.tile.getVillage().GetComponent<PhotonView>().RPC("harvestTree", PhotonTargets.All, tile.pos.q, tile.pos.r);
+					//	this.tile.getVillage().GetComponent<PhotonView>().RPC("harvestTree", PhotonTargets.All, tile.pos.q, tile.pos.r);
 				}
 				currentPath = null;
 				positionOverTile();
@@ -56,7 +56,7 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	//[RPC]
-	public void captureTile(){
+	public void captureTile() {
 		this.tile.setOwner(this.getOwner());
 		this.tile.setVillage(this.getVillage());
 		this.getVillage().addTile(this.tile);
@@ -207,7 +207,7 @@ public class Unit : Photon.MonoBehaviour {
 		
 	}
 
-	void OnMouseUp(){
+	void OnMouseUp() {
 		owner = this.tile.getOwner();
 		board.selectedUnit = this;
 		this.transform.renderer.material.color = Color.green;

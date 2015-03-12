@@ -6,7 +6,6 @@ using System.Collections;
 public class Board : Photon.MonoBehaviour {
 	#region Prefabs
 	public Village villagePrefab;
-	public Unit unitPrefab;
 	public Tile landPrefab;
 	#endregion
 	public Unit selectedUnit;
