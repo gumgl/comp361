@@ -179,15 +179,13 @@ public class Tile : Photon.MonoBehaviour {
 	void OnMouseUp() {
 		if(this.acceptsUnit){
 			village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, this.pos.q, this.pos.r);
-			//village.hireVillager(this);
-			//PhotonView.Get(village).RPC("hireVillager", PhotonTargets.All, this);
+			village.setUpgradable(false);
 			foreach(Tile t in village.getTiles()){
 				t.acceptsUnit = false;
 				t.transform.GetChild(0).renderer.material.color = village.getOwner().getColor();
 				t.transform.GetChild(1).renderer.material.color = village.getOwner().getColor();
 				t.transform.GetChild(2).renderer.material.color = village.getOwner().getColor();
 				village.transform.GetChild(0).renderer.material.color = Color.green;
-
 			}
 		}
 	 }

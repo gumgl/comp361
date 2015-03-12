@@ -264,7 +264,6 @@ public class Village : Photon.MonoBehaviour {
 
 	
 	void OnMouseUp () {
-		Debug.Log (getUpgradable());
 		this.transform.GetChild(0).renderer.material.color = Color.black;
 		this.transform.GetChild(1).renderer.material.color = Color.black;
 		this.transform.GetChild(2).renderer.material.color = Color.black;
@@ -275,38 +274,44 @@ public class Village : Photon.MonoBehaviour {
 				t.transform.GetChild(0).renderer.material.color = Color.black;
 			}
 		}
-		
+		Debug.Log(getUpgradable());
 		if (getUpgradable ()){
-			upgradeVillage(); 
+			GetComponent<PhotonView>().RPC("upgradeVillage", PhotonTargets.All, this.getStructTile().pos.q, this.structTile.pos.r);
+			//upgradeVillage(this.getStructTile().pos.q, this.structTile.pos.r); 
 		}
 		else if (getVillageType() != VillageType.Fort) {
 			setUpgradable (true);
 		}
-		
-		
-		
 	}
-	
-	void upgradeVillage () { 
-		if (getVillageType() == VillageType.Hovel) { 
-			this.transform.GetChild(0).gameObject.SetActive(false);
-			this.transform.GetChild(1).gameObject.SetActive(true);
-			setVillageType (VillageType.Town);
-			setUpgradable (false);
+
+	[RPC]
+	void upgradeVillage (int q, int r) {
+		Tile tempTile = null;
+		foreach(Tile t in board.getMap().Values){
+			if(t.pos.q == q && t.pos.r == r){
+				tempTile = t;
+			}
 		}
-		else if (getVillageType() == VillageType.Town) { 
-			this.transform.GetChild(1).gameObject.SetActive(false);
-			this.transform.GetChild(2).gameObject.SetActive(true);
-			setVillageType (VillageType.Fort);
-			setUpgradable (false);
+
+		if (tempTile.getVillage().getVillageType() == VillageType.Hovel) { 
+			tempTile.getVillage().transform.GetChild(0).gameObject.SetActive(false);
+			tempTile.getVillage().transform.GetChild(1).gameObject.SetActive(true);
+			tempTile.getVillage().setVillageType(VillageType.Town);
+			tempTile.getVillage().setUpgradable(false);
+		}
+		else if (tempTile.getVillage().getVillageType() == VillageType.Town) { 
+			tempTile.getVillage().transform.GetChild(1).gameObject.SetActive(false);
+			tempTile.getVillage().transform.GetChild(2).gameObject.SetActive(true);
+			tempTile.getVillage().setVillageType(VillageType.Fort);
+			tempTile.getVillage().setUpgradable(false);
 		}
 		
-		foreach(Tile t in this.getTiles()){
+		foreach(Tile t in tempTile.getVillage().getTiles()){
 			t.setAcceptsUnit(false);
-			t.transform.GetChild(0).renderer.material.color = this.getOwner().getColor();
-			transform.GetChild(0).renderer.material.color = Color.clear;
-			transform.GetChild(1).renderer.material.color = Color.clear;
-			transform.GetChild(2).renderer.material.color = Color.clear;
+			t.transform.GetChild(0).renderer.material.color = tempTile.getVillage().getOwner().getColor();
+			tempTile.getVillage().transform.GetChild(0).renderer.material.color = Color.clear;
+			tempTile.getVillage().transform.GetChild(1).renderer.material.color = Color.clear;
+			tempTile.getVillage().transform.GetChild(2).renderer.material.color = Color.clear;
 		}
 	}
 
