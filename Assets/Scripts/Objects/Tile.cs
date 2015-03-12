@@ -184,5 +184,5 @@ public class Tile : Photon.MonoBehaviour {
 				village.renderer.material.color = Color.green;
 			}
 		}
-	 }
+	 } 
 }
