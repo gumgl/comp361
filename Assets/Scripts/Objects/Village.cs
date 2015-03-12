@@ -221,7 +221,7 @@ public class Village : Photon.MonoBehaviour {
 			}
 		}
 		tempTile.setLandType(LandType.Grass);
-		tempTile.getVillage().changeWood(2);
+		tempTile.getVillage().changeWood(1);
 	}
 
 	public int[] getResources() {
@@ -283,18 +283,36 @@ public class Village : Photon.MonoBehaviour {
 		u.setTile (tempTile);
 		u.placeUnit();
 		addUnit(u);
+		tempTile.getVillage().isActive = false;
 	}
 
 	
 	void OnMouseUp () {
-		this.transform.GetChild(0).renderer.material.color = Color.black;
-		this.transform.GetChild(1).renderer.material.color = Color.black;
-		this.transform.GetChild(2).renderer.material.color = Color.black;
+		if(!this.isActive){
+			this.isActive = true;
+			this.transform.GetChild(0).renderer.material.color = Color.black;
+			this.transform.GetChild(1).renderer.material.color = Color.black;
+			this.transform.GetChild(2).renderer.material.color = Color.black;
 		
-		foreach(Tile t in tiles){
-			if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile()){
-				t.setAcceptsUnit(true);
-				t.transform.GetChild(0).renderer.material.color = Color.black;
+			foreach(Tile t in tiles){
+				if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile()){
+					t.setAcceptsUnit(true);
+					t.transform.GetChild(0).renderer.material.color = Color.black;
+				}
+			}
+		}
+		else
+		{
+			this.isActive = false;
+			this.transform.GetChild(0).renderer.material.color = Color.clear;
+			this.transform.GetChild(1).renderer.material.color = Color.clear;
+			this.transform.GetChild(2).renderer.material.color = Color.clear;
+			
+			foreach(Tile t in tiles){
+				if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile()){
+					t.setAcceptsUnit(false);
+					t.transform.GetChild(0).renderer.material.color = t.getVillage().getOwner().getColor();
+				}
 			}
 		}
 		if (getUpgradable ()){
