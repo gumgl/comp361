@@ -9,6 +9,7 @@ public class Village : Photon.MonoBehaviour {
 	bool cultivating = false;
 	bool building = false;
 	bool isActive = false;
+	bool upgradable = false; 
     Player owner; // Should be set in constructor
 	HashSet<Tile> tiles = new HashSet<Tile>();
 	HashSet<Unit> units = new HashSet<Unit>(); 
@@ -27,11 +28,20 @@ public class Village : Photon.MonoBehaviour {
 		own.addVillage(this);
 		transform.parent = own.transform;
 	}
-
+	
+	public VillageType getVillageType () { 
+		return myType; 
+	}
+	
 	public HashSet<Tile> getTiles() {
 		return tiles;
 	}
-	
+	public bool getUpgradable () { 
+		return upgradable;
+	} 
+	public void setUpgradable (bool b) { 
+		upgradable = b;
+	}
 	public void delete() {
 		Tile hq = getStructTile();
 		if (hq.hasStructure()) {
@@ -252,18 +262,53 @@ public class Village : Photon.MonoBehaviour {
 		addUnit(u);
 	}
 
-	void OnMouseUp () { 
-		//board.setActiveVillage(this);
-		//this.isActive = true;
+	
+	void OnMouseUp () {
+		Debug.Log (getUpgradable());
 		this.transform.GetChild(0).renderer.material.color = Color.black;
 		this.transform.GetChild(1).renderer.material.color = Color.black;
 		this.transform.GetChild(2).renderer.material.color = Color.black;
+		
 		foreach(Tile t in tiles){
 			if(t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow){
 				t.setAcceptsUnit(true);
 				t.transform.GetChild(0).renderer.material.color = Color.black;
 			}
 		}
+		
+		if (getUpgradable ()){
+			upgradeVillage(); 
+		}
+		else if (getVillageType() != VillageType.Fort) {
+			setUpgradable (true);
+		}
+		
+		
+		
 	}
+	
+	void upgradeVillage () { 
+		if (getVillageType() == VillageType.Hovel) { 
+			this.transform.GetChild(0).gameObject.SetActive(false);
+			this.transform.GetChild(1).gameObject.SetActive(true);
+			setVillageType (VillageType.Town);
+			setUpgradable (false);
+		}
+		else if (getVillageType() == VillageType.Town) { 
+			this.transform.GetChild(1).gameObject.SetActive(false);
+			this.transform.GetChild(2).gameObject.SetActive(true);
+			setVillageType (VillageType.Fort);
+			setUpgradable (false);
+		}
+		
+		foreach(Tile t in this.getTiles()){
+			t.setAcceptsUnit(false);
+			t.transform.GetChild(0).renderer.material.color = this.getOwner().getColor();
+			transform.GetChild(0).renderer.material.color = Color.clear;
+			transform.GetChild(1).renderer.material.color = Color.clear;
+			transform.GetChild(2).renderer.material.color = Color.clear;
+		}
+	}
+
 }
 
