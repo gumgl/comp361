@@ -16,7 +16,7 @@ public class Tile : Photon.MonoBehaviour {
 	public Tile() {
 	}
 	public bool hasStructure() {
-		if (this.structure != Structure.NoStructure)
+		if (this.structure != Structure.None)
 			return true;
 		else
 			return false;
@@ -32,7 +32,7 @@ public class Tile : Photon.MonoBehaviour {
 	}
 	public void removeStructure() { 
 		if (hasStructure()) {
-			this.structure = Structure.NoStructure;
+			this.structure = Structure.None;
 		}
 		//else do nothing
 	}
