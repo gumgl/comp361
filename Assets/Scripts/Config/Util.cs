@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// A class where a bunch of constants about the game get set
+/// A class where a bunch of constants about the game, and utility functions
 /// </summary>
 public static class Config {
 	private static Dictionary<UnitType, int> unitUpkeep = new Dictionary<UnitType, int>();
