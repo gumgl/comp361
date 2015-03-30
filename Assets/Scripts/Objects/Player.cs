@@ -1,8 +1,7 @@
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
-public class Player : Photon.MonoBehaviour
+public class Player : MonoBehaviour
 {
 	private GameObject currGame;
 	private HashSet<Village> villages = new HashSet<Village>();
@@ -11,7 +10,6 @@ public class Player : Photon.MonoBehaviour
 	private int losses = 0;
 	private Color color = Color.clear;
 
-	//TODO initialize the villages
 	void Start () {
 
 	}

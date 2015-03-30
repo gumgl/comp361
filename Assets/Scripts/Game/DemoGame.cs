@@ -4,8 +4,28 @@ using System.Collections;
 public class DemoGame : Photon.MonoBehaviour {
 
 	private Player[] players = new Player[2];
+	public Board board;
 	public Player p1;
 	public Player p2;
+
+	void Start() {
+		initPlayers();
+		board.init();
+	}
+	void Update()
+	{
+		if (Input.GetKeyDown(KeyCode.DownArrow))
+		{
+			Camera.main.gameObject.transform.position = new Vector3(0, 13, -15);
+			Camera.main.gameObject.transform.eulerAngles = new Vector3(51, 0, 0);
+		}
+
+		if (Input.GetKeyDown(KeyCode.UpArrow))
+		{
+			Camera.main.gameObject.transform.position = new Vector3(0, 25, 0);
+			Camera.main.gameObject.transform.eulerAngles = new Vector3(90, 0, 0);
+		}
+	}
 
 	public void initPlayers(){
 		p1.setActive();
@@ -33,18 +53,5 @@ public class DemoGame : Photon.MonoBehaviour {
 			return players[1];
 		else
 			return null;
-	}
-
-	void Update () {
-		if(Input.GetKeyDown (KeyCode.DownArrow)){
-			Camera.mainCamera.gameObject.transform.position = new Vector3(0,13,-15);
-			Camera.mainCamera.gameObject.transform.eulerAngles = new Vector3(51,0,0);
-		}
-
-		if(Input.GetKeyDown (KeyCode.UpArrow)){
-			Camera.mainCamera.gameObject.transform.position = new Vector3(0,25,0);
-			Camera.mainCamera.gameObject.transform.eulerAngles = new Vector3(90,0,0);
-		}
-
 	}
 }

@@ -57,7 +57,7 @@ public class Unit : Photon.MonoBehaviour {
 
 	//[RPC]
 	public void captureTile() {
-		this.tile.setOwner(this.getOwner());
+		//this.tile.setOwner(this.getOwner());
 		this.tile.setVillage(this.getVillage());
 		this.getVillage().addTile(this.tile);
 	}
@@ -102,7 +102,7 @@ public class Unit : Photon.MonoBehaviour {
 						dist[neighbour] = newDist;
 
 						frontier.Add(neighbour);
-						priorities[neighbour] = newDist + Tile.HexDistance(target.pos, neighbour.pos); // heuristic
+						priorities[neighbour] = newDist + Hex.Distance(target.pos, neighbour.pos); // heuristic
 						prev[neighbour] = current;
 					}
 				}

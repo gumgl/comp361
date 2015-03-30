@@ -17,7 +17,7 @@ public class Village : Photon.MonoBehaviour {
 	public Tile structTile; // Where the HQ is
 	public Unit unitPrefab;
 
-	public void create(Player own, Board bor, VillageType type, int gl, int wd, Tile tile){
+	public void init(Player own, Board bor, VillageType type, int gl, int wd, Tile tile){
 		board = bor;
 		owner = own;
 		addTile(tile);
@@ -55,7 +55,7 @@ public class Village : Photon.MonoBehaviour {
 		//set tile ownership to null for all tiles part of the village
 		HashSet<Tile> tile = getTiles (); 
 		foreach (Tile t in tile) {
-			t.setOwner (null);
+			t.setVillage (null);
 		}
 		//for all units, find the tile they are on and set landtype to tombstone. Also remove the units from the tiles.
 		HashSet <Unit> units = getUnits();
@@ -86,16 +86,14 @@ public class Village : Photon.MonoBehaviour {
 	}
 	
 	public void addTile(Tile t) {
-		t.setOwner(owner);
+		//t.setOwner(owner);
 		t.setVillage(this);
 		tiles.Add(t);
 	}
 	
 	public void addTiles(HashSet<Tile> tilesToAdd) {
 		foreach (Tile t in tilesToAdd) {
-			t.setOwner(owner);
-			t.setVillage(this);
-			tiles.Add(t);
+			addTile(t);
 		}
 	}
 	

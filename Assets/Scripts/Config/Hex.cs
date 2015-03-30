@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 public struct Hex {
 	public int q, r;
 	public Hex(int iq, int ir) {
@@ -13,25 +14,29 @@ public struct Hex {
 		LeftDown,
 		LeftUp
 	}
-	public static bool operator==(Hex h1, Hex h2) {
-		return (h1.q == h2.q && h1.r == h2.r);
+	static public int Distance(Hex a, Hex b)
+    {
+        return (Mathf.Abs(a.q - b.q) + Mathf.Abs(a.q + a.r - b.q - b.r) + Mathf.Abs(a.r - b.r)) / 2;
+    }
+	public static bool operator==(Hex a, Hex b) {
+		return (a.q == b.q && a.r == b.r);
 	}
-	public static bool operator!=(Hex h1, Hex h2) {
-		return (h1.q != h2.q || h1.r != h2.r);
+	public static bool operator!=(Hex a, Hex b) {
+		return (a.q != b.q || a.r != b.r);
 	}
-	public static Hex operator+(Hex h1, Hex h2) {
-		return new Hex(h1.q + h2.q, h1.r + h2.r);
+	public static Hex operator+(Hex a, Hex b) {
+		return new Hex(a.q + b.q, a.r + b.r);
 	}
-	public static Hex operator-(Hex h1, Hex h2) {
-		return new Hex(h1.q - h2.q, h1.r - h2.r);
+	public static Hex operator-(Hex a, Hex b) {
+		return new Hex(a.q - b.q, a.r - b.r);
 	}
-	public static Hex operator*(Hex h1, int factor) {
-		return new Hex(h1.q * factor, h1.r * factor);
+	public static Hex operator*(Hex a, int factor) {
+		return new Hex(a.q * factor, a.r * factor);
 	}
-	public static Hex operator/(Hex h1, int factor) {
-		return new Hex(h1.q / factor, h1.r / factor);
+	public static Hex operator/(Hex a, int factor) {
+		return new Hex(a.q / factor, a.r / factor);
 	}
-	public static Hex operator-(Hex h1) {
-		return h1 * -1;
+	public static Hex operator-(Hex a) {
+		return a * -1;
 	}
 }

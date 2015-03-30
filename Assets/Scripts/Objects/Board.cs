@@ -8,6 +8,8 @@ public class Board : Photon.MonoBehaviour {
 	public Village villagePrefab;
 	public Tile landPrefab;
 	#endregion
+
+	public DemoGame game;
 	public Unit selectedUnit;
 	public UnityEngine.UI.Text distanceText;
 	Village activeVillage; 
@@ -22,19 +24,17 @@ public class Board : Photon.MonoBehaviour {
 	static float tileHeight = 3.0f;
 	static float tileWidth = Mathf.Sqrt(3) / 2 * tileHeight;
 
-	void Start() {
+	public void init() {
 		//selectedUnit.GetComponent<Unit>().tileX = (int)selectedUnit.transform.position.x;
 		//selectedUnit.GetComponent<Unit>().tileY = (int)selectedUnit.transform.position.y;
-		transform.parent.GetComponent<DemoGame>().initPlayers();
-		GenerateHexGrid(int.Parse(PhotonNetwork.room.name));
-		ConnectNeighbours();
-		computeRegions();
-		placeVillages();
+		generateHexagonalGrid(int.Parse(PhotonNetwork.room.name));
+		connectNeighbours();
+        createVillages();
 	}
-  
-	void Update() {
 
-	}
+	void Start() {}
+  
+	void Update() {}
 
 	public Dictionary<Hex, Tile> getMap() {
 		return map;
@@ -48,7 +48,7 @@ public class Board : Photon.MonoBehaviour {
 		this.activeVillage = v;
 	}
 
-	public void GenerateHexGrid(int sd) {
+	public void generateHexagonalGrid(int sd) {
 		Random.seed = sd;
 		map = new Dictionary<Hex, Tile>();
 		for (int q = -mapRadius; q <= mapRadius; q++) {
@@ -74,9 +74,9 @@ public class Board : Photon.MonoBehaviour {
 					tile.pos = pos;
 					tile.transform.parent = gameObject.transform;
 					tile.transform.localPosition = TileCoordToWorldCoord(tile.getPixelPos());
-					if (tt != LandType.Water) {
-						tile.setOwner(transform.parent.GetComponent<DemoGame>().getRandomPlayer());
-					}
+					//if (tt != LandType.Water) {
+					//	tile.setOwner(transform.parent.GetComponent<DemoGame>().getRandomPlayer());
+					//}
 					//tile.setOwner(null);
 					tile.board = this;
 					tile.setLandType(tt);
@@ -86,7 +86,7 @@ public class Board : Photon.MonoBehaviour {
 		}
 	}
 
-	public void ConnectNeighbours() {
+	public void connectNeighbours() {
 		foreach (KeyValuePair<Hex, Tile> entry in map) {
 			foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))) {
 				Hex neighbourPos = entry.Key + dir.getDelta();
@@ -94,76 +94,76 @@ public class Board : Photon.MonoBehaviour {
 					entry.Value.setNeighbour(dir, getTile(neighbourPos));
 			}
 		}
-		/*for (int q=0; q < mapSizeY; q++) {
-			for (int r=0; r < mapSizeX; r++) {
-				
-				if (r > 0) {
-					getTile(new Hex(r, q)).neighbours.Add(getTile(new Hex(r - 1, q)));
-				}
-				if (r < mapSizeX - 1) {
-					getTile(new Hex(r, q)).neighbours.Add(getTile(new Hex(r + 1, q)));
-				}
-				if (q > 0) {
-					getTile(new Hex(r, q)).neighbours.Add(getTile(new Hex(r, q - 1)));
-				}
-				if (q < mapSizeY - 1) {
-					getTile(new Hex(r, q)).neighbours.Add(getTile(new Hex(r, q + 1)));
-				}
-				
-				if (q % 2 == 0) {
-					if (r - 1 >= 0 && q - 1 >= 0) {
-						getTile(new Hex(r, q)).neighbours.Add(getTile(new Hex(r - 1, q - 1)));
-					}
-					if (r - 1 >= 0 && q != mapSizeY - 1) {
-						getTile(new Hex(r, q)).neighbours.Add(getTile(new Hex(r - 1, q + 1)));
-					}
-				} else {
-					if (r != mapSizeX - 1 && q - 1 >= 0) {
-						getTile(new Hex(r, q)).neighbours.Add(getTile(new Hex(r + 1, q - 1)));
-					}
-					if (r != mapSizeX - 1 && q != mapSizeY - 1) {
-						getTile(new Hex(r, q)).neighbours.Add(getTile(new Hex(r + 1, q + 1)));
-					}
-				}
-			}
-		}*/
 	}
-	
-	void computeRegions() {
+
+    private void createVillages()
+    {
+		// Here we now use a temporary (local) array instead of Tile.owner, because the owner is a property of the village
+        Dictionary<Tile, Player> owners = new Dictionary<Tile, Player>();
+        assignRandomOwners(owners);
+        computeVillages(owners);
+    }
+
+    private void assignRandomOwners(Dictionary<Tile, Player> owners)
+    {
+	    foreach (KeyValuePair<Hex, Tile> entry in map) {
+		    Player owner;
+		    if (entry.Value.getLandType() == LandType.Water)
+			    owner = null;
+		    else
+				owner = game.getRandomPlayer();
+			owners.Add(entry.Value, owner);
+	    }
+    }
+
+	void computeVillages(Dictionary<Tile, Player> owner)
+	{
+		// Remove non-villages (i.e. singles and doubles)
 		foreach (KeyValuePair<Hex, Tile> entry in map) {
-			if (entry.Value.type != LandType.Water) {
-				if (entry.Value.numAdjacentOwnedTiles() == 1 && entry.Value.adjacentDuo() != null) {
-					entry.Value.adjacentDuo().clearOwner();
-					entry.Value.clearOwner();
-				} else if (entry.Value.numAdjacentOwnedTiles() < 1) {
-					entry.Value.clearOwner();
-				}
-			}
+			Tile tile = entry.Value;
+			var neighbours = getAdjacentOwnedTiles(tile, owner);
+			if (tile.type == LandType.Water
+				|| (neighbours.Count == 1 && getAdjacentOwnedTiles(neighbours[0], owner).Count == 1)
+				|| neighbours.Count < 1)
+				owner[tile] = null;
 		}
-	}
-	
-	void placeVillages() {
+		// Create the villages
 		foreach (KeyValuePair<Hex, Tile> entry in map) {
-			if (entry.Value.getVillage() == null && entry.Value.type != LandType.Water && entry.Value.getOwner() != null) {
-				Village newVillage = Instantiate(villagePrefab, TileCoordToWorldCoord(entry.Value.getPixelPos()), Quaternion.Euler(1,Random.Range (0,6) * 60, 1)) as Village;
-				entry.Value.setVillage(newVillage);
-				newVillage.create(entry.Value.getOwner(), this, VillageType.Hovel, 7, 0, entry.Value);
-				entry.Value.setLandType(LandType.Grass);
-				createVillageZone(entry.Value);
+			Tile tile = entry.Value;
+			if (tile.getVillage() == null && owner[tile] != null)
+			{
+				Village newVillage = Instantiate(villagePrefab, TileCoordToWorldCoord(tile.getPixelPos()), Quaternion.Euler(1, Random.Range(0, 6) * 60, 1)) as Village;
+				newVillage.init(owner[tile], this, VillageType.Hovel, 7, 0, tile);
+				tile.setLandType(LandType.Grass);
+				expandVillage(newVillage, tile, owner);
 			}
 		}
 	}
 
-	//Adds tiles to the village upon initial creation
-	void createVillageZone(Tile tile) {
-		HashSet<Tile> tiles = tile.allAdjacentOwnedTiles();
-		foreach (Tile t in tiles) {
-			if (t.getVillage() == null && t.getLandType() != LandType.Water) {
-				t.setVillage(tile.getVillage());
-				t.getVillage().addTile(t);
-				createVillageZone(t);
+	//Adds tiles to the village upon initial creation,using BFS
+	void expandVillage(Village village, Tile tile, Dictionary<Tile, Player> owner) {
+		List<Tile> toExplore = getAdjacentOwnedTiles(tile, owner);
+		toExplore.Add(tile);
+		while (toExplore.Count > 0) {
+			Tile t = toExplore[0];
+			toExplore.RemoveAt(0);
+			t.setVillage(village);
+			village.addTile(t);
+			foreach (var adjacent in getAdjacentOwnedTiles(tile, owner)) {
+				if (adjacent.getVillage() == null)
+					toExplore.Add(adjacent);
 			}
 		}
+	}
+
+	List<Tile> getAdjacentOwnedTiles(Tile tile, Dictionary<Tile, Player> owner) {
+		List<Tile> tiles = new List<Tile>();
+		foreach (KeyValuePair<Hex.Direction, Tile> entry in tile.getNeighbours()) {
+			Tile neighbour = entry.Value;
+			if (owner[tile] == owner[neighbour])
+				tiles.Add(neighbour);
+		}
+		return tiles;
 	}
 
 	public Tile getTile(Hex pos) {
@@ -172,21 +172,6 @@ public class Board : Photon.MonoBehaviour {
 	public void setTile(Hex pos, Tile tile) {
 		map[pos] = tile;
 	}
-    
-	/*public float CostToEnterTile(Tile source, Tile target) {//(int sourceX, int sourceY, int targetX, int targetY) {
-		LandType tt = source.type;
-
-		if (UnitCanEnterTile(target) == false)
-			return Mathf.Infinity;
-
-		float cost = tt.isMovementAllowed();
-
-		//if (sourceX != targetX && sourceY != targetY)
-		//	cost += 0.001f;
-
-		return cost;
-		//return 1.0f;
-	}*/
 
 	public Vector3 TileCoordToWorldCoord(Vector2 pos) {
 		//return new Vector3(x * tileWidth + (y % 2 * tileWidth / 2f), 0, y * 0.75f * tileHeight);
@@ -197,9 +182,4 @@ public class Board : Photon.MonoBehaviour {
 		// we should test a unit's walktype on a clickable tile
 		return true; // tileTypes [tiles [x, y]].isWalkable;
 	}*/
-
-	public void GeneratePathTo(Tile target) {
-		/*
-		*/
-	}
 }

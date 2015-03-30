@@ -6,15 +6,12 @@ public class Tile : Photon.MonoBehaviour {
 	public Hex pos;
 	public Board board;
 	public Unit unit;
-	Village village;  
+	Village village = null;  
 	public Structure structure;
 	public LandType type;
 	static public float size = 1;
-	private Player owner;
 	bool acceptsUnit = false;
 
-	public Tile() {
-	}
 	public bool hasStructure() {
 		if (this.structure != Structure.None)
 			return true;
@@ -80,6 +77,10 @@ public class Tile : Photon.MonoBehaviour {
 	}
 	public void setVillage(Village v) {
 		village = v;
+		if (v == null)
+			transform.GetChild(0).renderer.material.color = Color.white;
+		else
+			transform.GetChild(0).renderer.material.color = getOwner().getColor();
 	}
 	public float getWidth() {
 		return size * 2;
@@ -88,7 +89,7 @@ public class Tile : Photon.MonoBehaviour {
 		return Mathf.Sqrt(3) / 2 * getWidth();
 	}
 	public Vector2 getPixelPos() {
-		return HexToPixel(pos);
+		return pos.ToPixel();
 	}
 	public Tile getNeighbour(Hex.Direction dir) {
 		return neighbours[dir];
@@ -100,15 +101,15 @@ public class Tile : Photon.MonoBehaviour {
 		return Vector2.Distance(this.getPixelPos(), tile.getPixelPos());
 	}
 	public int HexDistanceTo(Tile tile) {
-		return HexDistance(this.pos, tile.pos);
+		return Hex.Distance(this.pos, tile.pos);
 	}
 	public Vector2 HexCorner(int i) {
 		float angle = 2.0f * Mathf.PI / 6.0f * (i + 0.5f);
-		Vector2 center = HexToPixel(pos);
+		Vector2 center = pos.ToPixel();
 		return new Vector2(center.x + size * Mathf.Cos(angle), center.y + size * Mathf.Sin(angle));
 	}
 	public bool canWalkThrough(Unit unit) {
-		if (getLandType().isMovementAllowed() && getOwner() == unit.getTile().getOwner() /* TODO: check if owned by player */) {
+		if (getLandType().isMovementAllowed() && getOwner() == unit.getTile().getOwner()) {
 			// TODO: check that units in neighbouring tiles are not of higher level
 			return true;
 		} else
@@ -120,21 +121,20 @@ public class Tile : Photon.MonoBehaviour {
 	}
 
 	public Player getOwner() {
-		return owner;
+		return getVillage().getOwner();
 	}
 
-	public void setOwner(Player p) {
+	/*public void setOwner(Player p) {
 		if (p != null) {
 			owner = p;
-			transform.GetChild(0).renderer.material.color = p.getColor();
 		}
 	}
 
 	public void clearOwner() {
 		transform.GetChild(0).renderer.material.color = Color.white;
 		owner = null;
-	}
-
+	}*/
+	/*
 	public int numAdjacentOwnedTiles() {
 		int i = 0;
 		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))) {
@@ -151,8 +151,8 @@ public class Tile : Photon.MonoBehaviour {
 				return getNeighbour(dir);
 		}
 		return null;
-	}
-
+	}*/
+	/*
 	public HashSet<Tile> allAdjacentOwnedTiles() {
 		HashSet<Tile> tiles = new HashSet<Tile>();
 		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))) {
@@ -161,7 +161,7 @@ public class Tile : Photon.MonoBehaviour {
 			}
 		}
 		return tiles;
-	}
+	}*/
 
 /*	[RPC]
 	public void deleteTree(int q, int r){
@@ -175,8 +175,6 @@ public class Tile : Photon.MonoBehaviour {
 		tempTile.getVillage().changeWood(2);
 	}*/
 
-
-
 	void OnMouseEnter() {
 		if(this.getVillage() != null)
 			board.distanceText.text = "Wood: " + this.getVillage().getWood().ToString();
@@ -187,21 +185,10 @@ public class Tile : Photon.MonoBehaviour {
 	//	transform.GetChild(0).renderer.material.color = owner.getColor();
 	//}
 
-    
 	static public int HexDistance(Tile a, Tile b) {
-		return HexDistance(a.pos, b.pos);
+		return Hex.Distance(a.pos, b.pos);
 	}
-	static public int HexDistance(Hex a, Hex b) {
-		return (Mathf.Abs(a.q - b.q) + Mathf.Abs(a.q + a.r - b.q - b.r) + Mathf.Abs(a.r - b.r)) / 2;
-	}
-	static public Vector2 HexToPixel(Hex hex) {
-		//Vector2 dq = new Vector2(3.0f / 2.0f, 1.0f);
-		//Vector2 dr = new Vector2(0, 2.0f);
-		//return size * (dq * hex.q + dr * hex.r);
-		float x = size * 3.0f / 2.0f * hex.q;
-		float y = size * Mathf.Sqrt(3) * (hex.r + hex.q / 2.0f);
-		return new Vector2(x, y);
-	}
+	
 	void OnMouseUp() {
 		if (board.selectedUnit != null) {
 			//Debug.Log(board.selectedUnit.getVillage());

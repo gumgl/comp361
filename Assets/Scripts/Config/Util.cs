@@ -71,4 +71,13 @@ public static class Config {
 	static public Hex getDelta(this Hex.Direction hd) {
 		return hexDirectionDelta[hd];
 	}
+	static public Vector2 ToPixel(this Hex hex)
+	{
+		//Vector2 dq = new Vector2(3.0f / 2.0f, 1.0f);
+		//Vector2 dr = new Vector2(0, 2.0f);
+		//return size * (dq * hex.q + dr * hex.r);
+		float x = Tile.size * 3.0f / 2.0f * hex.q;
+		float y = Tile.size * Mathf.Sqrt(3) * (hex.r + hex.q / 2.0f);
+		return new Vector2(x, y);
+	}
 }
