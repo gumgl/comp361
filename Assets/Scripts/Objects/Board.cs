@@ -149,7 +149,7 @@ public class Board : Photon.MonoBehaviour {
 			toExplore.RemoveAt(0);
 			t.setVillage(village);
 			village.addTile(t);
-			foreach (var adjacent in getAdjacentOwnedTiles(tile, owner)) {
+			foreach (var adjacent in getAdjacentOwnedTiles(t, owner)) {
 				if (adjacent.getVillage() == null)
 					toExplore.Add(adjacent);
 			}

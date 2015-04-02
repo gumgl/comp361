@@ -121,6 +121,8 @@ public class Tile : Photon.MonoBehaviour {
 	}
 
 	public Player getOwner() {
+		if(getVillage() == null)
+			return null;
 		return getVillage().getOwner();
 	}
 
@@ -187,6 +189,10 @@ public class Tile : Photon.MonoBehaviour {
 
 	static public int HexDistance(Tile a, Tile b) {
 		return Hex.Distance(a.pos, b.pos);
+	}
+
+	void OnMouseDown() {
+		Debug.Log(this.getVillage());
 	}
 	
 	void OnMouseUp() {
