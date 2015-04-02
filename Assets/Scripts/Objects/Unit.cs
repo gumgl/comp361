@@ -43,10 +43,10 @@ public class Unit : Photon.MonoBehaviour {
 				//this.getVillage().addTile(this.tile);
 				this.tile.setUnit(this);
 				this.tile.setVillage(this.getVillage());
-				this.tile.getVillage().callCapture(tile.pos.q, tile.pos.r);
+				callCapture(tile.pos.q, tile.pos.r);
 				//this.tile.getVillage().GetComponent<PhotonView>().RPC("callCapture", PhotonTargets.All, tile.pos.q, tile.pos.r);
 				if (this.tile.getLandType() == LandType.Tree) {
-					tile.getVillage().harvestTree(tile.pos.q, tile.pos.r);
+					harvestTree(tile.pos.q, tile.pos.r);
 					//	this.tile.getVillage().GetComponent<PhotonView>().RPC("harvestTree", PhotonTargets.All, tile.pos.q, tile.pos.r);
 				}
 				currentPath = null;
@@ -188,6 +188,27 @@ public class Unit : Photon.MonoBehaviour {
 	}
 	public void removeUnit() { 
 		
+	}
+
+	void callCapture(int q, int r){
+		Tile tempTile = null;
+		foreach(Tile t in board.getMap().Values){
+			if(t.pos.q == q && t.pos.r == r){
+				tempTile = t;
+			}
+		}
+		tempTile.getUnit().captureTile();
+	}
+
+	void harvestTree(int q, int r){
+		Tile tempTile = null;
+		foreach(Tile t in board.getMap().Values){
+			if(t.pos.q == q && t.pos.r == r){
+				tempTile = t;
+			}
+		}
+		tempTile.setLandType(LandType.Grass);
+		tempTile.getVillage().changeWood(1);
 	}
 
 	void OnMouseUp() {
