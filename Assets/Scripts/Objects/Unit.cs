@@ -38,16 +38,16 @@ public class Unit : Photon.MonoBehaviour {
 			if (currentPathIndex < currentPath.Count) { // Unit is still getting there
 				setTile(currentPath[currentPathIndex]);
 			} else { // Unit has arrived at target
-				//this.tile.setOwner(this.getOwner());
-				//this.tile.setVillage(this.getVillage());
-				//this.getVillage().addTile(this.tile);
 				this.tile.setUnit(this);
 				this.tile.setVillage(this.getVillage());
 				callCapture(tile.pos.q, tile.pos.r);
-				//this.tile.getVillage().GetComponent<PhotonView>().RPC("callCapture", PhotonTargets.All, tile.pos.q, tile.pos.r);
 				if (this.tile.getLandType() == LandType.Tree) {
 					harvestTree(tile.pos.q, tile.pos.r);
 					//	this.tile.getVillage().GetComponent<PhotonView>().RPC("harvestTree", PhotonTargets.All, tile.pos.q, tile.pos.r);
+				}
+				Tile tempTile = this.tile.adjacentFriendlyBorder();
+				if(tempTile != null){
+					this.tile.getVillage().mergeWith(tempTile.getVillage());
 				}
 				currentPath = null;
 				positionOverTile();
@@ -184,7 +184,7 @@ public class Unit : Photon.MonoBehaviour {
 	}
 	
 	public Player getOwner() {
-		return owner;
+		return getVillage().getOwner();
 	}
 	public void removeUnit() { 
 		

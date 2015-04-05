@@ -266,7 +266,20 @@ public class Village : Photon.MonoBehaviour {
 		tempTile.getVillage().isActive = false;
 	}
 
-	
+	public void mergeWith(Village v){
+		if(this.getVillageType() > v.getVillageType()){
+			Debug.Log("THIS WILL STAND FOR IT IS MORE UPGRADED");
+		}
+		else if (this.getVillageType() < v.getVillageType()){
+			Debug.Log("OTHER WILL STAND FOR IT IS MORE UPGRADED");
+		}
+		else if(this.getTiles().Count >= v.getTiles().Count){
+			Debug.Log("THIS WILL STAND FOR IT IS LARGER");
+		}
+		else{
+			Debug.Log("OTHER WILL STAND FOR IT IS LARGER");
+		}
+	}
 	void OnMouseUp () {
 		if(!this.isActive){
 			this.isActive = true;

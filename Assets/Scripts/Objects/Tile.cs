@@ -120,62 +120,23 @@ public class Tile : Photon.MonoBehaviour {
 		return (getLandType() != LandType.Water);
 	}
 
+	//Returns a neighbouring tile that is of the same owner but from a different village
+	//Used to merge villages. Returns null if no merge is neccessary
+	public Tile adjacentFriendlyBorder(){
+		foreach (KeyValuePair<Hex.Direction, Tile> entry in this.getNeighbours()) {
+			Tile neighbour = entry.Value;
+			if (neighbour.getOwner() == this.getOwner() && neighbour.getVillage() != this.getVillage()){
+				return neighbour;
+			}
+		}
+		return null;
+	}
+
 	public Player getOwner() {
 		if(getVillage() == null)
 			return null;
 		return getVillage().getOwner();
 	}
-
-	/*public void setOwner(Player p) {
-		if (p != null) {
-			owner = p;
-		}
-	}
-
-	public void clearOwner() {
-		transform.GetChild(0).renderer.material.color = Color.white;
-		owner = null;
-	}*/
-	/*
-	public int numAdjacentOwnedTiles() {
-		int i = 0;
-		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))) {
-			if (this.owner == getNeighbour(dir).owner)
-				i++;
-		}
-		return i;
-	}
-
-	//Returns the tile adjacent to the original tile if they both have the same owner and only one adjacent owned tile
-	public Tile adjacentDuo() {
-		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))) {
-			if (this.owner == getNeighbour(dir).owner && getNeighbour(dir).numAdjacentOwnedTiles() == 1)
-				return getNeighbour(dir);
-		}
-		return null;
-	}*/
-	/*
-	public HashSet<Tile> allAdjacentOwnedTiles() {
-		HashSet<Tile> tiles = new HashSet<Tile>();
-		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))) {
-			if (this.owner == getNeighbour(dir).owner) {
-				tiles.Add(getNeighbour(dir));
-			}
-		}
-		return tiles;
-	}*/
-
-/*	[RPC]
-	public void deleteTree(int q, int r){
-		Tile tempTile = null;
-		foreach(Tile t in board.getMap().Values){
-			if(t.pos.q == q && t.pos.r == r){
-				tempTile = t;
-			}
-		}
-		tempTile.setLandType(LandType.Grass);
-		tempTile.getVillage().changeWood(2);
-	}*/
 
 	void OnMouseEnter() {
 		if(this.getVillage() != null)
@@ -192,7 +153,7 @@ public class Tile : Photon.MonoBehaviour {
 	}
 
 	void OnMouseDown() {
-		Debug.Log(this.getVillage());
+		//Debug.Log(this.getVillage().getTiles().Count);
 	}
 	
 	void OnMouseUp() {

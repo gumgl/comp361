@@ -2675,7 +2675,7 @@ internal class NetworkingPeer : LoadbalancingPeer, IPhotonPeerListener
                 {
                     if (view.didAwake)
                     {
-                        Debug.LogWarning("Had to lookup view that wasn't in photonViewList: " + view);
+//                        Debug.LogWarning("Had to lookup view that wasn't in photonViewList: " + view);
                     }
                     return view;
                 }
@@ -2696,7 +2696,7 @@ internal class NetworkingPeer : LoadbalancingPeer, IPhotonPeerListener
         if (netView.viewID == 0)
         {
             // don't register views with ID 0 (not initialized). they register when a ID is assigned later on
-            Debug.Log("PhotonView register is ignored, because viewID is 0. No id assigned yet to: " + netView);
+//            Debug.Log("PhotonView register is ignored, because viewID is 0. No id assigned yet to: " + netView);
             return;
         }
 
@@ -2905,7 +2905,7 @@ internal class NetworkingPeer : LoadbalancingPeer, IPhotonPeerListener
 
         if (view.viewID < 1)
         {
-            Debug.LogError("Illegal view ID:" + view.viewID + " method: " + methodName + " GO:" + view.gameObject.name);
+//            Debug.LogError("Illegal view ID:" + view.viewID + " method: " + methodName + " GO:" + view.gameObject.name);
         }
 
         if (PhotonNetwork.logLevel >= PhotonLogLevel.Full)
