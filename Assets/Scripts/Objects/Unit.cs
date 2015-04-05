@@ -45,14 +45,13 @@ public class Unit : Photon.MonoBehaviour {
 				setTile(currentPath[currentPathIndex]);
 			} else { // Unit has arrived at target
 				this.tile.setUnit(this);
-				//this.tile.setVillage(this.getVillage());
 				callCapture(tile.pos.q, tile.pos.r);
 				if (this.tile.getLandType() == LandType.Tree) {
 					harvestTree(tile.pos.q, tile.pos.r);
 					//	this.tile.getVillage().GetComponent<PhotonView>().RPC("harvestTree", PhotonTargets.All, tile.pos.q, tile.pos.r);
 				}
-				Tile tempTile = this.tile.adjacentFriendlyBorder();
-				if(tempTile != null){
+				HashSet<Tile> borderTiles = this.tile.getAdjacentFriendlyBorder();
+				foreach(Tile tempTile in borderTiles){
 					this.tile.getVillage().mergeWith(tempTile.getVillage());
 				}
 				currentPath = null;
@@ -62,6 +61,7 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	public void captureTile() {
+		//Removes the tile from its villages tiles list
 		if(this.tile.getVillage() != null)
 			this.tile.getVillage().removeTile(this.tile);
 		this.tile.setVillage(this.getVillage());

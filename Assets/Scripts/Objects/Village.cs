@@ -75,7 +75,6 @@ public class Village : Photon.MonoBehaviour {
 	}
 	
 	public void addTile(Tile t) {
-		//t.setOwner(owner);
 		t.setVillage(this);
 		tiles.Add(t);
 	}
@@ -270,7 +269,7 @@ public class Village : Photon.MonoBehaviour {
 	//Merges the current village with the passed in village
 	public void mergeWith(Village v){
 		//The if decides which village gets destroyed and which will not
-		if(this.getVillageType() > v.getVillageType() || this.getTiles().Count >= v.getTiles().Count){
+		if(this.getVillageType() > v.getVillageType()){
 			foreach (Tile tempTile in v.getTiles()){
 				tempTile.setVillage(this);
 				this.addTile(tempTile);
@@ -284,6 +283,32 @@ public class Village : Photon.MonoBehaviour {
 			GameObject.Destroy(v.gameObject);
 		}
 
+		else if(v.getVillageType() > this.getVillageType()){
+			foreach (Tile tempTile in this.getTiles()){
+				tempTile.setVillage(v);
+				v.addTile(tempTile);
+			}
+			foreach (Unit tempUnit in this.getUnits()){
+				tempUnit.setVillage(v);
+				v.addUnit(tempUnit);
+			}
+			v.changeGold(this.getGold());
+			v.changeWood(this.getWood());
+			GameObject.Destroy(this.gameObject);
+		}
+		else if(this.getTiles().Count >= v.getTiles().Count){
+			foreach (Tile tempTile in v.getTiles()){
+				tempTile.setVillage(this);
+				this.addTile(tempTile);
+			}
+			foreach (Unit tempUnit in v.getUnits()){
+				tempUnit.setVillage(this);
+				this.addUnit(tempUnit);
+			}
+			this.changeGold(v.getGold());
+			this.changeWood(v.getWood());
+			GameObject.Destroy(v.gameObject);
+		}
 		else{
 			foreach (Tile tempTile in this.getTiles()){
 				tempTile.setVillage(v);

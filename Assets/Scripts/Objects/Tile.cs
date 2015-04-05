@@ -122,14 +122,16 @@ public class Tile : Photon.MonoBehaviour {
 
 	//Returns a neighbouring tile that is of the same owner but from a different village
 	//Used to merge villages. Returns null if no merge is neccessary
-	public Tile adjacentFriendlyBorder(){
+	public HashSet<Tile> getAdjacentFriendlyBorder(){
+		HashSet<Tile> borderTiles = new HashSet<Tile>();
 		foreach (KeyValuePair<Hex.Direction, Tile> entry in this.getNeighbours()) {
 			Tile neighbour = entry.Value;
 			if (neighbour.getOwner() == this.getOwner() && neighbour.getVillage() != this.getVillage()){
-				return neighbour;
+				//NOT FINISHED MUST IGNORE MULTIPLE TILES FROM SAME VILLAGE
+				borderTiles.Add(neighbour);
 			}
 		}
-		return null;
+		return borderTiles;
 	}
 
 	public Player getOwner() {
