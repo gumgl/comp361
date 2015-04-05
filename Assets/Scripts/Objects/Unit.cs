@@ -45,7 +45,7 @@ public class Unit : Photon.MonoBehaviour {
 				setTile(currentPath[currentPathIndex]);
 			} else { // Unit has arrived at target
 				this.tile.setUnit(this);
-				this.tile.setVillage(this.getVillage());
+				//this.tile.setVillage(this.getVillage());
 				callCapture(tile.pos.q, tile.pos.r);
 				if (this.tile.getLandType() == LandType.Tree) {
 					harvestTree(tile.pos.q, tile.pos.r);
@@ -62,6 +62,8 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	public void captureTile() {
+		if(this.tile.getVillage() != null)
+			this.tile.getVillage().removeTile(this.tile);
 		this.tile.setVillage(this.getVillage());
 		this.getVillage().addTile(this.tile);
 	}
@@ -230,7 +232,7 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	void OnMouseUp() {
-		Debug.Log("Unit OnMouseUp");
+	//	Debug.Log("Unit OnMouseUp");
 		owner = this.tile.getOwner();
 		board.selectedUnit = this;
 		halo.SetActive(true);

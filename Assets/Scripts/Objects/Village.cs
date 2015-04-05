@@ -87,7 +87,7 @@ public class Village : Photon.MonoBehaviour {
 	}
 	
 	public void removeTile(Tile dest) {
-		
+		tiles.Remove(dest);
 	}
 	
 	public HashSet<Unit> getUnits() {
