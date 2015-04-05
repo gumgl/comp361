@@ -192,10 +192,12 @@ public class Tile : Photon.MonoBehaviour {
 	}
 
 	void OnMouseDown() {
-		Debug.Log(this.getVillage());
+		//Debug.Log(this.getVillage());
 	}
 	
 	void OnMouseUp() {
+		Debug.Log("Tile " + pos.ToString() + " OnMouseUp");
+
 		if (board.selectedUnit != null) {
 			//Debug.Log(board.selectedUnit.getVillage());
 			board.selectedUnit.getVillage().GetComponent<PhotonView>().RPC("moveUnit", PhotonTargets.All, board.selectedUnit.getTile().pos.q, board.selectedUnit.getTile().pos.r, this.pos.q, this.pos.r); 
