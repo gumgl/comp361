@@ -12,7 +12,13 @@ public class Unit : Photon.MonoBehaviour {
 	public int currentPathIndex;
 	public float height = 1f;
 	public Player owner = null;
-	public float moveSpeed = 5f; // In portion of length 
+	public float moveSpeed = 5f; // In portion of length
+	private GameObject halo;
+
+	void Start()
+	{
+		halo = transform.Find("SelectedHalo").gameObject;
+	}
 
 	void Update() {
 		if (isMoving()) { // Path animation
@@ -121,7 +127,8 @@ public class Unit : Photon.MonoBehaviour {
 			}
 		}
 		board.selectedUnit = null;
-		this.transform.renderer.material.color = Color.cyan;
+		halo.SetActive(false);
+		//this.transform.renderer.material.color = Color.cyan;
 	}
 
 	public bool isMoving() {
@@ -165,9 +172,22 @@ public class Unit : Photon.MonoBehaviour {
 	public UnitType getUnitType() {
 		return myType;
 	}
-	
-	public void setUnitType(UnitType ut) {
+
+	public void setUnitType(UnitType ut)
+	{
 		myType = ut;
+		
+		// Hide all meshes
+		for (int i = 0; i < System.Enum.GetNames(typeof(UnitType)).Length; i++)
+			transform.GetChild(i).gameObject.SetActive(false);
+
+		// Show the correct one
+		transform.GetChild((int)myType).gameObject.SetActive(true);
+	}
+
+	public void setUnitTypeRandom()
+	{
+		setUnitType((UnitType) Random.Range(0,System.Enum.GetNames(typeof(UnitType)).Length));
 	}
 	
 	public int getSalary() {
@@ -212,9 +232,11 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	void OnMouseUp() {
+		Debug.Log("Unit OnMouseUp");
 		owner = this.tile.getOwner();
 		board.selectedUnit = this;
-		this.transform.renderer.material.color = Color.green;
+		halo.SetActive(true);
+		//this.transform.renderer.material.color = Color.green;
 	}
 
 }
