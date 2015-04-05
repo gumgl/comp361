@@ -55,9 +55,7 @@ public class Unit : Photon.MonoBehaviour {
 		}
 	}
 
-	//[RPC]
 	public void captureTile() {
-		//this.tile.setOwner(this.getOwner());
 		this.tile.setVillage(this.getVillage());
 		this.getVillage().addTile(this.tile);
 	}

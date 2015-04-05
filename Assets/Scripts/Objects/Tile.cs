@@ -153,7 +153,7 @@ public class Tile : Photon.MonoBehaviour {
 	}
 
 	void OnMouseDown() {
-		//Debug.Log(this.getVillage().getTiles().Count);
+		Debug.Log(this.getVillage().getTiles().Count);
 	}
 	
 	void OnMouseUp() {

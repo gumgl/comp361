@@ -262,22 +262,39 @@ public class Village : Photon.MonoBehaviour {
 		u.setActionType (ActionType.ReadyForOrders); 
 		u.setTile (tempTile);
 		u.placeUnit();
-		addUnit(u);
+		tempTile.getVillage().addUnit(u);
 		tempTile.getVillage().isActive = false;
 	}
 
+	//Merges the current village with the passed in village
 	public void mergeWith(Village v){
-		if(this.getVillageType() > v.getVillageType()){
-			Debug.Log("THIS WILL STAND FOR IT IS MORE UPGRADED");
+		//The if decides which village gets destroyed and which will not
+		if(this.getVillageType() > v.getVillageType() || this.getTiles().Count >= v.getTiles().Count){
+			foreach (Tile tempTile in v.getTiles()){
+				tempTile.setVillage(this);
+				this.addTile(tempTile);
+			}
+			foreach (Unit tempUnit in v.getUnits()){
+				tempUnit.setVillage(this);
+				this.addUnit(tempUnit);
+			}
+			this.changeGold(v.getGold());
+			this.changeWood(v.getWood());
+			GameObject.Destroy(v.gameObject);
 		}
-		else if (this.getVillageType() < v.getVillageType()){
-			Debug.Log("OTHER WILL STAND FOR IT IS MORE UPGRADED");
-		}
-		else if(this.getTiles().Count >= v.getTiles().Count){
-			Debug.Log("THIS WILL STAND FOR IT IS LARGER");
-		}
+
 		else{
-			Debug.Log("OTHER WILL STAND FOR IT IS LARGER");
+			foreach (Tile tempTile in this.getTiles()){
+				tempTile.setVillage(v);
+				v.addTile(tempTile);
+			}
+			foreach (Unit tempUnit in this.getUnits()){
+				tempUnit.setVillage(v);
+				v.addUnit(tempUnit);
+			}
+			v.changeGold(this.getGold());
+			v.changeWood(this.getWood());
+			GameObject.Destroy(this.gameObject);
 		}
 	}
 	void OnMouseUp () {
