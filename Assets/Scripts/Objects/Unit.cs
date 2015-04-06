@@ -12,7 +12,13 @@ public class Unit : Photon.MonoBehaviour {
 	public int currentPathIndex;
 	public float height = 1f;
 	public Player owner = null;
-	public float moveSpeed = 5f; // In portion of length 
+	public float moveSpeed = 5f; // In portion of length
+	private GameObject halo;
+
+	void Start()
+	{
+		halo = transform.Find("SelectedHalo").gameObject;
+	}
 
 	void Update() {
 		if (isMoving()) { // Path animation
@@ -38,16 +44,16 @@ public class Unit : Photon.MonoBehaviour {
 			if (currentPathIndex < currentPath.Count) { // Unit is still getting there
 				setTile(currentPath[currentPathIndex]);
 			} else { // Unit has arrived at target
-				//this.tile.setOwner(this.getOwner());
-				//this.tile.setVillage(this.getVillage());
-				//this.getVillage().addTile(this.tile);
 				this.tile.setUnit(this);
 				//this.tile.setVillage(this.getVillage());
 				callCapture(tile.pos.q, tile.pos.r);
-				//this.tile.getVillage().GetComponent<PhotonView>().RPC("callCapture", PhotonTargets.All, tile.pos.q, tile.pos.r);
 				if (this.tile.getLandType() == LandType.Tree) {
 					harvestTree(tile.pos.q, tile.pos.r);
 					//	this.tile.getVillage().GetComponent<PhotonView>().RPC("harvestTree", PhotonTargets.All, tile.pos.q, tile.pos.r);
+				}
+				HashSet<Tile> borderTiles = this.tile.getAdjacentFriendlyBorder();
+				foreach(Tile tempTile in borderTiles){
+					this.tile.getVillage().mergeWith(tempTile.getVillage());
 				}
 				currentPath = null;
 				positionOverTile();
@@ -55,9 +61,8 @@ public class Unit : Photon.MonoBehaviour {
 		}
 	}
 
-	//[RPC]
 	public void captureTile() {
-		
+	
 		bool opponentTile = false; 
 		Village possibleOpponentVillage = this.tile.getVillage (); 
 		if (possibleOpponentVillage != null){
@@ -208,7 +213,8 @@ public class Unit : Photon.MonoBehaviour {
 			}
 		}
 		board.selectedUnit = null;
-		this.transform.renderer.material.color = Color.cyan;
+		halo.SetActive(false);
+		//this.transform.renderer.material.color = Color.cyan;
 	}
 
 	public bool isMoving() {
@@ -252,9 +258,22 @@ public class Unit : Photon.MonoBehaviour {
 	public UnitType getUnitType() {
 		return myType;
 	}
-	
-	public void setUnitType(UnitType ut) {
+
+	public void setUnitType(UnitType ut)
+	{
 		myType = ut;
+		
+		// Hide all meshes
+		for (int i = 0; i < System.Enum.GetNames(typeof(UnitType)).Length; i++)
+			transform.GetChild(i).gameObject.SetActive(false);
+
+		// Show the correct one
+		transform.GetChild((int)myType).gameObject.SetActive(true);
+	}
+
+	public void setUnitTypeRandom()
+	{
+		setUnitType((UnitType) Random.Range(0,System.Enum.GetNames(typeof(UnitType)).Length));
 	}
 	
 	public int getSalary() {
@@ -271,7 +290,7 @@ public class Unit : Photon.MonoBehaviour {
 	}
 	
 	public Player getOwner() {
-		return owner;
+		return getVillage().getOwner();
 	}
 	public void removeUnit() { 
 		
@@ -299,9 +318,11 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	void OnMouseUp() {
+	//	Debug.Log("Unit OnMouseUp");
 		owner = this.tile.getOwner();
 		board.selectedUnit = this;
-		this.transform.renderer.material.color = Color.green;
+		halo.SetActive(true);
+		//this.transform.renderer.material.color = Color.green;
 	}
 
 }
