@@ -92,7 +92,7 @@ public class Unit : Photon.MonoBehaviour {
 					List<Tile> withOutT = new List<Tile>(ownedByOpponent); 
 					withOutT.Remove (t1); 
 					for (int j=0; j<withOutT.Count; j++){
-						if (!callCheckPath (t1,withOutT[j])){ 
+						if (!callCheckPath (t1,withOutT[j]) && !isAdjacentToListTiles(separated, withOutT[j])){ 
 							separated.Add (withOutT[j]);
 							pathExists = false; 
 						}	
@@ -102,14 +102,29 @@ public class Unit : Photon.MonoBehaviour {
 			}
 			
 			if (!pathExists) { 
-				foreach (Tile t in separated){ 
-				//still might need to check if any tiles in the separated list are connected. its not worth fixing. 
-					Debug.Log ("Size of the village is: "+callVillageTiles (t).Count);
+				foreach (Tile t in separated) { 
+					Debug.Log("Village size is: "+callVillageTiles (t).Count); 
 				}
 				
 			} 
 		}
 	}
+	
+	public bool isAdjacentToListTiles (List<Tile> list, Tile t) { 
+		
+		if (list.Count > 0){ 
+			foreach (Tile l in list) { 
+				Dictionary<Hex.Direction, Tile> neighbours = l.getNeighbours();
+				foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours) { 
+					if (pair.Value == t) { 
+						return true; 
+					}
+				}
+			}
+		}	
+		return false;  
+		
+	} 
 	
 	public List<Tile> villageTiles(Tile t, List<Tile> visited) { 
 		visited.Add (t); 
