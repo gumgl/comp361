@@ -42,7 +42,7 @@ public class Unit : Photon.MonoBehaviour {
 				//this.tile.setVillage(this.getVillage());
 				//this.getVillage().addTile(this.tile);
 				this.tile.setUnit(this);
-				this.tile.setVillage(this.getVillage());
+				//this.tile.setVillage(this.getVillage());
 				callCapture(tile.pos.q, tile.pos.r);
 				//this.tile.getVillage().GetComponent<PhotonView>().RPC("callCapture", PhotonTargets.All, tile.pos.q, tile.pos.r);
 				if (this.tile.getLandType() == LandType.Tree) {
@@ -57,10 +57,97 @@ public class Unit : Photon.MonoBehaviour {
 
 	//[RPC]
 	public void captureTile() {
-		//this.tile.setOwner(this.getOwner());
+		
+		bool opponentTile = false; 
+		Village possibleOpponentVillage = this.tile.getVillage (); 
+		if (possibleOpponentVillage != null){
+			if (possibleOpponentVillage.getOwner () != this.getVillage().getOwner ()){
+				opponentTile = true; 
+				this.tile.getVillage().removeTile (this.tile); 
+			}
+		}
 		this.tile.setVillage(this.getVillage());
 		this.getVillage().addTile(this.tile);
+		
+		if (opponentTile){
+			Dictionary<Hex.Direction, Tile> neighbours = this.tile.getNeighbours(); 
+			List<Tile> ownedByOpponent = new List<Tile>(); 
+			foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours) { 
+				if (pair.Value.getOwner () != this.tile.getOwner () && pair.Value.getOwner() != null) { 
+					ownedByOpponent.Add (pair.Value); 
+				}
+			}
+			
+			bool pathExists = true; 
+			List<Tile> separated = new List<Tile>(); 
+			
+			if (ownedByOpponent.Count >= 2) { 
+				for (int i=0; i<ownedByOpponent.Count; i++) { 
+					Tile t1 = ownedByOpponent[i];
+					List<Tile> withOutT = new List<Tile>(ownedByOpponent); 
+					withOutT.Remove (t1); 
+					for (int j=0; j<withOutT.Count; j++){
+						if (!callCheckPath (t1,withOutT[j])){ 
+							separated.Add (withOutT[j]);
+							pathExists = false; 
+						}	
+					}	
+				if (!pathExists) separated.Add (t1); break; 
+				}			
+			}
+			
+			if (!pathExists) { 
+				foreach (Tile t in separated){ 
+				//still might need to check if any tiles in the separated list are connected. its not worth fixing. 
+					Debug.Log ("Size of the village is: "+callVillageTiles (t).Count);
+				}
+				
+			} 
+		}
 	}
+	
+	public List<Tile> villageTiles(Tile t, List<Tile> visited) { 
+		visited.Add (t); 
+		//int size = 1; 
+		Dictionary<Hex.Direction, Tile> neighbours = t.getNeighbours (); 
+		foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours){ 
+			if (!visited.Contains (pair.Value) && pair.Value.getOwner () == t.getOwner ()){
+				villageTiles(pair.Value, visited); 
+			}
+		}
+		return visited; 
+	}
+	
+	public List<Tile> callVillageTiles (Tile t) {
+	List<Tile> visited = new List<Tile>(); 
+	return villageTiles (t, visited);
+	} 
+	
+	public bool checkPath (Tile x, Tile y, List<Tile> visited) {//fix 
+		
+		bool toReturn = false; 
+		visited.Add (x); 
+		Dictionary<Hex.Direction, Tile> neighbours = x.getNeighbours(); 
+		foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours){ 
+			if (pair.Value.getOwner() == x.getOwner() && !visited.Contains (pair.Value)) { 
+				if (pair.Value == y) return true; 
+				else { 
+					//visited.Add (pair.Value); 
+					toReturn = checkPath (pair.Value, y,visited); 
+					if (toReturn == true) return true; 
+				}
+			}	
+		}
+		return false; 
+		
+	}
+	
+	public bool callCheckPath (Tile x, Tile y){
+		List<Tile> visited = new List<Tile> (); 
+		return checkPath (x,y,visited); 
+	}
+	
+	
 
 	public void MoveTo(Tile target) {
 
