@@ -128,7 +128,17 @@ public class Tile : Photon.MonoBehaviour {
 			Tile neighbour = entry.Value;
 			if (neighbour.getOwner() == this.getOwner() && neighbour.getVillage() != this.getVillage()){
 				//NOT FINISHED MUST IGNORE MULTIPLE TILES FROM SAME VILLAGE
-				borderTiles.Add(neighbour);
+				bool sameVillage = false;
+				if(borderTiles.Count > 0){
+					foreach(Tile tile in borderTiles){
+						if(tile.getVillage() == neighbour.getVillage())
+							sameVillage = true;
+					}
+				}
+				if(!sameVillage){
+					Debug.Log("BOOM");
+					borderTiles.Add(neighbour);
+				}
 			}
 		}
 		return borderTiles;
