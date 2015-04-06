@@ -3,12 +3,13 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-	private GameObject currGame;
+	public Game currGame;
 	private HashSet<Village> villages = new HashSet<Village>();
 	private bool isActive = false;
 	private int wins = 0;
 	private int losses = 0;
 	private Color color = Color.clear;
+
 
 	void Start () {
 

@@ -12,7 +12,7 @@ public class NetworkManager : MonoBehaviour {
 
 	void Connect() {
 		// connects to the server that is defined in our usersettings file, checking version names match
-		PhotonNetwork.ConnectUsingSettings ("NetworkingDemo v001");
+		PhotonNetwork.ConnectUsingSettings ("game-logic");
 
 	}
 
@@ -24,7 +24,7 @@ public class NetworkManager : MonoBehaviour {
 	// joins a random room, while no rooms exist, so this fails
 	void OnJoinedLobby() {
 		PhotonNetwork.JoinRandomRoom ();
-
+		
 	}
 
 	// if no rooms, creates a room
@@ -50,7 +50,7 @@ public class NetworkManager : MonoBehaviour {
 		//the last parameter is a group number, of which group to identify about any updates
 
 		if (PhotonNetwork.isMasterClient) {
-			PhotonNetwork.Instantiate("DemoGame", Vector3.zero, Quaternion.identity, 0);
+			PhotonNetwork.Instantiate("Game", Vector3.zero, Quaternion.identity, 0);
 		}
 
 
