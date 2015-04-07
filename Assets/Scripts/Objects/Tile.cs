@@ -119,6 +119,25 @@ public class Tile : Photon.MonoBehaviour {
 		// TODO: check that units in neighbouring tiles are not of higher level
 		return (getLandType() != LandType.Water);
 	}
+	
+	/*
+	* FOR PAUL: checks that the unit around target tile is enemy to owner of "this" tile. No bugs as far I can tell. 
+	*/
+	public Unit containsEnemyInNeighbour (Tile target) { 
+		
+		Dictionary<Hex.Direction, Tile> neighbours = target.getNeighbours(); 
+		foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours) { 
+			if (pair.Value.getUnit() != null) { 
+				if (pair.Value.getUnit ().getOwner() != this.getOwner ()) { //is enemy
+					return pair.Value.getUnit (); 
+				}
+			}
+		}
+		return null;
+		
+	}
+	
+	
 
 	//Returns a neighbouring tile that is of the same owner but from a different village
 	//Used to merge villages. Returns null if no merge is neccessary
