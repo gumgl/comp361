@@ -2,12 +2,14 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class Game : MonoBehaviour {
 
 	public Board board;
 	public NetworkManager nm;
+	public GameObject playerColor;
 
 	private List<Player> players = new List<Player>();
 	private int localPlayer; // Index of the local player (on this machine)
@@ -39,20 +41,28 @@ public class Game : MonoBehaviour {
 	public void InitBoard()
 	{
 		nm.lobby.SetActive(false);
+
+		AddPlayers();
+		playerColor.GetComponent<Image>().color = GetLocalPlayer().getColor();
+		playerColor.SetActive(true);
+		
+		//Debug.Log("About to init board with " + players.Count + " players...");
+		board.init((int) PhotonNetwork.room.customProperties["s"]);
+	}
+
+	void AddPlayers() {
 		var list = PhotonNetwork.playerList;
 		Array.Sort(list, delegate(PhotonPlayer p1, PhotonPlayer p2) { return p1.ID.CompareTo(p2.ID); });
 
 		foreach (var player in list)
 		{
-			//Debug.Log("Registering PhotonPlayer ID#" + player.ID);
+			//Debug.Log("Registering PhotonPlayer ID#" + player.ID + " " + (player.isLocal ? "local" : "remote"));
 			//if (player.ID == PhotonNetwork.player.ID)
 			if (player.isLocal) // This is us
 				RegisterLocalPlayer(player);
 			else
 				RegisterOtherPlayer(player);
 		}
-		//Debug.Log("About to init board with " + players.Count + " players...");
-		board.init((int) PhotonNetwork.room.customProperties["s"]);
 	}
 
 	void TreeGrowth() {

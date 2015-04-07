@@ -6,8 +6,10 @@ public class NetworkManager : MonoBehaviour
 {
 	public Game game;
 	public GameObject lobby;
+	public Button connectButton;
 	public Button startGameButton;
 	public InputField seedInputField;
+	public InputField playerNameInputField;
 	public Text playerListText;
 	public Text roomNameText;
 
@@ -15,13 +17,17 @@ public class NetworkManager : MonoBehaviour
 
 	// Use this for initialization
 	void Start () {
-		Connect ();
+		//ConnectToLobby ();
 	}
 
-	void Connect() {
+	public void ConnectToLobby() {
 		// connects to the server that is defined in our usersettings file, checking version names match
+		PhotonNetwork.ConnectUsingSettings ("game-lobby");
+	}
 
-		PhotonNetwork.ConnectUsingSettings ("game-logic");
+	public void JoinARoom()
+	{
+		PhotonNetwork.JoinRandomRoom();
 	}
 
 	// shows connection status
@@ -32,7 +38,11 @@ public class NetworkManager : MonoBehaviour
 	// joins a random room, while no rooms exist, so this fails
 	void OnJoinedLobby() {
 		Debug.Log("OnJoinedLobby");
-		PhotonNetwork.JoinRandomRoom ();
+		connectButton.interactable = false;
+
+		// TODO: fetch player's name from a file
+
+		JoinARoom ();
 	}
 
 	// if no rooms, creates a room
@@ -60,15 +70,14 @@ public class NetworkManager : MonoBehaviour
 
 	void OnJoinedRoom(){
 		Debug.Log("OnJoinedRoom");
-		//StartGameButton.interactable = PhotonNetwork.isMasterClient;
+		startGameButton.interactable = true;
 		roomNameText.text = PhotonNetwork.room.name;
 		UpdatePlayerList();
 	}
 
 	void OnPhotonCustomRoomPropertiesChanged(Hashtable propertiesThatChanged) {
 		Debug.Log("OnPhotonCustomRoomPropertiesChanged");
-		if (propertiesThatChanged.ContainsKey("s"))
-		{
+		if (propertiesThatChanged.ContainsKey("s")) {
 			seedInputField.text = propertiesThatChanged["s"].ToString();
 		}
 	}
@@ -82,6 +91,26 @@ public class NetworkManager : MonoBehaviour
 				seedInputField.text = room.customProperties["s"].ToString();
 			else // Only update if seed not blank
 				room.SetCustomProperties(new Hashtable() {{"s", int.Parse(seedInputField.text)}});
+		}
+
+	}
+
+	void OnPhotonPlayerPropertiesChanged(object[] playerAndUpdatedProps) {
+		// From PUN's docs: We are using a object[] due to limitations of Unity's GameObject.SendMessage (which has only one optional parameter).
+		PhotonPlayer player = playerAndUpdatedProps[0] as PhotonPlayer;
+		Hashtable props = playerAndUpdatedProps[1] as Hashtable;
+		//playerNameInputField.text = PhotonNetwork.player.customProperties["n"].ToString();
+		UpdatePlayerList();
+	}
+
+	public void UpdatePlayerName() {
+		Debug.Log("UpdatePlayerName");
+		if (playerNameInputField.text.Equals("") && PhotonNetwork.player.customProperties.ContainsKey("n"))
+			playerNameInputField.text = PhotonNetwork.player.customProperties["n"].ToString();
+		else {
+			// Only update if seed not blank
+			PhotonNetwork.player.SetCustomProperties(new Hashtable() {{"n", playerNameInputField.text}});
+			// TODO: STORE NAME TO FILE
 		}
 	}
 
@@ -100,11 +129,18 @@ public class NetworkManager : MonoBehaviour
 	void UpdatePlayerList()
 	{
 		playerListText.text = "";
-		foreach (var player in PhotonNetwork.playerList) {
-			playerListText.text += player.ID;
+		var list = PhotonNetwork.playerList;
+		System.Array.Sort(list, delegate(PhotonPlayer p1, PhotonPlayer p2) { return p1.ID.CompareTo(p2.ID); });
+
+		foreach (var player in list) {
+			string name = player.customProperties.ContainsKey("n") && ! player.customProperties["n"].ToString().Equals("") ? player.customProperties["n"].ToString() : "Anonymous";
+
+			string description = "#" + player.ID.ToString() + ": "+ name;
+			if (player.isMasterClient)
+				description = "<color=\"yellow\">" + description + "</color>";
 			if (player.isLocal)
-				playerListText.text += " (you)";
-			playerListText.text += "\n";
+				description = "<b>" + description + "</b> (you)";
+			playerListText.text += description + "\n";
 		}
 	}
 }
