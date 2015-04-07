@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player
 {
 	public Game currGame;
 	private HashSet<Village> villages = new HashSet<Village>();

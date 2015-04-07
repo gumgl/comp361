@@ -26,7 +26,7 @@ public class Village : Photon.MonoBehaviour {
 		gold = gl;
 		wood = wd;
 		own.addVillage(this);
-		transform.parent = own.transform;
+		transform.parent = board.transform;
 	}
 	
 	public VillageType getVillageType () { 
