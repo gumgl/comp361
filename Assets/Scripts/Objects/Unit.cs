@@ -69,6 +69,9 @@ public class Unit : Photon.MonoBehaviour {
 			if (possibleOpponentVillage.getOwner () != this.getVillage().getOwner ()){
 				opponentTile = true; 
 				this.tile.getVillage().removeTile (this.tile); 
+				if (this.tile.getVillage ().getTiles ().Count < 3) { 
+					this.tile.getVillage().delete (this); 
+				}
 			}
 		}
 		this.tile.setVillage(this.getVillage());
@@ -117,13 +120,13 @@ public class Unit : Photon.MonoBehaviour {
 					if(callVillageTiles(toKeep).Count < callVillageTiles(t).Count)
 						toKeep = t;
 				}
-				if(callVillageTiles(hasVillage).Count > 2){
+				if(callVillageTiles(hasVillage).Count >= 3){
 					toKeep = hasVillage;
 				}
 
-				if(callVillageTiles(toKeep).Count < 2){
+				if(callVillageTiles(toKeep).Count < 3){
 					Debug.Log("CASE 1");
-					toKeep.getVillage().delete();
+					toKeep.getVillage().delete(this);
 				}
 				else if(toKeep == hasVillage){
 					Debug.Log("CASE 2");
@@ -155,6 +158,8 @@ public class Unit : Photon.MonoBehaviour {
 				//}
 			} 
 		}
+		
+	
 	}
 	
 	public bool isAdjacentToListTiles (List<Tile> list, Tile t) { 

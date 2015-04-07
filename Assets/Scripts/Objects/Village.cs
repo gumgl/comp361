@@ -49,7 +49,11 @@ public class Village : MonoBehaviour {
 		upgradable = b;
 	}
 
-	public void delete() {
+	public void delete(Unit captor) {
+		if (captor != null) {
+			captor.getTile ().getVillage ().changeGold (this.getGold ());
+			captor.getTile ().getVillage ().changeWood (this.getWood ());
+		}
 		structTile.setLandType(LandType.Tree);
 		//set tile ownership to null for all tiles part of the village
 		foreach (Tile t in tiles) {
@@ -157,7 +161,7 @@ public class Village : MonoBehaviour {
 			}
 			if (getGold () < 0)  {
 				removeResources();
-				delete();
+				delete(null);
 				break;
 			}
 		}
