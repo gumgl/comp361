@@ -92,9 +92,18 @@ public class Unit : Photon.MonoBehaviour {
 					List<Tile> withOutT = new List<Tile>(ownedByOpponent); 
 					withOutT.Remove (t1); 
 					for (int j=0; j<withOutT.Count; j++){
-						if (!callCheckPath (t1,withOutT[j]) && !isAdjacentToListTiles(separated, withOutT[j])){ 
-							separated.Add (withOutT[j]);
-							pathExists = false; 
+						if (!callCheckPath (t1,withOutT[j])){ 
+							Tile potential = isAdjacentToListTiles(separated, withOutT[j]); 
+							if (potential == null){ //there is no conflict in separated	
+								separated.Add (withOutT[j]);
+								pathExists = false; 
+							}
+							else { 
+								if (withOutT[j].getStructure () == Structure.Village) { 
+									separated.Remove (potential);
+									separated.Add (withOutT[j]); 
+								}
+							}	
 						}	
 					}
 				if (!pathExists) separated.Add(t1); 
@@ -155,19 +164,19 @@ public class Unit : Photon.MonoBehaviour {
 		}
 	}
 	
-	public bool isAdjacentToListTiles (List<Tile> list, Tile t) { 
+	public Tile isAdjacentToListTiles (List<Tile> list, Tile t) { 
 		
 		if (list.Count > 0){ 
 			foreach (Tile l in list) { 
 				Dictionary<Hex.Direction, Tile> neighbours = l.getNeighbours();
 				foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours) { 
 					if (pair.Value == t) { 
-						return true; 
+						return pair.Value;
 					}
 				}
 			}
 		}	
-		return false;  
+		return null;  
 	} 
 
 	//get the list of all tiles belonging to the village Tile t belongs to. 
