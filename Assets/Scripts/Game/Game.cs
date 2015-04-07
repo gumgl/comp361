@@ -28,11 +28,8 @@ public class Game : MonoBehaviour {
 	}
 
 	void Start () {
-		//TODO get players (lobby? colors?)
 		currPlayer = 0;
 		currPhase = Phase.Tombstone;
-
-		//InitBoard();
 	}
 	void Update () {
 	
@@ -42,22 +39,19 @@ public class Game : MonoBehaviour {
 	public void InitBoard()
 	{
 		nm.lobby.SetActive(false);
-		/*if (PhotonNetwork.isMasterClient)
-		{*/
-			var list = PhotonNetwork.playerList;
-			Array.Sort(list, delegate(PhotonPlayer p1, PhotonPlayer p2) { return p1.ID.CompareTo(p2.ID); });
+		var list = PhotonNetwork.playerList;
+		Array.Sort(list, delegate(PhotonPlayer p1, PhotonPlayer p2) { return p1.ID.CompareTo(p2.ID); });
 
-			foreach (var player in list)
-			{
-				Debug.Log("Registering PhotonPlayer ID#" + player.ID);
-				//if (player.ID == PhotonNetwork.player.ID)
-				if (player.isLocal) // This is us
-					RegisterLocalPlayer();
-				else
-					RegisterOtherPlayer();
-			}
-		/*}*/
-		Debug.Log("About to init board with " + players.Count + " players...");
+		foreach (var player in list)
+		{
+			//Debug.Log("Registering PhotonPlayer ID#" + player.ID);
+			//if (player.ID == PhotonNetwork.player.ID)
+			if (player.isLocal) // This is us
+				RegisterLocalPlayer(player);
+			else
+				RegisterOtherPlayer(player);
+		}
+		//Debug.Log("About to init board with " + players.Count + " players...");
 		board.init();
 	}
 
@@ -93,24 +87,24 @@ public class Game : MonoBehaviour {
 		return players[index];
 	}
 
-	private void AddPlayer()
+	private void AddPlayer(PhotonPlayer pp)
 	{
-		Player player = new Player();
+		Player player = new Player(pp);
 		//player.transform.parent = this.transform;
 		player.setColor(GetNextColor());
 		player.currGame = this;
 		players.Add(player);
 	}
 
-	public void RegisterLocalPlayer() {
-		Debug.Log("RegisterLocalPlayer");
+	public void RegisterLocalPlayer(PhotonPlayer pp) {
+		//Debug.Log("RegisterLocalPlayer");
 		localPlayer = players.Count;
-		AddPlayer();
+		AddPlayer(pp);
 	}
 
-	public void RegisterOtherPlayer() {
-		Debug.Log("RegisterOtherPlayer");
-		AddPlayer();
+	public void RegisterOtherPlayer(PhotonPlayer pp) {
+		//Debug.Log("RegisterOtherPlayer");
+		AddPlayer(pp);
 	}
 
 	private Color GetNextColor() {
