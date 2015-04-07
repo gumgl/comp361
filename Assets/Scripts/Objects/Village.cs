@@ -57,10 +57,9 @@ public class Village : MonoBehaviour {
 		}
 		//for all units, find the tile they are on and set landtype to tombstone. Also remove the units from the tiles.
 		foreach (Unit u in units) {
-			u.getTile().setLandType(LandType.Tombstone);
-			u.removeUnit();
+			u.kill();
 		}
-		GameObject.Destroy(this);
+		GameObject.Destroy(this.gameObject);
 	}
 
 	public void setStructTile(Tile t) {
@@ -134,7 +133,6 @@ public class Village : MonoBehaviour {
 					}
 				}
 			}
-		
 	}
 	
 	public void incomePhase(HashSet<Tile> tiles) {
@@ -164,6 +162,16 @@ public class Village : MonoBehaviour {
 			}
 		}
 	}
+	//Move the structure of a village to the current tile
+	public void moveVillage(Tile targetTile){
+		structTile.setStructure(Structure.None);
+		structTile.setLandType(LandType.Tree);
+		setStructTile(targetTile);
+		targetTile.setLandType(LandType.Grass);
+		targetTile.setStructure(Structure.Village);
+		transform.position = board.TileCoordToWorldCoord(targetTile.getPixelPos());
+	}
+
 	public void removeResources () { 
 		this.gold = 0;
 		this.wood = 0;
@@ -330,7 +338,7 @@ public class Village : MonoBehaviour {
 		
 			foreach(Tile t in tiles){
 			//Want to be able to do && t.isAdjacenttoEnemyUnit()
-				if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile()){
+				if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile() && t.containsEnemyInNeighbour(t) == null){
 					t.setAcceptsUnit(true);
 					t.transform.GetChild(0).renderer.material.color = Color.black;
 				}
@@ -344,7 +352,7 @@ public class Village : MonoBehaviour {
 			this.transform.GetChild(2).renderer.material.color = Color.clear;
 			
 			foreach(Tile t in tiles){
-				if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile()){
+				if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile() && t.containsEnemyInNeighbour(t) == null){
 					t.setAcceptsUnit(false);
 					t.transform.GetChild(0).renderer.material.color = t.getVillage().getOwner().getColor();
 				}

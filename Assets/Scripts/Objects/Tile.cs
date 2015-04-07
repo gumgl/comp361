@@ -7,7 +7,7 @@ public class Tile : Photon.MonoBehaviour {
 	public Board board;
 	public Unit unit;
 	Village village = null;  
-	public Structure structure;
+	public Structure structure = Structure.None;
 	public LandType type;
 	static public float size = 1;
 	bool acceptsUnit = false;
@@ -42,6 +42,8 @@ public class Tile : Photon.MonoBehaviour {
 		this.type = t;
 		this.transform.GetChild(1).gameObject.SetActive(false);
 		this.transform.GetChild(2).gameObject.SetActive(false);
+		this.transform.GetChild(3).gameObject.SetActive(false);
+
 		if (t == LandType.Water) {
 			transform.GetChild(0).renderer.material.color = Color.blue;
 		} else if (t == LandType.Meadow) {
@@ -50,6 +52,9 @@ public class Tile : Photon.MonoBehaviour {
 		} else if (t == LandType.Tree) {
 			this.transform.GetChild(2).gameObject.SetActive(true);
 			this.transform.GetChild(2).localRotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
+		} else if (t == LandType.Tombstone){
+			this.transform.GetChild(3).gameObject.SetActive(true);
+			this.transform.GetChild(3).localRotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
 		}
 	}
 	public LandType getLandType() { 
@@ -109,7 +114,7 @@ public class Tile : Photon.MonoBehaviour {
 		return new Vector2(center.x + size * Mathf.Cos(angle), center.y + size * Mathf.Sin(angle));
 	}
 	public bool canWalkThrough(Unit unit) {
-		if (getLandType().isMovementAllowed() && getOwner() == unit.getTile().getOwner()) {
+		if (getLandType().isMovementAllowed() && getOwner() == unit.getTile().getOwner() && this.containsEnemyInNeighbour(this) == null) {
 			// TODO: check that units in neighbouring tiles are not of higher level
 			return true;
 		} else
@@ -134,16 +139,14 @@ public class Tile : Photon.MonoBehaviour {
 			}
 		}
 		return null;
-		
 	}
-	
-	
 
 	public void killTile(){
 		if(this.getUnit() != null){
 			GameObject.Destroy(this.getUnit().gameObject);
 			this.setLandType(LandType.Tombstone);
 		}
+		//this.getVillage().removeTile(this);
 		this.setVillage(null);
 	}
 
@@ -196,7 +199,7 @@ public class Tile : Photon.MonoBehaviour {
 	}
 	
 	void OnMouseUp() {
-		Debug.Log("Tile " + pos.ToString() + " OnMouseUp");
+//		Debug.Log("Tile " + pos.ToString() + " OnMouseUp");
 
 		if (board.selectedUnit != null) {
 			//Debug.Log(board.selectedUnit.getVillage());
