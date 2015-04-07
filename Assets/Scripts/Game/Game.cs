@@ -10,6 +10,7 @@ public class Game : MonoBehaviour {
 	public Board board;
 	public NetworkManager nm;
 	public GameObject playerColor;
+	public Button endTurnButton;
 
 	private List<Player> players = new List<Player>();
 	private int localPlayer; // Index of the local player (on this machine)
@@ -22,6 +23,7 @@ public class Game : MonoBehaviour {
 	/// <summary>Player phase (i.e. done for each player)</summary>
 	private enum Phase
 	{
+		TreeGrowth,
 		Tombstone,
 		Build,
 		Income,
@@ -31,11 +33,11 @@ public class Game : MonoBehaviour {
 
 	void Start () {
 		currPlayer = 0;
-		currPhase = Phase.Tombstone;
+		currPhase = Phase.Move;
 	}
 	void Update () {
-	
 	}
+
 
 	[RPC]
 	public void InitBoard()
@@ -69,8 +71,21 @@ public class Game : MonoBehaviour {
 		// TODO
 	}
 
+	public void endTurnButtonAction(){
+		NextTurn();
+	}
+
 	/// <summary>Move to next player phase (also modifies currPlayer)</summary>
-	void NextPhase() {
+	[RPC]
+	void NextTurn(){
+		currPlayer = NextPlayer();
+		if(currPlayer == 0){
+			currPhase = Phase.TreeGrowth;
+		}
+		else
+			currPhase = Phase.Tombstone;
+	}
+	/*void NextPhase() {
 		if (currPhase == Phase.Move) { // Last phase of a player
 			currPhase = Phase.Tombstone;
 			if (currPlayer == players.Count - 1) { // Last player
@@ -79,7 +94,7 @@ public class Game : MonoBehaviour {
 			}
 			currPlayer = NextPlayer();
 		}
-	}
+	}*/
 
 	int NextPlayer() {
 		return (currPlayer + 1) % players.Count;

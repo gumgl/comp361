@@ -440,10 +440,12 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	void OnMouseUp() {
+		if(this.transform.root.GetComponent<Game>().GetCurrPlayer() == this.transform.root.GetComponent<Game>().GetLocalPlayer() && this.getOwner() == this.transform.root.GetComponent<Game>().GetLocalPlayer()){
 	//	Debug.Log("Unit OnMouseUp");
-		owner = this.tile.getOwner();
-		board.selectedUnit = this;
-		halo.SetActive(true);
+			owner = this.tile.getOwner();
+			board.selectedUnit = this;
+			halo.SetActive(true);
+		}
 		//this.transform.renderer.material.color = Color.green;
 	}
 

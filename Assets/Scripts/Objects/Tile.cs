@@ -177,8 +177,12 @@ public class Tile : Photon.MonoBehaviour {
 	}
 
 	void OnMouseEnter() {
-		if(this.getVillage() != null)
-			board.distanceText.text = "Wood: " + this.getVillage().getWood().ToString();
+		if(this.getOwner() == this.transform.root.GetComponent<Game>().GetLocalPlayer()){
+			if(this.getVillage() != null)
+				board.distanceText.text = "Wood: " + this.getVillage().getWood().ToString();
+			else
+				board.distanceText.text = "";
+		}
 		else
 			board.distanceText.text = "";
 	}
@@ -197,7 +201,7 @@ public class Tile : Photon.MonoBehaviour {
 	
 	void OnMouseUp() {
 //		Debug.Log("Tile " + pos.ToString() + " OnMouseUp");
-
+		if(this.transform.root.GetComponent<Game>().GetCurrPlayer() == this.transform.root.GetComponent<Game>().GetLocalPlayer()){
 		if (board.selectedUnit != null) {
 			//Debug.Log(board.selectedUnit.getVillage());
 			board.selectedUnit.getVillage().GetComponent<PhotonView>().RPC("moveUnit", PhotonTargets.All, board.selectedUnit.getTile().pos.q, board.selectedUnit.getTile().pos.r, this.pos.q, this.pos.r); 
@@ -214,5 +218,6 @@ public class Tile : Photon.MonoBehaviour {
 				village.transform.GetChild(0).renderer.material.color = Color.green;
 			}
 		}
+	}
 	}
 }

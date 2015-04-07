@@ -264,6 +264,7 @@ public class Village : MonoBehaviour {
 			}
 		}
 		Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.identity) as Unit;
+		u.transform.parent = board.transform;
 		u.board = this.board;
 		u.setVillage(tempTile.getVillage());
 		//u.setUnitType(UnitType.Peasant);
@@ -338,6 +339,7 @@ public class Village : MonoBehaviour {
 	}
 	
 	void OnMouseUp () {
+		if(this.transform.root.GetComponent<Game>().GetCurrPlayer() == this.transform.root.GetComponent<Game>().GetLocalPlayer() && this.getOwner() == this.transform.root.GetComponent<Game>().GetLocalPlayer()){
 		if(!this.isActive){
 			this.isActive = true;
 			this.transform.GetChild(0).renderer.material.color = Color.black;
@@ -372,6 +374,7 @@ public class Village : MonoBehaviour {
 		}
 		else if (getVillageType() != VillageType.Fort) {
 			setUpgradable (true);
+		}
 		}
 	}
 
