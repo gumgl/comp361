@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class Village : Photon.MonoBehaviour {
+public class Village : MonoBehaviour {
 	VillageType myType;
 	int gold = 0;
 	int wood = 0;
@@ -20,6 +20,7 @@ public class Village : Photon.MonoBehaviour {
 	public void init(Player own, Board bor, VillageType type, int gl, int wd, Tile tile){
 		board = bor;
 		owner = own;
+		tile.setStructure(Structure.Village);
 		addTile(tile);
 		setStructTile(tile);
 		setVillageType(type);
@@ -47,23 +48,19 @@ public class Village : Photon.MonoBehaviour {
 	public void setUpgradable (bool b) { 
 		upgradable = b;
 	}
+
 	public void delete() {
-		Tile hq = getStructTile();
-		if (hq.hasStructure()) {
-			hq.removeStructure();
-		}
+		structTile.setLandType(LandType.Tree);
 		//set tile ownership to null for all tiles part of the village
-		HashSet<Tile> tile = getTiles (); 
-		foreach (Tile t in tile) {
-			t.setVillage (null);
+		foreach (Tile t in tiles) {
+			t.setVillage(null);
 		}
 		//for all units, find the tile they are on and set landtype to tombstone. Also remove the units from the tiles.
-		HashSet <Unit> units = getUnits();
-		foreach (Unit u in units) { 
-			Tile unitTile = u.getTile();
+		foreach (Unit u in units) {
+			u.getTile().setLandType(LandType.Tombstone);
 			u.removeUnit();
-			unitTile.setLandType(LandType.Tombstone);
 		}
+		GameObject.Destroy(this);
 	}
 
 	public void setStructTile(Tile t) {

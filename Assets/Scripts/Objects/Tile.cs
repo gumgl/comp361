@@ -120,6 +120,14 @@ public class Tile : Photon.MonoBehaviour {
 		return (getLandType() != LandType.Water);
 	}
 
+	public void killTile(){
+		if(this.getUnit() != null){
+			GameObject.Destroy(this.getUnit().gameObject);
+			this.setLandType(LandType.Tombstone);
+		}
+		this.setVillage(null);
+	}
+
 	//Returns a neighbouring tile that is of the same owner but from a different village
 	//Used to merge villages. Returns null if no merge is neccessary
 	public HashSet<Tile> getAdjacentFriendlyBorder(){
@@ -136,7 +144,6 @@ public class Tile : Photon.MonoBehaviour {
 					}
 				}
 				if(!sameVillage){
-					Debug.Log("BOOM");
 					borderTiles.Add(neighbour);
 				}
 			}
@@ -156,6 +163,7 @@ public class Tile : Photon.MonoBehaviour {
 		else
 			board.distanceText.text = "";
 	}
+
 	//void OnMouseExit(){
 	//	transform.GetChild(0).renderer.material.color = owner.getColor();
 	//}

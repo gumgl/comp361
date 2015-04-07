@@ -20,6 +20,7 @@ public static class Config {
 		unitUpkeep[UnitType.Infantry] = 6;
 		unitUpkeep[UnitType.Soldier] = 18;
 		unitUpkeep[UnitType.Knight] = 54;
+		unitUpkeep[UnitType.Cannon] = 80;
 		
 		tileMovementAllowed[LandType.Grass] = true;
 		tileMovementAllowed[LandType.Meadow] = true;

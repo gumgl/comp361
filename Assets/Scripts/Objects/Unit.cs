@@ -96,16 +96,32 @@ public class Unit : Photon.MonoBehaviour {
 							separated.Add (withOutT[j]);
 							pathExists = false; 
 						}	
-					}	
-				if (!pathExists) separated.Add (t1); break; 
+					}
+				if (!pathExists) separated.Add(t1); 
+					break; 
 				}			
 			}
 			
 			if (!pathExists) { 
-				foreach (Tile t in separated) { 
-					Debug.Log("Village size is: "+callVillageTiles (t).Count); 
+				Tile hasVillage = null;
+				Tile toKeep = separated[0];
+				foreach(Tile t in separated) { 
+					//Debug.Log("Village size is: "+callVillageTiles(t).Count);
+					foreach(Tile entry in callVillageTiles(t)){
+						if(entry.getStructure() == Structure.Village)
+								hasVillage = t;
+					}
+					if(callVillageTiles(toKeep).Count < callVillageTiles(t).Count)
+						toKeep = t;
 				}
-				
+				if(callVillageTiles(hasVillage).Count > 2)
+					toKeep = hasVillage;
+
+				foreach(Tile t2 in separated){
+					if(t2 != toKeep || callVillageTiles(toKeep).Count <3)
+						foreach(Tile deadTile in callVillageTiles(t2))
+							deadTile.killTile();
+				}
 			} 
 		}
 	}
@@ -308,7 +324,7 @@ public class Unit : Photon.MonoBehaviour {
 		return getVillage().getOwner();
 	}
 	public void removeUnit() { 
-		
+		GameObject.Destroy(this);
 	}
 
 	void callCapture(int q, int r){
