@@ -119,63 +119,55 @@ public class Tile : Photon.MonoBehaviour {
 		// TODO: check that units in neighbouring tiles are not of higher level
 		return (getLandType() != LandType.Water);
 	}
+	
+	/*
+	* FOR PAUL: checks that the unit around target tile is enemy to owner of "this" tile. No bugs as far I can tell. 
+	*/
+	public Unit containsEnemyInNeighbour (Tile target) { 
+		
+		Dictionary<Hex.Direction, Tile> neighbours = target.getNeighbours(); 
+		foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours) { 
+			if (pair.Value.getUnit() != null) { 
+				if (pair.Value.getUnit ().getOwner() != this.getOwner ()) { //is enemy
+					return pair.Value.getUnit (); 
+				}
+			}
+		}
+		return null;
+		
+	}
+	
+	
+
+	//Returns a neighbouring tile that is of the same owner but from a different village
+	//Used to merge villages. Returns null if no merge is neccessary
+	public HashSet<Tile> getAdjacentFriendlyBorder(){
+		HashSet<Tile> borderTiles = new HashSet<Tile>();
+		foreach (KeyValuePair<Hex.Direction, Tile> entry in this.getNeighbours()) {
+			Tile neighbour = entry.Value;
+			if (neighbour.getOwner() == this.getOwner() && neighbour.getVillage() != this.getVillage()){
+				//NOT FINISHED MUST IGNORE MULTIPLE TILES FROM SAME VILLAGE
+				bool sameVillage = false;
+				if(borderTiles.Count > 0){
+					foreach(Tile tile in borderTiles){
+						if(tile.getVillage() == neighbour.getVillage())
+							sameVillage = true;
+					}
+				}
+				if(!sameVillage){
+					Debug.Log("BOOM");
+					borderTiles.Add(neighbour);
+				}
+			}
+		}
+		return borderTiles;
+	}
 
 	public Player getOwner() {
 		if(getVillage() == null)
 			return null;
 		return getVillage().getOwner();
 	}
-
-	/*public void setOwner(Player p) {
-		if (p != null) {
-			owner = p;
-		}
-	}
-
-	public void clearOwner() {
-		transform.GetChild(0).renderer.material.color = Color.white;
-		owner = null;
-	}*/
-	/*
-	public int numAdjacentOwnedTiles() {
-		int i = 0;
-		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))) {
-			if (this.owner == getNeighbour(dir).owner)
-				i++;
-		}
-		return i;
-	}
-
-	//Returns the tile adjacent to the original tile if they both have the same owner and only one adjacent owned tile
-	public Tile adjacentDuo() {
-		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))) {
-			if (this.owner == getNeighbour(dir).owner && getNeighbour(dir).numAdjacentOwnedTiles() == 1)
-				return getNeighbour(dir);
-		}
-		return null;
-	}*/
-	/*
-	public HashSet<Tile> allAdjacentOwnedTiles() {
-		HashSet<Tile> tiles = new HashSet<Tile>();
-		foreach (Hex.Direction dir in System.Enum.GetValues(typeof(Hex.Direction))) {
-			if (this.owner == getNeighbour(dir).owner) {
-				tiles.Add(getNeighbour(dir));
-			}
-		}
-		return tiles;
-	}*/
-
-/*	[RPC]
-	public void deleteTree(int q, int r){
-		Tile tempTile = null;
-		foreach(Tile t in board.getMap().Values){
-			if(t.pos.q == q && t.pos.r == r){
-				tempTile = t;
-			}
-		}
-		tempTile.setLandType(LandType.Grass);
-		tempTile.getVillage().changeWood(2);
-	}*/
 
 	void OnMouseEnter() {
 		if(this.getVillage() != null)
@@ -192,7 +184,7 @@ public class Tile : Photon.MonoBehaviour {
 	}
 
 	void OnMouseDown() {
-		//Debug.Log(this.getVillage());
+		//Debug.Log(this.getVillage().getTiles().Count);
 	}
 	
 	void OnMouseUp() {

@@ -75,7 +75,6 @@ public class Village : Photon.MonoBehaviour {
 	}
 	
 	public void addTile(Tile t) {
-		//t.setOwner(owner);
 		t.setVillage(this);
 		tiles.Add(t);
 	}
@@ -87,7 +86,7 @@ public class Village : Photon.MonoBehaviour {
 	}
 	
 	public void removeTile(Tile dest) {
-		
+		tiles.Remove(dest);
 	}
 	
 	public HashSet<Unit> getUnits() {
@@ -258,14 +257,72 @@ public class Village : Photon.MonoBehaviour {
 		Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.identity) as Unit;
 		u.board = this.board;
 		u.setVillage(tempTile.getVillage());
-		u.setUnitType(UnitType.Peasant);
+		//u.setUnitType(UnitType.Peasant);
+		u.setUnitTypeRandom();
 		u.setActionType (ActionType.ReadyForOrders); 
 		u.setTile (tempTile);
 		u.placeUnit();
-		addUnit(u);
+		tempTile.getVillage().addUnit(u);
 		tempTile.getVillage().isActive = false;
 	}
 
+	//Merges the current village with the passed in village
+	public void mergeWith(Village v){
+		//The if decides which village gets destroyed and which will not
+		if(this.getVillageType() > v.getVillageType()){
+			foreach (Tile tempTile in v.getTiles()){
+				tempTile.setVillage(this);
+				this.addTile(tempTile);
+			}
+			foreach (Unit tempUnit in v.getUnits()){
+				tempUnit.setVillage(this);
+				this.addUnit(tempUnit);
+			}
+			this.changeGold(v.getGold());
+			this.changeWood(v.getWood());
+			GameObject.Destroy(v.gameObject);
+		}
+
+		else if(v.getVillageType() > this.getVillageType()){
+			foreach (Tile tempTile in this.getTiles()){
+				tempTile.setVillage(v);
+				v.addTile(tempTile);
+			}
+			foreach (Unit tempUnit in this.getUnits()){
+				tempUnit.setVillage(v);
+				v.addUnit(tempUnit);
+			}
+			v.changeGold(this.getGold());
+			v.changeWood(this.getWood());
+			GameObject.Destroy(this.gameObject);
+		}
+		else if(this.getTiles().Count >= v.getTiles().Count){
+			foreach (Tile tempTile in v.getTiles()){
+				tempTile.setVillage(this);
+				this.addTile(tempTile);
+			}
+			foreach (Unit tempUnit in v.getUnits()){
+				tempUnit.setVillage(this);
+				this.addUnit(tempUnit);
+			}
+			this.changeGold(v.getGold());
+			this.changeWood(v.getWood());
+			GameObject.Destroy(v.gameObject);
+		}
+		else{
+			foreach (Tile tempTile in this.getTiles()){
+				tempTile.setVillage(v);
+				v.addTile(tempTile);
+			}
+			foreach (Unit tempUnit in this.getUnits()){
+				tempUnit.setVillage(v);
+				v.addUnit(tempUnit);
+			}
+			v.changeGold(this.getGold());
+			v.changeWood(this.getWood());
+			GameObject.Destroy(this.gameObject);
+		}
+	}
 	
 	void OnMouseUp () {
 		if(!this.isActive){
@@ -275,6 +332,7 @@ public class Village : Photon.MonoBehaviour {
 			this.transform.GetChild(2).renderer.material.color = Color.black;
 		
 			foreach(Tile t in tiles){
+			//Want to be able to do && t.isAdjacenttoEnemyUnit()
 				if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile()){
 					t.setAcceptsUnit(true);
 					t.transform.GetChild(0).renderer.material.color = Color.black;

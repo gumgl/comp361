@@ -18,8 +18,8 @@ public class NetworkManager : MonoBehaviour
 
 	void Connect() {
 		// connects to the server that is defined in our usersettings file, checking version names match
-		PhotonNetwork.ConnectUsingSettings ("game-logic");
 
+		PhotonNetwork.ConnectUsingSettings ("game-logic");
 	}
 
 	// shows connection status

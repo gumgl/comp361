@@ -12,7 +12,13 @@ public class Unit : Photon.MonoBehaviour {
 	public int currentPathIndex;
 	public float height = 1f;
 	public Player owner = null;
-	public float moveSpeed = 5f; // In portion of length 
+	public float moveSpeed = 5f; // In portion of length
+	private GameObject halo;
+
+	void Start()
+	{
+		halo = transform.Find("SelectedHalo").gameObject;
+	}
 
 	void Update() {
 		if (isMoving()) { // Path animation
@@ -38,16 +44,16 @@ public class Unit : Photon.MonoBehaviour {
 			if (currentPathIndex < currentPath.Count) { // Unit is still getting there
 				setTile(currentPath[currentPathIndex]);
 			} else { // Unit has arrived at target
-				//this.tile.setOwner(this.getOwner());
-				//this.tile.setVillage(this.getVillage());
-				//this.getVillage().addTile(this.tile);
 				this.tile.setUnit(this);
-				this.tile.setVillage(this.getVillage());
+				//this.tile.setVillage(this.getVillage());
 				callCapture(tile.pos.q, tile.pos.r);
-				//this.tile.getVillage().GetComponent<PhotonView>().RPC("callCapture", PhotonTargets.All, tile.pos.q, tile.pos.r);
 				if (this.tile.getLandType() == LandType.Tree) {
 					harvestTree(tile.pos.q, tile.pos.r);
 					//	this.tile.getVillage().GetComponent<PhotonView>().RPC("harvestTree", PhotonTargets.All, tile.pos.q, tile.pos.r);
+				}
+				HashSet<Tile> borderTiles = this.tile.getAdjacentFriendlyBorder();
+				foreach(Tile tempTile in borderTiles){
+					this.tile.getVillage().mergeWith(tempTile.getVillage());
 				}
 				currentPath = null;
 				positionOverTile();
@@ -55,15 +61,168 @@ public class Unit : Photon.MonoBehaviour {
 		}
 	}
 
-	//[RPC]
 	public void captureTile() {
-		//this.tile.setOwner(this.getOwner());
+	
+		bool opponentTile = false; 
+		Village possibleOpponentVillage = this.tile.getVillage (); 
+		if (possibleOpponentVillage != null){
+			if (possibleOpponentVillage.getOwner () != this.getVillage().getOwner ()){
+				opponentTile = true; 
+				this.tile.getVillage().removeTile (this.tile); 
+			}
+		}
 		this.tile.setVillage(this.getVillage());
 		this.getVillage().addTile(this.tile);
+		
+		if (opponentTile){
+			Dictionary<Hex.Direction, Tile> neighbours = this.tile.getNeighbours(); 
+			List<Tile> ownedByOpponent = new List<Tile>(); 
+			foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours) { 
+				if (pair.Value.getOwner () != this.tile.getOwner () && pair.Value.getOwner() != null) { 
+					ownedByOpponent.Add (pair.Value); 
+				}
+			}
+			
+			bool pathExists = true; 
+			List<Tile> separated = new List<Tile>(); 
+			
+			if (ownedByOpponent.Count >= 2) { 
+				for (int i=0; i<ownedByOpponent.Count; i++) { 
+					Tile t1 = ownedByOpponent[i];
+					List<Tile> withOutT = new List<Tile>(ownedByOpponent); 
+					withOutT.Remove (t1); 
+					for (int j=0; j<withOutT.Count; j++){
+						if (!callCheckPath (t1,withOutT[j]) && !isAdjacentToListTiles(separated, withOutT[j])){ 
+							separated.Add (withOutT[j]);
+							pathExists = false; 
+						}	
+					}	
+				if (!pathExists) separated.Add (t1); break; 
+				}			
+			}
+			
+			//FOR PAUL
+			if (!pathExists) { 
+				foreach (Tile t in separated) { 
+					Debug.Log("Village size is: "+callVillageTiles (t).Count); 
+				}
+				
+			} 
+		}
+	}
+	
+	public bool isAdjacentToListTiles (List<Tile> list, Tile t) { 
+		
+		if (list.Count > 0){ 
+			foreach (Tile l in list) { 
+				Dictionary<Hex.Direction, Tile> neighbours = l.getNeighbours();
+				foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours) { 
+					if (pair.Value == t) { 
+						return true; 
+					}
+				}
+			}
+		}	
+		return false;  
+		
+	} 
+	//get the list of all tiles belonging to the village Tile t belongs to. 
+	public List<Tile> villageTiles(Tile t, List<Tile> visited) { 
+		visited.Add (t); 
+		//int size = 1; 
+		Dictionary<Hex.Direction, Tile> neighbours = t.getNeighbours (); 
+		foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours){ 
+			if (!visited.Contains (pair.Value) && pair.Value.getOwner () == t.getOwner ()){
+				villageTiles(pair.Value, visited); 
+			}
+		}
+		return visited; 
+	}
+	//call VillageTiles with an empty list. 
+	public List<Tile> callVillageTiles (Tile t) {
+	List<Tile> visited = new List<Tile>(); 
+	return villageTiles (t, visited);
+	} 
+	
+	//check if a path goes from one tile to another within the same village  
+	public bool checkPath (Tile x, Tile y, List<Tile> visited) {
+		
+		bool toReturn = false; 
+		visited.Add (x); 
+		Dictionary<Hex.Direction, Tile> neighbours = x.getNeighbours(); 
+		foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours){ 
+			if (pair.Value.getOwner() == x.getOwner() && !visited.Contains (pair.Value)) { 
+				if (pair.Value == y) return true; 
+				else { 
+					//visited.Add (pair.Value); 
+					toReturn = checkPath (pair.Value, y,visited); 
+					if (toReturn == true) return true; 
+				}
+			}	
+		}
+		return false; 
+		
+	}
+	//call check path with an empty list. 
+	public bool callCheckPath (Tile x, Tile y){
+		List<Tile> visited = new List<Tile> (); 
+		return checkPath (x,y,visited); 
+	}
+	
+	//return true if wins, false otherwise. If false, you cant even invade that tile.
+	//we check what would happen if combat occurs first, and you can only invade a tile if combat returns true. 
+	public bool combat(Unit other) { 
+		
+		UnitType thisType = this.getUnitType(); 
+		UnitType otherType = other.getUnitType (); 
+		
+		if (thisType > otherType) return true;
+		else return false;   
+		
+	}
+
+	/*	
+	//return true if an enemy is in a one hex radius
+	public Unit containsEnemyInNeighbour (Tile target) { 
+		
+		Dictionary<Hex.Direction, Tile> neighbours = target.getNeighbours(); 
+		foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours) { 
+			if (pair.Value.getUnit() != null) { 
+				if (pair.Value.getUnit ().getOwner() != this.getOwner ()) { //is enemy
+					return pair.Value.getUnit (); 
+				}
+			}
+		}
+		return null;
+		
+	}
+	*/
+	
+	//returns true if the tile has any unit on it, you're not allowed to move onto a tile that has a unit on it. 
+	public bool containsUnit (Tile target) { 
+		Unit potentialUnit = target.getUnit (); 
+		if (potentialUnit != null) { 
+			return true; 
+		}
+		return false; 
 	}
 
 	public void MoveTo(Tile target) {
-
+		
+		if (containsUnit (target)) {
+			board.selectedUnit = null;
+			halo.SetActive(false);
+			return; 
+		}
+	 	Unit potentialEnemy = this.getTile().containsEnemyInNeighbour(target); 
+	 	if (potentialEnemy != null) { 
+	 		if (!combat (potentialEnemy)) { 
+				board.selectedUnit = null;
+				halo.SetActive(false);
+				return; 
+	 		}
+	 	}
+		
 		if (isMoving())
 			Debug.LogError("Unit already moving");
 		else if (target.canEnter(this) == false)
@@ -121,7 +280,9 @@ public class Unit : Photon.MonoBehaviour {
 			}
 		}
 		board.selectedUnit = null;
-		this.transform.renderer.material.color = Color.cyan;
+		halo.SetActive(false);
+		if (potentialEnemy != null) Destroy (potentialEnemy.gameObject); 
+		//this.transform.renderer.material.color = Color.cyan;
 	}
 
 	public bool isMoving() {
@@ -165,9 +326,22 @@ public class Unit : Photon.MonoBehaviour {
 	public UnitType getUnitType() {
 		return myType;
 	}
-	
-	public void setUnitType(UnitType ut) {
+
+	public void setUnitType(UnitType ut)
+	{
 		myType = ut;
+		
+		// Hide all meshes
+		for (int i = 0; i < System.Enum.GetNames(typeof(UnitType)).Length; i++)
+			transform.GetChild(i).gameObject.SetActive(false);
+
+		// Show the correct one
+		transform.GetChild((int)myType).gameObject.SetActive(true);
+	}
+
+	public void setUnitTypeRandom()
+	{
+		setUnitType((UnitType) Random.Range(0,System.Enum.GetNames(typeof(UnitType)).Length));
 	}
 	
 	public int getSalary() {
@@ -184,7 +358,7 @@ public class Unit : Photon.MonoBehaviour {
 	}
 	
 	public Player getOwner() {
-		return owner;
+		return getVillage().getOwner();
 	}
 	public void removeUnit() { 
 		
@@ -212,9 +386,11 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	void OnMouseUp() {
+	//	Debug.Log("Unit OnMouseUp");
 		owner = this.tile.getOwner();
 		board.selectedUnit = this;
-		this.transform.renderer.material.color = Color.green;
+		halo.SetActive(true);
+		//this.transform.renderer.material.color = Color.green;
 	}
 
 }
