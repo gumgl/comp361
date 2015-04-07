@@ -106,10 +106,10 @@ public class Unit : Photon.MonoBehaviour {
 			if (!pathExists) { 
 				Tile hasVillage = null;
 				Tile toKeep = separated[0];
-				foreach(Tile t in separated) { 
+				foreach(Tile t in separated) {
+					Debug.Log(t.hasStructure());
 					foreach(Tile entry in callVillageTiles(t)){
 						if(entry.getStructure() == Structure.Village){
-							Debug.Log(callVillageTiles(entry).Count);
 							Debug.Log("THISWHATHIT");
 							hasVillage = t;
 						}

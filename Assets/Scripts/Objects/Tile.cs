@@ -22,10 +22,7 @@ public class Tile : Photon.MonoBehaviour {
 		return this.structure;	
 	}
 	public void setStructure(Structure s) { 
-		if (getStructure() != s) { 
 			this.structure = s;
-		}
-		//else do nothing
 	}
 	public void removeStructure() { 
 		if (hasStructure()) {
@@ -146,7 +143,7 @@ public class Tile : Photon.MonoBehaviour {
 			GameObject.Destroy(this.getUnit().gameObject);
 			this.setLandType(LandType.Tombstone);
 		}
-		//this.getVillage().removeTile(this);
+		this.getVillage().removeTile(this);
 		this.setVillage(null);
 	}
 
