@@ -300,7 +300,7 @@ public class Village : MonoBehaviour {
 			}
 			v.changeGold(this.getGold());
 			v.changeWood(this.getWood());
-			v.getStructTile().setStructure(Structure.None);
+			this.getStructTile().setStructure(Structure.None);
 			GameObject.Destroy(this.gameObject);
 		}
 		else if(this.getTiles().Count >= v.getTiles().Count){
@@ -328,7 +328,7 @@ public class Village : MonoBehaviour {
 			}
 			v.changeGold(this.getGold());
 			v.changeWood(this.getWood());
-			v.getStructTile().setStructure(Structure.None);
+			this.getStructTile().setStructure(Structure.None);
 			GameObject.Destroy(this.gameObject);
 		}
 	}

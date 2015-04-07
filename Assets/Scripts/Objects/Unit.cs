@@ -128,18 +128,20 @@ public class Unit : Photon.MonoBehaviour {
 				else if(toKeep == hasVillage){
 					Debug.Log("CASE 2");
 					foreach(Tile t in separated){
-						if(t != toKeep)
+						if(t != toKeep){
 							foreach(Tile deadTile in callVillageTiles(t))
 								deadTile.killTile();
+						}
 					}
 				}
 				else{
 					Debug.Log("CASE 3");
 					toKeep.getVillage().moveVillage(callVillageTiles(toKeep)[Random.Range(0, callVillageTiles(toKeep).Count)]);
 					foreach(Tile t in separated){
-						if(t!= toKeep)
+						if(t!= toKeep){
 							foreach(Tile deadTile in callVillageTiles(t))
 								deadTile.killTile();
+						}
 					}
 				}
 
