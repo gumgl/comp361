@@ -52,7 +52,7 @@ public class Game : MonoBehaviour {
 				RegisterOtherPlayer(player);
 		}
 		//Debug.Log("About to init board with " + players.Count + " players...");
-		board.init();
+		board.init((int) PhotonNetwork.room.customProperties["s"]);
 	}
 
 	void TreeGrowth() {

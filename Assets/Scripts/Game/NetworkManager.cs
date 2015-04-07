@@ -1,13 +1,15 @@
 ﻿using UnityEngine;
-using System.Collections;
+using ExitGames.Client.Photon;
 using UnityEngine.UI;
 
 public class NetworkManager : MonoBehaviour
 {
 	public Game game;
 	public GameObject lobby;
-	public Button StartGameButton;
-	public UnityEngine.UI.Text playerListText;
+	public Button startGameButton;
+	public InputField seedInputField;
+	public Text playerListText;
+	public Text roomNameText;
 
 	//private Game game;
 
@@ -37,37 +39,61 @@ public class NetworkManager : MonoBehaviour
 	void OnPhotonRandomJoinFailed() {
 		Debug.Log("OnPhotonRandomJoinFailed");
 		// replace 'null' with room name
-		PhotonNetwork.CreateRoom(Random.Range(1,1000).ToString());
+		var options = new RoomOptions();
+		options.maxPlayers = 5;
+		options.customRoomProperties = new Hashtable(){{"s", Random.Range(0,100000)}};
+		options.customRoomPropertiesForLobby = new string[]{"s"};
+		PhotonNetwork.CreateRoom(null, options, null); // unique room name
 	}
 
 	void OnPhotonPlayerConnected()
 	{
 		Debug.Log("OnPhotonPlayerConnected");
-		//game.RegisterOtherPlayer();
 		UpdatePlayerList();
 	}
 
 	void OnPhotonPlayerDisconnected()
 	{
 		Debug.Log("OnPhotonPlayerConnected");
-		//game.RegisterOtherPlayer();
 		UpdatePlayerList();
 	}
 
 	void OnJoinedRoom(){
 		Debug.Log("OnJoinedRoom");
 		//StartGameButton.interactable = PhotonNetwork.isMasterClient;
-		// TODO: Add all users already in the game
-
-		// TODO: Add ourselves to the game
+		roomNameText.text = PhotonNetwork.room.name;
 		UpdatePlayerList();
-		//game.RegisterLocalPlayer();
+	}
 
-		//StartGame();
+	void OnPhotonCustomRoomPropertiesChanged(Hashtable propertiesThatChanged) {
+		Debug.Log("OnPhotonCustomRoomPropertiesChanged");
+		if (propertiesThatChanged.ContainsKey("s"))
+		{
+			seedInputField.text = propertiesThatChanged["s"].ToString();
+		}
+	}
+
+	public void UpdateSeed() {
+		Debug.Log("UpdateSeed");
+		var room = PhotonNetwork.room;
+		
+		if (room != null) { // If we're in a room
+			if (seedInputField.text.Equals("") && room.customProperties.ContainsKey("s"))
+				seedInputField.text = room.customProperties["s"].ToString();
+			else // Only update if seed not blank
+				room.SetCustomProperties(new Hashtable() {{"s", int.Parse(seedInputField.text)}});
+		}
+	}
+
+	public void RandomSeed()
+	{
+		seedInputField.text = Random.Range(0, 100000).ToString();
+		UpdateSeed();
 	}
 
 	public void StartGame() {
 		Debug.Log("StartGame");
+		PhotonNetwork.room.open = false;
 		game.GetComponent<PhotonView>().RPC("InitBoard", PhotonTargets.All);
 	}
 
@@ -75,7 +101,10 @@ public class NetworkManager : MonoBehaviour
 	{
 		playerListText.text = "";
 		foreach (var player in PhotonNetwork.playerList) {
-			playerListText.text += player.ID + "\n";
+			playerListText.text += player.ID;
+			if (player.isLocal)
+				playerListText.text += " (you)";
+			playerListText.text += "\n";
 		}
 	}
 }

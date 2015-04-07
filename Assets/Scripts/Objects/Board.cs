@@ -23,11 +23,11 @@ public class Board : Photon.MonoBehaviour {
 	static float tileHeight = 3.0f;
 	static float tileWidth = Mathf.Sqrt(3) / 2 * tileHeight;
 
-	public void init() {
+	public void init(int seed) {
 		Debug.Log("Board init!");
 		//selectedUnit.GetComponent<Unit>().tileX = (int)selectedUnit.transform.position.x;
 		//selectedUnit.GetComponent<Unit>().tileY = (int)selectedUnit.transform.position.y;
-		generateHexagonalGrid(int.Parse(PhotonNetwork.room.name));
+		generateHexagonalGrid(seed);
 		connectNeighbours();
         createVillages();
 	}
