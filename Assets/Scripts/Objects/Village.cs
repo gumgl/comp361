@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class Village : Photon.MonoBehaviour {
+public class Village : MonoBehaviour {
 	VillageType myType;
 	int gold = 0;
 	int wood = 0;
@@ -20,6 +20,7 @@ public class Village : Photon.MonoBehaviour {
 	public void init(Player own, Board bor, VillageType type, int gl, int wd, Tile tile){
 		board = bor;
 		owner = own;
+		tile.setStructure(Structure.Village);
 		addTile(tile);
 		setStructTile(tile);
 		setVillageType(type);
@@ -47,23 +48,18 @@ public class Village : Photon.MonoBehaviour {
 	public void setUpgradable (bool b) { 
 		upgradable = b;
 	}
+
 	public void delete() {
-		Tile hq = getStructTile();
-		if (hq.hasStructure()) {
-			hq.removeStructure();
-		}
+		structTile.setLandType(LandType.Tree);
 		//set tile ownership to null for all tiles part of the village
-		HashSet<Tile> tile = getTiles (); 
-		foreach (Tile t in tile) {
-			t.setVillage (null);
+		foreach (Tile t in tiles) {
+			t.setVillage(null);
 		}
 		//for all units, find the tile they are on and set landtype to tombstone. Also remove the units from the tiles.
-		HashSet <Unit> units = getUnits();
-		foreach (Unit u in units) { 
-			Tile unitTile = u.getTile();
-			u.removeUnit();
-			unitTile.setLandType(LandType.Tombstone);
+		foreach (Unit u in units) {
+			u.kill();
 		}
+		GameObject.Destroy(this.gameObject);
 	}
 
 	public void setStructTile(Tile t) {
@@ -137,7 +133,6 @@ public class Village : Photon.MonoBehaviour {
 					}
 				}
 			}
-		
 	}
 	
 	public void incomePhase(HashSet<Tile> tiles) {
@@ -167,6 +162,16 @@ public class Village : Photon.MonoBehaviour {
 			}
 		}
 	}
+	//Move the structure of a village to the current tile
+	public void moveVillage(Tile targetTile){
+		structTile.setStructure(Structure.None);
+		structTile.setLandType(LandType.Tree);
+		setStructTile(targetTile);
+		targetTile.setLandType(LandType.Grass);
+		targetTile.setStructure(Structure.Village);
+		transform.position = board.TileCoordToWorldCoord(targetTile.getPixelPos());
+	}
+
 	public void removeResources () { 
 		this.gold = 0;
 		this.wood = 0;
@@ -280,6 +285,7 @@ public class Village : Photon.MonoBehaviour {
 			}
 			this.changeGold(v.getGold());
 			this.changeWood(v.getWood());
+			v.getStructTile().setStructure(Structure.None);
 			GameObject.Destroy(v.gameObject);
 		}
 
@@ -294,6 +300,7 @@ public class Village : Photon.MonoBehaviour {
 			}
 			v.changeGold(this.getGold());
 			v.changeWood(this.getWood());
+			this.getStructTile().setStructure(Structure.None);
 			GameObject.Destroy(this.gameObject);
 		}
 		else if(this.getTiles().Count >= v.getTiles().Count){
@@ -307,6 +314,7 @@ public class Village : Photon.MonoBehaviour {
 			}
 			this.changeGold(v.getGold());
 			this.changeWood(v.getWood());
+			v.getStructTile().setStructure(Structure.None);
 			GameObject.Destroy(v.gameObject);
 		}
 		else{
@@ -320,6 +328,7 @@ public class Village : Photon.MonoBehaviour {
 			}
 			v.changeGold(this.getGold());
 			v.changeWood(this.getWood());
+			this.getStructTile().setStructure(Structure.None);
 			GameObject.Destroy(this.gameObject);
 		}
 	}
@@ -333,7 +342,7 @@ public class Village : Photon.MonoBehaviour {
 		
 			foreach(Tile t in tiles){
 			//Want to be able to do && t.isAdjacenttoEnemyUnit()
-				if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile()){
+				if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile() && t.containsEnemyInNeighbour(t) == null){
 					t.setAcceptsUnit(true);
 					t.transform.GetChild(0).renderer.material.color = Color.black;
 				}
@@ -347,7 +356,7 @@ public class Village : Photon.MonoBehaviour {
 			this.transform.GetChild(2).renderer.material.color = Color.clear;
 			
 			foreach(Tile t in tiles){
-				if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile()){
+				if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile() && t.containsEnemyInNeighbour(t) == null){
 					t.setAcceptsUnit(false);
 					t.transform.GetChild(0).renderer.material.color = t.getVillage().getOwner().getColor();
 				}

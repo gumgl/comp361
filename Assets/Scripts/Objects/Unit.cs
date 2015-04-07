@@ -96,17 +96,63 @@ public class Unit : Photon.MonoBehaviour {
 							separated.Add (withOutT[j]);
 							pathExists = false; 
 						}	
-					}	
-				if (!pathExists) separated.Add (t1); break; 
+					}
+				if (!pathExists) separated.Add(t1); 
+					break; 
 				}			
 			}
 			
 			//FOR PAUL
 			if (!pathExists) { 
-				foreach (Tile t in separated) { 
-					Debug.Log("Village size is: "+callVillageTiles (t).Count); 
+				Tile hasVillage = null;
+				Tile toKeep = separated[0];
+				foreach(Tile t in separated) {
+					Debug.Log(t.hasStructure());
+					foreach(Tile entry in callVillageTiles(t)){
+						if(entry.getStructure() == Structure.Village){
+							Debug.Log("THISWHATHIT");
+							hasVillage = t;
+						}
+					}
+					if(callVillageTiles(toKeep).Count < callVillageTiles(t).Count)
+						toKeep = t;
 				}
-				
+				if(callVillageTiles(hasVillage).Count > 2){
+					toKeep = hasVillage;
+				}
+
+				if(callVillageTiles(toKeep).Count < 2){
+					Debug.Log("CASE 1");
+					toKeep.getVillage().delete();
+				}
+				else if(toKeep == hasVillage){
+					Debug.Log("CASE 2");
+					foreach(Tile t in separated){
+						if(t != toKeep){
+							foreach(Tile deadTile in callVillageTiles(t))
+								deadTile.killTile();
+						}
+					}
+				}
+				else{
+					Debug.Log("CASE 3");
+					toKeep.getVillage().moveVillage(callVillageTiles(toKeep)[Random.Range(0, callVillageTiles(toKeep).Count)]);
+					foreach(Tile t in separated){
+						if(t!= toKeep){
+							foreach(Tile deadTile in callVillageTiles(t))
+								deadTile.killTile();
+						}
+					}
+				}
+
+
+
+				//foreach(Tile t2 in separated){
+				//	if(t2 != toKeep || callVillageTiles(toKeep).Count < 2){
+				//		foreach(Tile deadTile in callVillageTiles(t2))
+				//			deadTile.killTile();
+				//	}
+				//}
 			} 
 		}
 	}
@@ -124,8 +170,8 @@ public class Unit : Photon.MonoBehaviour {
 			}
 		}	
 		return false;  
-		
 	} 
+
 	//get the list of all tiles belonging to the village Tile t belongs to. 
 	public List<Tile> villageTiles(Tile t, List<Tile> visited) { 
 		visited.Add (t); 
@@ -281,8 +327,14 @@ public class Unit : Photon.MonoBehaviour {
 		}
 		board.selectedUnit = null;
 		halo.SetActive(false);
-		if (potentialEnemy != null) Destroy (potentialEnemy.gameObject); 
-		//this.transform.renderer.material.color = Color.cyan;
+		if (potentialEnemy != null) {
+			potentialEnemy.kill();
+		}
+	}
+
+	public void kill(){
+		this.getTile().setLandType(LandType.Tombstone);
+		GameObject.Destroy(this.gameObject);
 	}
 
 	public bool isMoving() {
@@ -359,9 +411,6 @@ public class Unit : Photon.MonoBehaviour {
 	
 	public Player getOwner() {
 		return getVillage().getOwner();
-	}
-	public void removeUnit() { 
-		
 	}
 
 	void callCapture(int q, int r){

@@ -2677,7 +2677,7 @@ internal class NetworkingPeer : LoadbalancingPeer, IPhotonPeerListener
                 {
                     if (view.didAwake)
                     {
-                        Debug.LogWarning("Had to lookup view that wasn't in photonViewList: " + view);
+//                        Debug.LogWarning("Had to lookup view that wasn't in photonViewList: " + view);
                     }
                     return view;
                 }
@@ -2912,7 +2912,7 @@ internal class NetworkingPeer : LoadbalancingPeer, IPhotonPeerListener
 
         if (view.viewID < 1)
         {
-            Debug.LogError("Illegal view ID:" + view.viewID + " method: " + methodName + " GO:" + view.gameObject.name);
+//            Debug.LogError("Illegal view ID:" + view.viewID + " method: " + methodName + " GO:" + view.gameObject.name);
         }
 
         if (PhotonNetwork.logLevel >= PhotonLogLevel.Full)
