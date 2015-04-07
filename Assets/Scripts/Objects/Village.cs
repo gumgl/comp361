@@ -27,7 +27,7 @@ public class Village : MonoBehaviour {
 		gold = gl;
 		wood = wd;
 		own.addVillage(this);
-		transform.parent = own.transform;
+		transform.parent = board.transform;
 	}
 	
 	public VillageType getVillageType () { 
@@ -320,6 +320,7 @@ public class Village : MonoBehaviour {
 			GameObject.Destroy(this.gameObject);
 		}
 	}
+	
 	void OnMouseUp () {
 		if(!this.isActive){
 			this.isActive = true;
@@ -328,6 +329,7 @@ public class Village : MonoBehaviour {
 			this.transform.GetChild(2).renderer.material.color = Color.black;
 		
 			foreach(Tile t in tiles){
+			//Want to be able to do && t.isAdjacenttoEnemyUnit()
 				if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile()){
 					t.setAcceptsUnit(true);
 					t.transform.GetChild(0).renderer.material.color = Color.black;

@@ -119,6 +119,25 @@ public class Tile : Photon.MonoBehaviour {
 		// TODO: check that units in neighbouring tiles are not of higher level
 		return (getLandType() != LandType.Water);
 	}
+	
+	/*
+	* FOR PAUL: checks that the unit around target tile is enemy to owner of "this" tile. No bugs as far I can tell. 
+	*/
+	public Unit containsEnemyInNeighbour (Tile target) { 
+		
+		Dictionary<Hex.Direction, Tile> neighbours = target.getNeighbours(); 
+		foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours) { 
+			if (pair.Value.getUnit() != null) { 
+				if (pair.Value.getUnit ().getOwner() != this.getOwner ()) { //is enemy
+					return pair.Value.getUnit (); 
+				}
+			}
+		}
+		return null;
+		
+	}
+	
+	
 
 	public void killTile(){
 		if(this.getUnit() != null){
@@ -177,6 +196,8 @@ public class Tile : Photon.MonoBehaviour {
 	}
 	
 	void OnMouseUp() {
+		Debug.Log("Tile " + pos.ToString() + " OnMouseUp");
+
 		if (board.selectedUnit != null) {
 			//Debug.Log(board.selectedUnit.getVillage());
 			board.selectedUnit.getVillage().GetComponent<PhotonView>().RPC("moveUnit", PhotonTargets.All, board.selectedUnit.getTile().pos.q, board.selectedUnit.getTile().pos.r, this.pos.q, this.pos.r); 

@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 using System.Collections;
 
 public class Board : Photon.MonoBehaviour {
@@ -9,7 +8,7 @@ public class Board : Photon.MonoBehaviour {
 	public Tile landPrefab;
 	#endregion
 
-	public DemoGame game;
+	public Game game;
 	public Unit selectedUnit;
 	public UnityEngine.UI.Text distanceText;
 	Village activeVillage; 
@@ -24,10 +23,11 @@ public class Board : Photon.MonoBehaviour {
 	static float tileHeight = 3.0f;
 	static float tileWidth = Mathf.Sqrt(3) / 2 * tileHeight;
 
-	public void init() {
+	public void init(int seed) {
+		Debug.Log("Board init!");
 		//selectedUnit.GetComponent<Unit>().tileX = (int)selectedUnit.transform.position.x;
 		//selectedUnit.GetComponent<Unit>().tileY = (int)selectedUnit.transform.position.y;
-		generateHexagonalGrid(int.Parse(PhotonNetwork.room.name));
+		generateHexagonalGrid(seed);
 		connectNeighbours();
         createVillages();
 	}
@@ -49,6 +49,7 @@ public class Board : Photon.MonoBehaviour {
 	}
 
 	public void generateHexagonalGrid(int sd) {
+		Debug.Log("Generating grid with seed " + sd.ToString());
 		Random.seed = sd;
 		map = new Dictionary<Hex, Tile>();
 		for (int q = -mapRadius; q <= mapRadius; q++) {
@@ -111,7 +112,7 @@ public class Board : Photon.MonoBehaviour {
 		    if (entry.Value.getLandType() == LandType.Water)
 			    owner = null;
 		    else
-				owner = game.getRandomPlayer();
+				owner = game.GetRandomOwner();
 			owners.Add(entry.Value, owner);
 	    }
     }

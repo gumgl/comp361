@@ -102,6 +102,7 @@ public class Unit : Photon.MonoBehaviour {
 				}			
 			}
 			
+			//FOR PAUL
 			if (!pathExists) { 
 				Tile hasVillage = null;
 				Tile toKeep = separated[0];
@@ -141,7 +142,7 @@ public class Unit : Photon.MonoBehaviour {
 		return false;  
 		
 	} 
-	
+	//get the list of all tiles belonging to the village Tile t belongs to. 
 	public List<Tile> villageTiles(Tile t, List<Tile> visited) { 
 		visited.Add (t); 
 		//int size = 1; 
@@ -153,13 +154,14 @@ public class Unit : Photon.MonoBehaviour {
 		}
 		return visited; 
 	}
-	
+	//call VillageTiles with an empty list. 
 	public List<Tile> callVillageTiles (Tile t) {
 	List<Tile> visited = new List<Tile>(); 
 	return villageTiles (t, visited);
 	} 
 	
-	public bool checkPath (Tile x, Tile y, List<Tile> visited) {//fix 
+	//check if a path goes from one tile to another within the same village  
+	public bool checkPath (Tile x, Tile y, List<Tile> visited) {
 		
 		bool toReturn = false; 
 		visited.Add (x); 
@@ -177,16 +179,66 @@ public class Unit : Photon.MonoBehaviour {
 		return false; 
 		
 	}
-	
+	//call check path with an empty list. 
 	public bool callCheckPath (Tile x, Tile y){
 		List<Tile> visited = new List<Tile> (); 
 		return checkPath (x,y,visited); 
 	}
 	
+	//return true if wins, false otherwise. If false, you cant even invade that tile.
+	//we check what would happen if combat occurs first, and you can only invade a tile if combat returns true. 
+	public bool combat(Unit other) { 
+		
+		UnitType thisType = this.getUnitType(); 
+		UnitType otherType = other.getUnitType (); 
+		
+		if (thisType > otherType) return true;
+		else return false;   
+		
+	}
+
+	/*	
+	//return true if an enemy is in a one hex radius
+	public Unit containsEnemyInNeighbour (Tile target) { 
+		
+		Dictionary<Hex.Direction, Tile> neighbours = target.getNeighbours(); 
+		foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours) { 
+			if (pair.Value.getUnit() != null) { 
+				if (pair.Value.getUnit ().getOwner() != this.getOwner ()) { //is enemy
+					return pair.Value.getUnit (); 
+				}
+			}
+		}
+		return null;
+		
+	}
+	*/
 	
+	//returns true if the tile has any unit on it, you're not allowed to move onto a tile that has a unit on it. 
+	public bool containsUnit (Tile target) { 
+		Unit potentialUnit = target.getUnit (); 
+		if (potentialUnit != null) { 
+			return true; 
+		}
+		return false; 
+	}
 
 	public void MoveTo(Tile target) {
-
+		
+		if (containsUnit (target)) {
+			board.selectedUnit = null;
+			halo.SetActive(false);
+			return; 
+		}
+	 	Unit potentialEnemy = this.getTile().containsEnemyInNeighbour(target); 
+	 	if (potentialEnemy != null) { 
+	 		if (!combat (potentialEnemy)) { 
+				board.selectedUnit = null;
+				halo.SetActive(false);
+				return; 
+	 		}
+	 	}
+		
 		if (isMoving())
 			Debug.LogError("Unit already moving");
 		else if (target.canEnter(this) == false)
@@ -245,6 +297,7 @@ public class Unit : Photon.MonoBehaviour {
 		}
 		board.selectedUnit = null;
 		halo.SetActive(false);
+		if (potentialEnemy != null) Destroy (potentialEnemy.gameObject); 
 		//this.transform.renderer.material.color = Color.cyan;
 	}
 

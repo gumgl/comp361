@@ -10,7 +10,7 @@ public class DemoGame : Photon.MonoBehaviour {
 
 	void Start() {
 		initPlayers();
-		board.init();
+		board.init(int.Parse(PhotonNetwork.room.name));
 	}
 	void Update()
 	{

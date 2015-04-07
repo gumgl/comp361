@@ -1,21 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player
 {
-	private GameObject currGame;
+	public Game currGame;
+	public readonly PhotonPlayer photonPlayer;
 	private HashSet<Village> villages = new HashSet<Village>();
 	private bool isActive = false;
 	private int wins = 0;
 	private int losses = 0;
 	private Color color = Color.clear;
 
-	void Start () {
-
-	}
-
-	void Update () {
-
+	public Player(PhotonPlayer pp) {
+		photonPlayer = pp;
 	}
 
 	public void setActive() {
