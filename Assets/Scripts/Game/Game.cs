@@ -11,29 +11,18 @@ public class Game : MonoBehaviour {
 	public NetworkManager nm;
 	public GameObject playerColor;
 	public Button endTurnButton;
+	public UnityEngine.UI.Text panel; 
 
 	private List<Player> players = new List<Player>();
 	private int localPlayer; // Index of the local player (on this machine)
 	private int currPlayer; // Index of the current player
-	private Phase currPhase;
+	//private Phase currPhase;
 
 	private Color[] colors = new Color[]{Color.yellow, Color.red, Color.gray, Color.green, Color.magenta};
 	private int colorIterator = 0;
 
-	/// <summary>Player phase (i.e. done for each player)</summary>
-	private enum Phase
-	{
-		TreeGrowth,
-		Tombstone,
-		Build,
-		Income,
-		Payment,
-		Move
-	}
-
 	void Start () {
 		currPlayer = 0;
-		currPhase = Phase.Move;
 	}
 
 	void Update () {
@@ -74,13 +63,77 @@ public class Game : MonoBehaviour {
 	}
 
 	void TreeGrowth() {
-		// TODO
+		HashSet<Tile> trees = new HashSet<Tile>();
+		foreach(KeyValuePair<Hex, Tile> entry in board.getMap()) {
+			if(entry.Value.getLandType() == LandType.Tree){
+				trees.Add(entry.Value);
+			}
+		}
+		foreach(Tile tile in trees)
+			foreach (KeyValuePair<Hex.Direction, Tile> t in tile.getNeighbours()) {
+				if((t.Value.getLandType() == LandType.Grass || t.Value.getLandType() == LandType.Meadow) && !t.Value.hasStructure() && t.Value.getUnit() == null){
+					if(Random.value > 0.95)
+						t.Value.setLandType(LandType.Tree);
+				}
+			}
+		TombstonePhase();
 	}
 
-	void TombStonePhase(){
-
+	void TombstonePhase(){
+		foreach(Village v in players[currPlayer].getVillages())
+			foreach(Tile t in v.getTiles())
+				if(t.getLandType() == LandType.Tombstone)
+					t.setLandType(LandType.Tree);
+		BuildPhase();
 	}
 
+	void BuildPhase(){
+		foreach(Village v in players[currPlayer].getVillages()){
+			foreach(Unit u in v.getUnits()){
+				if(u.getActionType() == ActionType.Cultivating){
+					u.setActionType(ActionType.StillCultivating);
+				}
+				else if(u.getActionType() == ActionType.StillCultivating){
+					u.setActionType(ActionType.ReadyForOrders);
+					u.getTile().setLandType(LandType.Meadow);
+				}
+				else if(u.getActionType() == ActionType.BuildingRoad){
+					u.setActionType(ActionType.ReadyForOrders);
+					u.getTile().setLandType(LandType.Road);
+				}
+			}
+		}
+		IncomePhase();
+	}
+
+	void IncomePhase(){
+		foreach(Village v in players[currPlayer].getVillages()){
+			foreach(Tile t in v.getTiles()){
+				if(t.getLandType() == LandType.Grass)
+					v.changeGold(1);
+				else if(t.getLandType() == LandType.Meadow)
+					v.changeGold(2);
+			}
+		}
+		PaymentPhase();
+	}
+
+	void PaymentPhase(){
+		foreach(Village v in players[currPlayer].getVillages()){
+			foreach(Unit u in v.getUnits()){
+				v.changeGold(-u.getUnitType().getUpkeep());
+			}
+			if(v.getGold() < 0){
+				v.setGold(0);
+				foreach(Unit toKill in v.getUnits())
+					toKill.kill();
+			}
+		}
+		if(localPlayer == currPlayer)
+			endTurnButton.interactable = true;
+		else
+			endTurnButton.interactable = false;
+	}
 
 
 	public void endTurnButtonAction(){
@@ -88,22 +141,58 @@ public class Game : MonoBehaviour {
 			GetComponent<PhotonView>().RPC("NextTurn", PhotonTargets.All);
 		//}
 	}
+	
+	public void selectedUnitBuildRoad () { 
+		if (board.selectedUnit != null){
+			if (board.selectedUnit.getUnitType () == UnitType.Peasant && board.selectedUnit.getActionType () == ActionType.ReadyForOrders){
+				board.selectedUnit.setActionType (ActionType.BuildingRoad);
+				board.selectedUnit.halo.SetActive (false);
+				board.selectedUnit = null; 
+				Debug.Log ("Building Road"); 
+			}
+			else  {
+				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
+				panel.text = "You need to select a Peasant ( one that is ready for orders)"; 
+				board.selectedUnit.halo.SetActive (false);
+				board.selectedUnit = null; 
+			}
+		}
+		else panel.text = "Select a fucking Unit!"; 
+			
+	}
+	
+	public void selectedUnitCultivateMeadow (){ 
+		if (board.selectedUnit != null){
+			if (board.selectedUnit.getUnitType () == UnitType.Peasant && board.selectedUnit.getActionType () == ActionType.ReadyForOrders){
+				board.selectedUnit.setActionType (ActionType.Cultivating);
+				board.selectedUnit.halo.SetActive (false);
+				board.selectedUnit = null; 
+				Debug.Log ("Cultivating Meadow"); 
+			}
+			else  {
+				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
+				panel.text = "You need to select a Peasant ( one that is ready for orders)"; 
+				board.selectedUnit.halo.SetActive (false);
+				board.selectedUnit = null; 
+			}
+		}
+		else panel.text = "Select a fucking Unit!"; 
+		
+	}
 
 	/// <summary>Move to next player phase (also modifies currPlayer)</summary>
 	[RPC]
 	void NextTurn(){
 		currPlayer = NextPlayer();
 		endTurnButton.image.color = players[currPlayer].getColor();
-		if(localPlayer == currPlayer)
-			endTurnButton.interactable = true;
-		else
-			endTurnButton.interactable = false;
 		if(currPlayer == 0){
-			currPhase = Phase.TreeGrowth;
+			//currPhase = Phase.TreeGrowth;
+			TreeGrowth();
 		}
-		else
-			currPhase = Phase.Tombstone;
-		
+		else{
+			//currPhase = Phase.Tombstone;
+			TombstonePhase();
+		}
 	}
 	/*void NextPhase() {
 		if (currPhase == Phase.Move) { // Last phase of a player

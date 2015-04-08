@@ -13,7 +13,7 @@ public class Unit : Photon.MonoBehaviour {
 	public float height = 1f;
 	public Player owner = null;
 	public float moveSpeed = 5f; // In portion of length
-	private GameObject halo;
+	public GameObject halo;
 
 	void Start()
 	{
@@ -47,8 +47,8 @@ public class Unit : Photon.MonoBehaviour {
 				this.tile.setUnit(this);
 				//this.tile.setVillage(this.getVillage());
 				callCapture(tile.pos.q, tile.pos.r);
-				if (this.tile.getLandType() == LandType.Tree) {
-					harvestTree(tile.pos.q, tile.pos.r);
+				if (this.tile.getLandType() == LandType.Tree || this.tile.getLandType() == LandType.Tombstone) {
+					removeTreeOrTombstone(tile.pos.q, tile.pos.r, this.tile.getLandType ());
 					//	this.tile.getVillage().GetComponent<PhotonView>().RPC("harvestTree", PhotonTargets.All, tile.pos.q, tile.pos.r);
 				}
 				HashSet<Tile> borderTiles = this.tile.getAdjacentFriendlyBorder();
@@ -60,6 +60,8 @@ public class Unit : Photon.MonoBehaviour {
 			}
 		}
 	}
+	
+	
 
 	public void captureTile() {
 	
@@ -273,6 +275,13 @@ public class Unit : Photon.MonoBehaviour {
 				return; 
 	 		}
 	 	}
+	 	
+	 	if (this.getUnitType() == UnitType.Knight && (target.getLandType () == LandType.Tree || target.getLandType () == LandType.Tombstone)){ 
+	 		Debug.Log ("Knights cannot clear tombstones/trees"); 
+	 		board.selectedUnit = null;
+	 		halo.SetActive(false); 
+	 		return;  
+	 	}
 		
 		if (isMoving())
 			Debug.LogError("Unit already moving");
@@ -428,7 +437,7 @@ public class Unit : Photon.MonoBehaviour {
 		tempTile.getUnit().captureTile();
 	}
 
-	void harvestTree(int q, int r){
+	void removeTreeOrTombstone(int q, int r, LandType type){
 		Tile tempTile = null;
 		foreach(Tile t in board.getMap().Values){
 			if(t.pos.q == q && t.pos.r == r){
@@ -436,7 +445,7 @@ public class Unit : Photon.MonoBehaviour {
 			}
 		}
 		tempTile.setLandType(LandType.Grass);
-		tempTile.getVillage().changeWood(1);
+		if (type == LandType.Tree)tempTile.getVillage().changeWood(1);
 	}
 
 	void OnMouseUp() {

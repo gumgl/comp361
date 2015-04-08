@@ -6,7 +6,7 @@ public class Player
 	public Game currGame;
 	public readonly PhotonPlayer photonPlayer;
 	private HashSet<Village> villages = new HashSet<Village>();
-	private bool isActive = false;
+//	private bool isActive = false;
 	private int wins = 0;
 	private int losses = 0;
 	private Color color = Color.clear;
@@ -21,7 +21,6 @@ public class Player
 
 	public HashSet<Village> getVillages() {
 		return villages;
-		//TODO set as readOnly
 	}
 
 	public void takeTurn() {
