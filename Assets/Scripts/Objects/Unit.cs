@@ -64,9 +64,7 @@ public class Unit : Photon.MonoBehaviour {
 	
 
 	public void captureTile() {
-	
-		
-	
+
 		bool opponentTile = false; 
 		Village possibleOpponentVillage = this.tile.getVillage (); 
 		if (possibleOpponentVillage != null){
@@ -252,6 +250,33 @@ public class Unit : Photon.MonoBehaviour {
 			return true; 
 		}
 		return false; 
+	}
+	
+	public void combineUnits (Unit other) { 
+		
+		if (this.getUnitType() == UnitType.Peasant && other.getUnitType() == UnitType.Peasant) { 
+			if (this.getVillage ().getGold () >= 6) { //only upkeep
+				this.setUnitType (UnitType.Infantry); 
+				other.kill (); 
+			}
+		}
+		else if ((this.getUnitType() == UnitType.Infantry && other.getUnitType() == UnitType.Peasant) || (this.getUnitType() == UnitType.Peasant && other.getUnitType() == UnitType.)) { 
+			if (this.getVillage ().getGold () >= 18) { //only upkeep
+				this.setUnitType (UnitType.Soldier); 
+				other.kill (); 
+			}
+		}
+		
+		if (this.getUnitType() == UnitType.Infantry && other.getUnitType() == UnitType.Infantry) { 
+			if (this.getVillage ().getGold () >= 54) { //only upkeep
+				this.setUnitType (UnitType.Knight); 
+				other.kill (); 
+			}
+		}
+		
+		
+		
+		
 	}
 
 	public void MoveTo(Tile target) {
