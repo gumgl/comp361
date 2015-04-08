@@ -20,20 +20,8 @@ public class Game : MonoBehaviour {
 	private Color[] colors = new Color[]{Color.yellow, Color.red, Color.gray, Color.green, Color.magenta};
 	private int colorIterator = 0;
 
-	/// <summary>Player phase (i.e. done for each player)</summary>
-	private enum Phase
-	{
-		TreeGrowth,
-		Tombstone,
-		Build,
-		Income,
-		Payment,
-		Move
-	}
-
 	void Start () {
 		currPlayer = 0;
-		//currPhase = Phase.Move;
 	}
 
 	void Update () {
@@ -126,8 +114,25 @@ public class Game : MonoBehaviour {
 					v.changeGold(2);
 			}
 		}
+		PaymentPhase();
 	}
 
+	void PaymentPhase(){
+		foreach(Village v in players[currPlayer].getVillages()){
+			foreach(Unit u in v.getUnits()){
+				v.changeGold(-u.getUnitType().getUpkeep());
+			}
+			if(v.getGold() < 0){
+				v.setGold(0);
+				foreach(Unit toKill in v.getUnits())
+					toKill.kill();
+			}
+		}
+		if(localPlayer == currPlayer)
+			endTurnButton.interactable = true;
+		else
+			endTurnButton.interactable = false;
+	}
 
 
 	public void endTurnButtonAction(){
@@ -176,10 +181,6 @@ public class Game : MonoBehaviour {
 	void NextTurn(){
 		currPlayer = NextPlayer();
 		endTurnButton.image.color = players[currPlayer].getColor();
-		if(localPlayer == currPlayer)
-			endTurnButton.interactable = true;
-		else
-			endTurnButton.interactable = false;
 		if(currPlayer == 0){
 			//currPhase = Phase.TreeGrowth;
 			TreeGrowth();

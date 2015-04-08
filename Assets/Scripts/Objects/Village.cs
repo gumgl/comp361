@@ -114,33 +114,7 @@ public class Village : MonoBehaviour {
 	
 	}
 	
-	public void incomePhase(HashSet<Tile> tiles) {
-		int phaseGold = 0;
-		foreach (Tile t in tiles) { 
-			LandType type = t.getLandType();	
-			if (type == LandType.Meadow || type == LandType.Road) { 
-				phaseGold += 2;
-			}
-			else if (type ==  LandType.Grass){
-				phaseGold += 1;
-			}
-		}
-		this.changeGold(phaseGold);	
-	}
-	
-	public void paymentPhase(HashSet<Tile> tiles) {
-		foreach (Tile t in tiles) { 
-			Unit u = t.getUnit();
-			if (u!=null) { 
-				changeGold (-u.getSalary ());
-			}
-			if (getGold () < 0)  {
-				removeResources();
-				delete(null);
-				break;
-			}
-		}
-	}
+
 	//Move the structure of a village to the current tile
 	public void moveVillage(Tile targetTile){
 		structTile.setStructure(Structure.None);
@@ -173,6 +147,10 @@ public class Village : MonoBehaviour {
 	
 	public void changeGold(int amount) {
 		gold += amount;
+	}
+
+	public void setGold(int amount){
+		gold = amount;
 	}
 	
 	public void changeWood(int amount) {
