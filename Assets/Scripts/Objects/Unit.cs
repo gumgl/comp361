@@ -346,6 +346,9 @@ public class Unit : Photon.MonoBehaviour {
 				currentPath.Reverse();
 				currentPathIndex = 0;
 				MoveToNextTile();
+			} 
+			else { 
+			board.setErrorText ("Path Obscure or Blocked.");
 			}
 		}
 		board.selectedUnit = null;
