@@ -11,6 +11,7 @@ public class Game : MonoBehaviour {
 	public NetworkManager nm;
 	public GameObject playerColor;
 	public Button endTurnButton;
+	public UnityEngine.UI.Text panel; 
 
 	private List<Player> players = new List<Player>();
 	private int localPlayer; // Index of the local player (on this machine)
@@ -150,12 +151,14 @@ public class Game : MonoBehaviour {
 				Debug.Log ("Building Road"); 
 			}
 			else  {
-				Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
+				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
+				panel.text = "You need to select a Peasant ( one that is ready for orders)"; 
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
 			}
 		}
-		else Debug.Log("Select a Fucking Unit."); 	
+		else panel.text = "Select a fucking Unit!"; 
+			
 	}
 	
 	public void selectedUnitCultivateMeadow (){ 
@@ -167,12 +170,13 @@ public class Game : MonoBehaviour {
 				Debug.Log ("Cultivating Meadow"); 
 			}
 			else  {
-				Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
+				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
+				panel.text = "You need to select a Peasant ( one that is ready for orders)"; 
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
 			}
 		}
-		else Debug.Log("Select a Fucking Unit."); 
+		else panel.text = "Select a fucking Unit!"; 
 		
 	}
 
