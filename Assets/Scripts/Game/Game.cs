@@ -35,6 +35,7 @@ public class Game : MonoBehaviour {
 		currPlayer = 0;
 		currPhase = Phase.Move;
 	}
+
 	void Update () {
 	}
 
@@ -50,6 +51,11 @@ public class Game : MonoBehaviour {
 		
 		//Debug.Log("About to init board with " + players.Count + " players...");
 		board.init((int) PhotonNetwork.room.customProperties["s"]);
+		endTurnButton.image.color = players[currPlayer].getColor();
+		if(localPlayer == currPlayer)
+			endTurnButton.interactable = true;
+		else
+			endTurnButton.interactable = false;
 	}
 
 	void AddPlayers() {
@@ -71,19 +77,33 @@ public class Game : MonoBehaviour {
 		// TODO
 	}
 
+	void TombStonePhase(){
+
+	}
+
+
+
 	public void endTurnButtonAction(){
-		NextTurn();
+		//if(localPlayer == currPlayer){
+			GetComponent<PhotonView>().RPC("NextTurn", PhotonTargets.All);
+		//}
 	}
 
 	/// <summary>Move to next player phase (also modifies currPlayer)</summary>
 	[RPC]
 	void NextTurn(){
 		currPlayer = NextPlayer();
+		endTurnButton.image.color = players[currPlayer].getColor();
+		if(localPlayer == currPlayer)
+			endTurnButton.interactable = true;
+		else
+			endTurnButton.interactable = false;
 		if(currPlayer == 0){
 			currPhase = Phase.TreeGrowth;
 		}
 		else
 			currPhase = Phase.Tombstone;
+		
 	}
 	/*void NextPhase() {
 		if (currPhase == Phase.Move) { // Last phase of a player
