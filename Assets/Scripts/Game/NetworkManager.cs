@@ -1,6 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using System.IO;
+using UnityEngine;
 using ExitGames.Client.Photon;
 using UnityEngine.UI;
+using SimpleJSON;
+using Random = UnityEngine.Random;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -13,11 +17,16 @@ public class NetworkManager : MonoBehaviour
 	public Text playerListText;
 	public Text roomNameText;
 
+	private string profilePath;
+
 	//private Game game;
 
 	// Use this for initialization
 	void Start () {
+		profilePath = Application.persistentDataPath + "/profile.json";
+		Debug.Log(profilePath);
 		//ConnectToLobby ();
+		LoadProfile();
 	}
 
 	public void ConnectToLobby() {
@@ -25,9 +34,75 @@ public class NetworkManager : MonoBehaviour
 		PhotonNetwork.ConnectUsingSettings ("game-lobby");
 	}
 
-	public void JoinARoom()
-	{
+	public void JoinARoom() {
 		PhotonNetwork.JoinRandomRoom();
+	}
+
+	void LoadProfile() {
+		StreamReader sr = null;
+		try {
+			sr = new StreamReader(profilePath);
+			string fileContent = sr.ReadToEnd();
+
+			var profile = JSON.Parse(fileContent);
+			if (profile["name"] == null)
+				profile["name"] = new JSONData("");
+			if (profile["gamesPlayed"] == null)
+				profile["gamesPlayed"] = new JSONData(0);
+			if (profile["gamesWon"] == null)
+				profile["gamesWon"] = new JSONData(0);
+
+			PhotonNetwork.player.SetCustomProperties(new Hashtable()
+			{
+				{ "n", profile["name"].Value },
+				{ "g", profile["gamesPlayed"].Value },
+				{ "w", profile["gamesWon"].Value }
+			});
+			LoadPlayerName();
+		} catch (Exception e) {
+			Debug.LogError("Error loading profile from disk");
+		} finally {
+			if (sr != null)
+				sr.Close();
+		}
+		/*var profile = JSONClass.LoadFromFile(profilePath);
+		if (profile["name"] == null)
+			profile["name"] = new JSONData("");
+		if (profile["gamesPlayed"] == null)
+			profile["gamesPlayed"] = new JSONData(0);
+		if (profile["gamesWon"] == null)
+			profile["gamesWon"] = new JSONData(0);
+		PhotonNetwork.player.SetCustomProperties(new Hashtable()
+			{
+				{ "n", profile["name"].Value },
+				{ "g", profile["gamesPlayed"].Value },
+				{ "w", profile["gamesWon"].Value }
+			});
+		LoadPlayerName();*/
+	}
+
+	void SaveProfile() {
+		StreamWriter sw = null;
+		try {
+			sw = new StreamWriter(profilePath);
+			var props = PhotonNetwork.player.customProperties;
+
+			JSONNode profile = new JSONClass();
+			profile["name"] = new JSONData(props["n"] as string);
+			profile["gamesPlayed"] = new JSONData((int) props["g"]);
+			profile["gamesWon"] = new JSONData((int)props["w"]);
+			sw.Write(profile.ToJSON(4));
+			//profile.SaveToFile(profilePath);
+		} catch (Exception e) {
+			Debug.LogError("Error saving profile to disk");
+		} finally {
+			if (sw != null)
+				sw.Close();
+		}
+		/*var profile = new JSONClass();
+		//profile["name"] = new JSONData(playerNameInputField.text);
+		profile["test"] = "wow";
+		profile.SaveToFile(profilePath);*/
 	}
 
 	// shows connection status
@@ -39,8 +114,6 @@ public class NetworkManager : MonoBehaviour
 	void OnJoinedLobby() {
 		Debug.Log("OnJoinedLobby");
 		connectButton.interactable = false;
-
-		// TODO: fetch player's name from a file
 
 		JoinARoom ();
 	}
@@ -56,14 +129,12 @@ public class NetworkManager : MonoBehaviour
 		PhotonNetwork.CreateRoom(null, options, null); // unique room name
 	}
 
-	void OnPhotonPlayerConnected()
-	{
+	void OnPhotonPlayerConnected() {
 		Debug.Log("OnPhotonPlayerConnected");
 		UpdatePlayerList();
 	}
 
-	void OnPhotonPlayerDisconnected()
-	{
+	void OnPhotonPlayerDisconnected() {
 		Debug.Log("OnPhotonPlayerConnected");
 		UpdatePlayerList();
 	}
@@ -77,22 +148,23 @@ public class NetworkManager : MonoBehaviour
 
 	void OnPhotonCustomRoomPropertiesChanged(Hashtable propertiesThatChanged) {
 		Debug.Log("OnPhotonCustomRoomPropertiesChanged");
-		if (propertiesThatChanged.ContainsKey("s")) {
-			seedInputField.text = propertiesThatChanged["s"].ToString();
+		LoadSeed();
+	}
+
+	public void SaveSeed() {
+		Debug.Log("SaveSeed");
+		
+		if (PhotonNetwork.room != null) { // If we're in a room
+			if (seedInputField.text.Equals(""))
+				LoadSeed();
+			else // Only update if seed not blank
+				PhotonNetwork.room.SetCustomProperties(new Hashtable() {{"s", int.Parse(seedInputField.text)}});
 		}
 	}
 
-	public void UpdateSeed() {
-		Debug.Log("UpdateSeed");
-		var room = PhotonNetwork.room;
-		
-		if (room != null) { // If we're in a room
-			if (seedInputField.text.Equals("") && room.customProperties.ContainsKey("s"))
-				seedInputField.text = room.customProperties["s"].ToString();
-			else // Only update if seed not blank
-				room.SetCustomProperties(new Hashtable() {{"s", int.Parse(seedInputField.text)}});
-		}
-
+	public void LoadSeed() {
+		if (PhotonNetwork.room.customProperties.ContainsKey("s"))
+			seedInputField.text = PhotonNetwork.room.customProperties["s"].ToString();
 	}
 
 	void OnPhotonPlayerPropertiesChanged(object[] playerAndUpdatedProps) {
@@ -103,21 +175,25 @@ public class NetworkManager : MonoBehaviour
 		UpdatePlayerList();
 	}
 
-	public void UpdatePlayerName() {
-		Debug.Log("UpdatePlayerName");
-		if (playerNameInputField.text.Equals("") && PhotonNetwork.player.customProperties.ContainsKey("n"))
-			playerNameInputField.text = PhotonNetwork.player.customProperties["n"].ToString();
+	public void SavePlayerName() {
+		Debug.Log("SavePlayerName");
+		if (playerNameInputField.text.Equals(""))
+			LoadPlayerName();
 		else {
 			// Only update if seed not blank
 			PhotonNetwork.player.SetCustomProperties(new Hashtable() {{"n", playerNameInputField.text}});
-			// TODO: STORE NAME TO FILE
+			SaveProfile();
 		}
 	}
 
-	public void RandomSeed()
-	{
+	public void LoadPlayerName() {
+		if (PhotonNetwork.player.customProperties.ContainsKey("n"))
+			playerNameInputField.text = PhotonNetwork.player.customProperties["n"].ToString();
+	}
+
+	public void RandomSeed() {
 		seedInputField.text = Random.Range(0, 100000).ToString();
-		UpdateSeed();
+		SaveSeed();
 	}
 
 	public void StartGame() {
@@ -126,8 +202,7 @@ public class NetworkManager : MonoBehaviour
 		game.GetComponent<PhotonView>().RPC("InitBoard", PhotonTargets.All);
 	}
 
-	void UpdatePlayerList()
-	{
+	void UpdatePlayerList() {
 		playerListText.text = "";
 		var list = PhotonNetwork.playerList;
 		System.Array.Sort(list, delegate(PhotonPlayer p1, PhotonPlayer p2) { return p1.ID.CompareTo(p2.ID); });
