@@ -16,12 +16,12 @@ public class Board : Photon.MonoBehaviour {
 	//Tile[,] grid;
 	Dictionary<Hex, Tile> map;
 
-	int mapSizeX = 10;
-	int mapSizeY = 10;
+//	int mapSizeX = 10;
+//	int mapSizeY = 10;
 	int mapRadius = 8;
 
-	static float tileHeight = 3.0f;
-	static float tileWidth = Mathf.Sqrt(3) / 2 * tileHeight;
+//	static float tileHeight = 3.0f;
+//	static float tileWidth = Mathf.Sqrt(3) / 2 * tileHeight;
 
 	public void init(int seed) {
 		Debug.Log("Board init!");
