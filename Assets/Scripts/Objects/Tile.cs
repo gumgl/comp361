@@ -40,6 +40,7 @@ public class Tile : Photon.MonoBehaviour {
 		this.transform.GetChild(1).gameObject.SetActive(false);
 		this.transform.GetChild(2).gameObject.SetActive(false);
 		this.transform.GetChild(3).gameObject.SetActive(false);
+		this.transform.GetChild(4).gameObject.SetActive(false);
 
 		if (t == LandType.Water) {
 			transform.GetChild(0).renderer.material.color = Color.blue;
@@ -52,6 +53,8 @@ public class Tile : Photon.MonoBehaviour {
 		} else if (t == LandType.Tombstone){
 			this.transform.GetChild(3).gameObject.SetActive(true);
 			this.transform.GetChild(3).localRotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
+		} else if (t == LandType.Road){
+			this.transform.GetChild(4).gameObject.SetActive(true);
 		}
 	}
 	public LandType getLandType() { 
@@ -178,13 +181,19 @@ public class Tile : Photon.MonoBehaviour {
 
 	void OnMouseEnter() {
 		if(this.getOwner() == this.transform.root.GetComponent<Game>().GetLocalPlayer()){
-			if(this.getVillage() != null)
-				board.distanceText.text = "Wood: " + this.getVillage().getWood().ToString();
-			else
-				board.distanceText.text = "";
+			if(this.getVillage() != null){
+				board.woodText.text = "Wood: " + this.getVillage().getWood().ToString();
+				board.goldText.text = "Gold: " + this.getVillage().getGold().ToString();
+			}
+			else{
+				board.woodText.text = "";
+				board.goldText.text = "";
+			}
 		}
-		else
-			board.distanceText.text = "";
+		else{
+			board.woodText.text = "";
+			board.goldText.text = "";
+		}
 	}
 
 	//void OnMouseExit(){

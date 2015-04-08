@@ -10,7 +10,8 @@ public class Board : Photon.MonoBehaviour {
 
 	public Game game;
 	public Unit selectedUnit;
-	public UnityEngine.UI.Text distanceText;
+	public UnityEngine.UI.Text woodText;
+	public UnityEngine.UI.Text goldText;
 	Village activeVillage; 
 	//LandType[,] tileTypes;
 	//Tile[,] grid;

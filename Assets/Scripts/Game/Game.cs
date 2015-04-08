@@ -101,9 +101,23 @@ public class Game : MonoBehaviour {
 	void BuildPhase(){
 		foreach(Village v in players[currPlayer].getVillages()){
 			foreach(Unit u in v.getUnits()){
-			//	if(u.getActionType() == action
+				if(u.getActionType() == ActionType.Cultivating){
+					u.setActionType(ActionType.StillCultivating);
+				}
+				else if(u.getActionType() == ActionType.StillCultivating){
+					u.setActionType(ActionType.ReadyForOrders);
+					u.getTile().setLandType(LandType.Meadow);
+				}
+				else if(u.getActionType() == ActionType.BuildingRoad){
+					u.setActionType(ActionType.ReadyForOrders);
+					u.getTile().setLandType(LandType.Road);
+				}
 			}
 		}
+		IncomePhase();
+	}
+
+	void IncomePhase(){
 	}
 
 
