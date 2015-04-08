@@ -11,7 +11,7 @@ public class Game : MonoBehaviour {
 	public NetworkManager nm;
 	public GameObject playerColor;
 	public Button endTurnButton;
-	public UnityEngine.UI.Text panel; 
+	public UnityEngine.UI.Text panel;
 
 	private List<Player> players = new List<Player>();
 	private int localPlayer; // Index of the local player (on this machine)
@@ -23,6 +23,7 @@ public class Game : MonoBehaviour {
 
 	void Start () {
 		currPlayer = 0;
+		
 	}
 
 	void Update () {
@@ -152,12 +153,12 @@ public class Game : MonoBehaviour {
 			}
 			else  {
 				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
-				panel.text = "You need to select a Peasant ( one that is ready for orders)"; 
+				setErrorText("You need to select a Peasant ( one that is ready for orders)"); 
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
 			}
 		}
-		else panel.text = "Select a fucking Unit!"; 
+		else setErrorText ("Select a fucking Unit!"); 
 			
 	}
 	
@@ -171,15 +172,19 @@ public class Game : MonoBehaviour {
 			}
 			else  {
 				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
-				panel.text = "You need to select a Peasant ( one that is ready for orders)"; 
+				setErrorText("You need to select a Peasant ( one that is ready for orders)");  
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
 			}
 		}
-		else panel.text = "Select a fucking Unit!"; 
+		else setErrorText ("Select a fucking Unit!"); 
 		
 	}
-
+	
+	public void onOkClick () { 
+		setErrorText (" "); 
+	}
+	
 	/// <summary>Move to next player phase (also modifies currPlayer)</summary>
 	[RPC]
 	void NextTurn(){
@@ -254,5 +259,9 @@ public class Game : MonoBehaviour {
 			return null;
 		else
 			return players[choice];
+	}
+	
+	public void setErrorText (String message) { 
+		panel.text = message; 
 	}
 }
