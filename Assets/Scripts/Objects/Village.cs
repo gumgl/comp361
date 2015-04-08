@@ -61,7 +61,7 @@ public class Village : MonoBehaviour {
 		}
 		//for all units, find the tile they are on and set landtype to tombstone. Also remove the units from the tiles.
 		foreach (Unit u in units) {
-			u.kill();
+			u.kill(true);
 		}
 		GameObject.Destroy(this.gameObject);
 	}

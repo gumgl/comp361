@@ -127,7 +127,7 @@ public class Game : MonoBehaviour {
 			if(v.getGold() < 0){
 				v.setGold(0);
 				foreach(Unit toKill in v.getUnits())
-					toKill.kill();
+					toKill.kill(true);
 			}
 		}
 		endTurnButton.interactable = (localPlayer == currPlayer);
