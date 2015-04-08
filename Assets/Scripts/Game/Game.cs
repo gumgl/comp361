@@ -11,7 +11,7 @@ public class Game : MonoBehaviour {
 	public NetworkManager nm;
 	public GameObject playerColor;
 	public Button endTurnButton;
-	public UnityEngine.UI.Text panel;
+	//public UnityEngine.UI.Text panel;
 
 	private List<Player> players = new List<Player>();
 	private int localPlayer; // Index of the local player (on this machine)
@@ -145,7 +145,7 @@ public class Game : MonoBehaviour {
 	
 	public void selectedUnitBuildRoad () { 
 		if (board.selectedUnit != null){
-			if (board.selectedUnit.getUnitType () == UnitType.Peasant && board.selectedUnit.getActionType () == ActionType.ReadyForOrders){
+			if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
 				board.selectedUnit.setActionType (ActionType.BuildingRoad);
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
@@ -153,18 +153,18 @@ public class Game : MonoBehaviour {
 			}
 			else  {
 				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
-				setErrorText("You need to select a Peasant ( one that is ready for orders)"); 
+				board.setErrorText("You need to select a Peasant ( one that is ready for orders)"); 
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
 			}
 		}
-		else setErrorText ("Select a fucking Unit!"); 
+		else board.setErrorText ("Select a fucking Unit!"); 
 			
 	}
 	
 	public void selectedUnitCultivateMeadow (){ 
 		if (board.selectedUnit != null){
-			if (board.selectedUnit.getUnitType () == UnitType.Peasant && board.selectedUnit.getActionType () == ActionType.ReadyForOrders){
+			if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
 				board.selectedUnit.setActionType (ActionType.Cultivating);
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
@@ -172,17 +172,17 @@ public class Game : MonoBehaviour {
 			}
 			else  {
 				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
-				setErrorText("You need to select a Peasant ( one that is ready for orders)");  
+				board.setErrorText("You need to select a Peasant ( one that is ready for orders)");  
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
 			}
 		}
-		else setErrorText ("Select a fucking Unit!"); 
+		else board.setErrorText ("Select a fucking Unit!"); 
 		
 	}
 	
 	public void onOkClick () { 
-		setErrorText (" "); 
+		board.setErrorText (" "); 
 	}
 	
 	/// <summary>Move to next player phase (also modifies currPlayer)</summary>
@@ -261,7 +261,5 @@ public class Game : MonoBehaviour {
 			return players[choice];
 	}
 	
-	public void setErrorText (String message) { 
-		panel.text = message; 
-	}
+	
 }

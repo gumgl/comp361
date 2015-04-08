@@ -13,6 +13,7 @@ public class Board : Photon.MonoBehaviour {
 	public UnityEngine.UI.Text woodText;
 	public UnityEngine.UI.Text goldText;
 	Village activeVillage; 
+	public UnityEngine.UI.Text panel;
 	//LandType[,] tileTypes;
 	//Tile[,] grid;
 	Dictionary<Hex, Tile> map;
@@ -184,4 +185,9 @@ public class Board : Photon.MonoBehaviour {
 		// we should test a unit's walktype on a clickable tile
 		return true; // tileTypes [tiles [x, y]].isWalkable;
 	}*/
+	
+	public void setErrorText (string message) { 
+		panel.text = message; 
+	}
+	
 }
