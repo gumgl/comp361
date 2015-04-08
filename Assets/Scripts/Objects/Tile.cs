@@ -217,7 +217,7 @@ public class Tile : Photon.MonoBehaviour {
 			//board.selectedUnit.MoveTo(this);
 		}
 		if(this.acceptsUnit){
-			village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, this.pos.q, this.pos.r);
+			village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, this.pos.q, this.pos.r, 0);
 			village.setUpgradable(false);
 			foreach(Tile t in village.getTiles()){
 				t.acceptsUnit = false;

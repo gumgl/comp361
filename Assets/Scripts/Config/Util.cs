@@ -6,6 +6,7 @@ using System.Collections.Generic;
 /// </summary>
 public static class Config {
 	private static Dictionary<UnitType, int> unitUpkeep = new Dictionary<UnitType, int>();
+	private static Dictionary<UnitType, int> unitCost = new Dictionary<UnitType, int>();
 	private static Dictionary<LandType, bool> tileMovementAllowed = new Dictionary<LandType, bool>();
 	private static Dictionary<Hex.Direction, Hex> hexDirectionDelta = new Dictionary<Hex.Direction, Hex>();
 	private static int unitUpgradeCost = 10;
@@ -21,6 +22,12 @@ public static class Config {
 		unitUpkeep[UnitType.Soldier] = 18;
 		unitUpkeep[UnitType.Knight] = 54;
 		unitUpkeep[UnitType.Cannon] = 80;
+
+		unitCost[UnitType.Peasant] = 10;
+		unitCost[UnitType.Infantry] = 20;
+		unitCost[UnitType.Soldier] = 30;
+		unitCost[UnitType.Knight] = 40;
+		unitCost[UnitType.Cannon] = 35;
 		
 		tileMovementAllowed[LandType.Grass] = true;
 		tileMovementAllowed[LandType.Meadow] = true;
@@ -39,6 +46,10 @@ public static class Config {
 	
 	public static int getUpkeep(this UnitType ut) {
 		return unitUpkeep[ut];
+	}
+
+	public static int getCost(this UnitType ut){
+		return unitCost[ut];
 	}
 	
 	public static int getUpgradeCost(this UnitType ut) {

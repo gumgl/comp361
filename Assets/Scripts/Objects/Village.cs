@@ -209,24 +209,36 @@ public class Village : MonoBehaviour {
 
 	}
 	[RPC]
-	public void hireVillager(int q, int r) { 
+	public void hireVillager(int q, int r, int type) { 
 		Tile tempTile = null;
 		foreach(Tile t in board.getMap().Values){
 			if(t.pos.q == q && t.pos.r == r){
 				tempTile = t;
 			}
 		}
-		Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.identity) as Unit;
-		u.transform.parent = board.transform;
-		u.board = this.board;
-		u.setVillage(tempTile.getVillage());
-		//u.setUnitType(UnitType.Peasant);
-		u.setUnitTypeRandom();
-		u.setActionType (ActionType.ReadyForOrders); 
-		u.setTile (tempTile);
-		u.placeUnit();
-		tempTile.getVillage().addUnit(u);
-		tempTile.getVillage().isActive = false;
+		if(tempTile.getVillage().getGold() >= ((UnitType)type).getCost()){
+			if((type == 4 && tempTile.getVillage().getWood() >= 12) || type != 4){
+				tempTile.getVillage().changeGold(-((UnitType)type).getCost());
+				if(type == 4)
+					tempTile.getVillage().changeWood(-12);
+
+				Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.identity) as Unit;
+				u.transform.parent = board.transform;
+				u.board = this.board;
+				u.setVillage(tempTile.getVillage());
+			//u.setUnitType(UnitType.Peasant);
+				u.setUnitType((UnitType)type);
+				u.setActionType (ActionType.ReadyForOrders); 
+				u.setTile (tempTile);
+				u.placeUnit();
+				tempTile.getVillage().addUnit(u);
+				tempTile.getVillage().isActive = false;
+			}
+		}
+		else{
+			Debug.Log("NOT ENOUGH MONEY");
+			tempTile.getVillage().isActive = false;
+		}
 	}
 
 	//Merges the current village with the passed in village
