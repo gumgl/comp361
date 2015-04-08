@@ -42,6 +42,11 @@ public class NetworkManager : MonoBehaviour
 		StreamReader sr = null;
 		try {
 			sr = new StreamReader(profilePath);
+		} catch (Exception e) {
+			Debug.LogError("Error loading profile from disk");
+		}
+		finally
+		{
 			string fileContent = sr.ReadToEnd();
 
 			var profile = JSON.Parse(fileContent);
@@ -59,9 +64,6 @@ public class NetworkManager : MonoBehaviour
 				{ "w", profile["gamesWon"].Value }
 			});
 			LoadPlayerName();
-		} catch (Exception e) {
-			Debug.LogError("Error loading profile from disk");
-		} finally {
 			if (sr != null)
 				sr.Close();
 		}
@@ -88,9 +90,12 @@ public class NetworkManager : MonoBehaviour
 			var props = PhotonNetwork.player.customProperties;
 
 			JSONNode profile = new JSONClass();
-			profile["name"] = new JSONData(props["n"] as string);
-			profile["gamesPlayed"] = new JSONData((int) props["g"]);
-			profile["gamesWon"] = new JSONData((int)props["w"]);
+			if (props.ContainsKey("n"))
+				profile["name"] = new JSONData(props["n"] as string);
+			if (props.ContainsKey("g"))
+				profile["gamesPlayed"] = new JSONData((int)props["g"]);
+			if (props.ContainsKey("w"))
+				profile["gamesWon"] = new JSONData((int)props["w"]);
 			sw.Write(profile.ToJSON(4));
 			//profile.SaveToFile(profilePath);
 		} catch (Exception e) {
