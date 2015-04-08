@@ -10,8 +10,7 @@ public static class Config {
 	private static Dictionary<LandType, bool> tileMovementAllowed = new Dictionary<LandType, bool>();
 	private static Dictionary<Hex.Direction, Hex> hexDirectionDelta = new Dictionary<Hex.Direction, Hex>();
 	private static int unitUpgradeCost = 10;
-	private static int villageUpgradeCost = 8;
-
+	private static Dictionary<VillageType, int> villageUpgradeCost = new Dictionary<VillageType, int>();
 	public static int test;
 
 	public const int maxTiles = 300;
@@ -28,6 +27,11 @@ public static class Config {
 		unitCost[UnitType.Soldier] = 30;
 		unitCost[UnitType.Knight] = 40;
 		unitCost[UnitType.Cannon] = 35;
+
+		villageUpgradeCost[VillageType.Hovel] = 8;
+		villageUpgradeCost[VillageType.Town] = 8;
+		villageUpgradeCost[VillageType.Fort] = 8;
+		villageUpgradeCost[VillageType.Castle] = 12;
 		
 		tileMovementAllowed[LandType.Grass] = true;
 		tileMovementAllowed[LandType.Meadow] = true;
@@ -57,7 +61,7 @@ public static class Config {
 	}
 	
 	public static int getUpgradeCost(this VillageType vt) {
-		return villageUpgradeCost;
+		return villageUpgradeCost[vt];
 	}
 	
 	public static bool isMovementAllowed(this LandType lt) {

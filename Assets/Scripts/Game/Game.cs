@@ -23,7 +23,6 @@ public class Game : MonoBehaviour {
 
 	void Start () {
 		currPlayer = 0;
-		
 	}
 
 	void Update () {
@@ -46,6 +45,8 @@ public class Game : MonoBehaviour {
 			endTurnButton.interactable = true;
 		else
 			endTurnButton.interactable = false;
+
+		TombstonePhase();
 	}
 
 	void AddPlayers() {
@@ -123,6 +124,8 @@ public class Game : MonoBehaviour {
 		foreach(Village v in players[currPlayer].getVillages()){
 			foreach(Unit u in v.getUnits()){
 				v.changeGold(-u.getUnitType().getUpkeep());
+				if(u.getActionType() == ActionType.Moved)
+					u.setActionType(ActionType.ReadyForOrders);
 			}
 			if(v.getGold() < 0){
 				v.setGold(0);
@@ -158,8 +161,7 @@ public class Game : MonoBehaviour {
 				board.selectedUnit = null; 
 			}
 		}
-		else setErrorText ("Select a fucking Unit!"); 
-			
+		else setErrorText ("Select a fucking Unit!");
 	}
 	
 	public void selectedUnitCultivateMeadow (){ 

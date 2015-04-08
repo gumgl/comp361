@@ -226,7 +226,7 @@ public class Village : MonoBehaviour {
 				u.transform.parent = board.transform;
 				u.board = this.board;
 				u.setVillage(tempTile.getVillage());
-			//u.setUnitType(UnitType.Peasant);
+				//u.setUnitType(UnitType.Peasant);
 				u.setUnitType((UnitType)type);
 				u.setActionType (ActionType.ReadyForOrders); 
 				u.setTile (tempTile);
@@ -310,6 +310,7 @@ public class Village : MonoBehaviour {
 			this.transform.GetChild(0).renderer.material.color = Color.black;
 			this.transform.GetChild(1).renderer.material.color = Color.black;
 			this.transform.GetChild(2).renderer.material.color = Color.black;
+			this.transform.GetChild(3).renderer.material.color = Color.black;
 		
 			foreach(Tile t in tiles){
 			//Want to be able to do && t.isAdjacenttoEnemyUnit()
@@ -325,6 +326,7 @@ public class Village : MonoBehaviour {
 			this.transform.GetChild(0).renderer.material.color = Color.clear;
 			this.transform.GetChild(1).renderer.material.color = Color.clear;
 			this.transform.GetChild(2).renderer.material.color = Color.clear;
+			this.transform.GetChild(3).renderer.material.color = Color.clear;
 			
 			foreach(Tile t in tiles){
 				if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile() && t.containsEnemyInNeighbour(t) == null){
@@ -362,40 +364,51 @@ public class Village : MonoBehaviour {
 
 	[RPC]
 	void upgradeVillage(int q, int r) {
-		Tile tempTile = null;
-		foreach (Tile t in board.getMap().Values) {
-			if (t.pos.q == q && t.pos.r == r) {
-				tempTile = t;
-			}
-		}
+		Tile tempTile = board.getTile(new Hex(q,r));
 		
-		if (tempTile.getVillage().getVillageType() == VillageType.Hovel && tempTile.getVillage().getWood() >= 1) { 
+		if (tempTile.getVillage().getVillageType() == VillageType.Hovel && tempTile.getVillage().getWood() >= VillageType.Town.getUpgradeCost()) { 
 			tempTile.getVillage().transform.GetChild(0).gameObject.SetActive(false);
 			tempTile.getVillage().transform.GetChild(1).gameObject.SetActive(true);
 			tempTile.getVillage().setVillageType(VillageType.Town);
-			tempTile.getVillage().changeWood(-1);
+			tempTile.getVillage().changeWood(-VillageType.Town.getUpgradeCost());
 			tempTile.getVillage().setUpgradable(false);
 			tempTile.getVillage().transform.GetChild(0).renderer.material.color = Color.clear;
 			tempTile.getVillage().transform.GetChild(1).renderer.material.color = Color.clear;
 			tempTile.getVillage().transform.GetChild(2).renderer.material.color = Color.clear;
+			tempTile.getVillage().transform.GetChild(3).renderer.material.color = Color.clear;
 			foreach (Tile t in tempTile.getVillage().getTiles()) {
 				t.setAcceptsUnit(false);
 				t.transform.GetChild(0).renderer.material.color = tempTile.getVillage().getOwner().getColor();
 				
 			}
-		} else if (tempTile.getVillage().getVillageType() == VillageType.Town && tempTile.getVillage().getWood() >= 1) { 
+		} else if (tempTile.getVillage().getVillageType() == VillageType.Town && tempTile.getVillage().getWood() >= VillageType.Fort.getUpgradeCost()) { 
 			tempTile.getVillage().transform.GetChild(1).gameObject.SetActive(false);
 			tempTile.getVillage().transform.GetChild(2).gameObject.SetActive(true);
 			tempTile.getVillage().setVillageType(VillageType.Fort);
-			tempTile.getVillage().changeWood(-1);
+			tempTile.getVillage().changeWood(-VillageType.Fort.getUpgradeCost());
 			tempTile.getVillage().setUpgradable(false);
 			tempTile.getVillage().transform.GetChild(0).renderer.material.color = Color.clear;
 			tempTile.getVillage().transform.GetChild(1).renderer.material.color = Color.clear;
 			tempTile.getVillage().transform.GetChild(2).renderer.material.color = Color.clear;
+			tempTile.getVillage().transform.GetChild(3).renderer.material.color = Color.clear;
 			foreach (Tile t in tempTile.getVillage().getTiles()) {
 				t.setAcceptsUnit(false);
 				t.transform.GetChild(0).renderer.material.color = tempTile.getVillage().getOwner().getColor();
 				
+			}
+		} else if (tempTile.getVillage().getVillageType() == VillageType.Fort && tempTile.getVillage().getWood() >= VillageType.Castle.getUpgradeCost()) { 
+			tempTile.getVillage().transform.GetChild(2).gameObject.SetActive(false);
+			tempTile.getVillage().transform.GetChild(3).gameObject.SetActive(true);
+			tempTile.getVillage().setVillageType(VillageType.Castle);
+			tempTile.getVillage().changeWood(-VillageType.Castle.getUpgradeCost());
+			tempTile.getVillage().setUpgradable(false);
+			tempTile.getVillage().transform.GetChild(0).renderer.material.color = Color.clear;
+			tempTile.getVillage().transform.GetChild(1).renderer.material.color = Color.clear;
+			tempTile.getVillage().transform.GetChild(2).renderer.material.color = Color.clear;
+			tempTile.getVillage().transform.GetChild(3).renderer.material.color = Color.clear;
+			foreach (Tile t in tempTile.getVillage().getTiles()) {
+				t.setAcceptsUnit(false);
+				t.transform.GetChild(0).renderer.material.color = tempTile.getVillage().getOwner().getColor();
 			}
 		}
 
