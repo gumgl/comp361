@@ -6,7 +6,7 @@ public class Unit : Photon.MonoBehaviour {
 	Village village;
 
 	UnitType myType;
-	ActionType currentAction;
+	ActionType currentAction = ActionType.ReadyForOrders;
 	public Tile tile;
 	public List<Tile> currentPath = null;
 	public int currentPathIndex;
@@ -65,6 +65,8 @@ public class Unit : Photon.MonoBehaviour {
 
 	public void captureTile() {
 	
+		
+	
 		bool opponentTile = false; 
 		Village possibleOpponentVillage = this.tile.getVillage (); 
 		if (possibleOpponentVillage != null){
@@ -76,8 +78,10 @@ public class Unit : Photon.MonoBehaviour {
 				}
 			}
 		}
+		
 		this.tile.setVillage(this.getVillage());
 		this.getVillage().addTile(this.tile);
+		this.setActionType(ActionType.Moved); 
 		
 		if (opponentTile){
 			Dictionary<Hex.Direction, Tile> neighbours = this.tile.getNeighbours(); 
@@ -149,19 +153,9 @@ public class Unit : Photon.MonoBehaviour {
 						}
 					}
 				}
-
-
-
-				//foreach(Tile t2 in separated){
-				//	if(t2 != toKeep || callVillageTiles(toKeep).Count < 2){
-				//		foreach(Tile deadTile in callVillageTiles(t2))
-				//			deadTile.killTile();
-				//	}
-				//}
 			} 
 		}
 		
-	
 	}
 	
 	public bool isAdjacentToListTiles (List<Tile> list, Tile t) { 
@@ -262,9 +256,32 @@ public class Unit : Photon.MonoBehaviour {
 
 	public void MoveTo(Tile target) {
 		
+		if (this.getActionType() == ActionType.Moved){
+			board.setErrorText ("Unit Already Moved This Turn");
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+			return;
+		}
+		
+		if (this.getActionType() == ActionType.Cultivating || this.getActionType() == ActionType.BuildingRoad || this.getActionType() == ActionType.StillCultivating){ 
+			board.setErrorText ("Unit Busy This Turn!");
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+			return;
+		}
+		
+		if (this.getUnitType() == UnitType.Cannon) { 
+		board.setErrorText ("Cannons Cannot Be Moved"); 
+		board.selectedUnit = null;
+		halo.SetActive(false); 
+		return;
+		}
+		
+		//this needs to be removed, we want to upgrade units if they are friendly and everything is right. 
 		if (containsUnit (target)) {
 			board.selectedUnit = null;
 			halo.SetActive(false);
+			board.setErrorText ("Tile Occupied");
 			return; 
 		}
 	 	Unit potentialEnemy = this.getTile().containsEnemyInNeighbour(target); 
@@ -272,12 +289,14 @@ public class Unit : Photon.MonoBehaviour {
 	 		if (!combat (potentialEnemy)) { 
 				board.selectedUnit = null;
 				halo.SetActive(false);
+				board.setErrorText ("Stronger Enemy in close proximity? You Gon' Die.");
 				return; 
 	 		}
 	 	}
 	 	
 	 	if (this.getUnitType() == UnitType.Knight && (target.getLandType () == LandType.Tree || target.getLandType () == LandType.Tombstone)){ 
-	 		Debug.Log ("Knights cannot clear tombstones/trees"); 
+	 		//Debug.Log ("Knights and Cannons cannot clear tombstones/trees"); 
+	 		board.setErrorText ("Knights and Cannons cannot clear tombstones!"); 
 	 		board.selectedUnit = null;
 	 		halo.SetActive(false); 
 	 		return;  
@@ -286,7 +305,8 @@ public class Unit : Photon.MonoBehaviour {
 		if (isMoving())
 			Debug.LogError("Unit already moving");
 		else if (target.canEnter(this) == false)
-			Debug.LogError("Cannot move to this tile");
+			board.setErrorText ("You wanna drown or somethin'?");
+			//Debug.LogError("Cannot move to this tile");
 		else {
 
 			Dictionary<Tile, int> dist = new Dictionary<Tile, int>(); // Cost
@@ -337,6 +357,9 @@ public class Unit : Photon.MonoBehaviour {
 				currentPath.Reverse();
 				currentPathIndex = 0;
 				MoveToNextTile();
+			} 
+			else { 
+			board.setErrorText ("Path Obscure or Blocked.");
 			}
 		}
 		board.selectedUnit = null;
