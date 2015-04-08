@@ -88,6 +88,37 @@ public class Game : MonoBehaviour {
 			GetComponent<PhotonView>().RPC("NextTurn", PhotonTargets.All);
 		//}
 	}
+	
+	public void selectedUnitBuildRoad () { 
+		if (board.selectedUnit != null){
+			if (board.selectedUnit.getUnitType () == UnitType.Peasant && board.selectedUnit.getActionType () == ActionType.ReadyForOrders){
+				board.selectedUnit.setActionType (ActionType.BuildingRoad);
+				board.selectedUnit.halo.SetActive (false);
+				board.selectedUnit = null; 
+				Debug.Log ("Building Road"); 
+			}
+			else Debug.Log ("You need to select a Peasant ( one that is ready for orders)"); 
+			//board.selectedUnit.halo.SetActive (false);
+			board.selectedUnit = null; 
+		}
+		else Debug.Log("Select a Fucking Unit."); 	
+	}
+	
+	public void selectedUnitCultivateMeadow (){ 
+		if (board.selectedUnit != null){
+			if (board.selectedUnit.getUnitType () == UnitType.Peasant && board.selectedUnit.getActionType () == ActionType.ReadyForOrders){
+				board.selectedUnit.setActionType (ActionType.Cultivating);
+				board.selectedUnit.halo.SetActive (false);
+				board.selectedUnit = null; 
+				Debug.Log ("Cultivating Meadow"); 
+			}
+			else Debug.Log ("You need to select a Peasant ( one that is ready for orders)"); 
+			//board.selectedUnit.halo.SetActive (false);
+			board.selectedUnit = null; 
+		}
+		else Debug.Log("Select a Fucking Unit."); 
+		
+	}
 
 	/// <summary>Move to next player phase (also modifies currPlayer)</summary>
 	[RPC]

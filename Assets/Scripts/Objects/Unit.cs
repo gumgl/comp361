@@ -13,7 +13,7 @@ public class Unit : Photon.MonoBehaviour {
 	public float height = 1f;
 	public Player owner = null;
 	public float moveSpeed = 5f; // In portion of length
-	private GameObject halo;
+	public GameObject halo;
 
 	void Start()
 	{
@@ -60,6 +60,8 @@ public class Unit : Photon.MonoBehaviour {
 			}
 		}
 	}
+	
+	
 
 	public void captureTile() {
 	

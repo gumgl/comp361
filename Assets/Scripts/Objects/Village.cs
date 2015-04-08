@@ -111,32 +111,7 @@ public class Village : MonoBehaviour {
 	
 	public void buildPhase(HashSet<Tile> tiles) {
 
-			foreach (Tile t in tiles) { 
-				Unit u = t.getUnit();
-				if (u != null) { 
-					ActionType type = u.getActionType();
-					UnitType unitType = u.getUnitType();
-					
-				if (unitType == UnitType.Peasant){
-						if (areCultivating ()){
-							if (type == ActionType.StartCultivating) {
-								u.setActionType(ActionType.FinishCultivating);
-							}
-							else if (type == ActionType.FinishCultivating){ 
-								u.setActionType(ActionType.ReadyForOrders);
-								t.setLandType(LandType.Meadow);
-							}
-						}
-						
-						else if (areBuilding ()) { 
-							if (type == ActionType.BuildingRoad){
-								u.setActionType(ActionType.ReadyForOrders);
-								t.setLandType(LandType.Road);
-							}		
-						}
-					}
-				}
-			}
+	
 	}
 	
 	public void incomePhase(HashSet<Tile> tiles) {

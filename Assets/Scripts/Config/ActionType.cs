@@ -2,9 +2,9 @@ public enum ActionType {
 	ReadyForOrders,
 	Moved,
 	BuildingRoad,
-	ChoppingTree,
+	ClearingTree,
 	ClearingTombstone,
 	UpgradingCombining,
-	StartCultivating,
-	FinishCultivating
+	Cultivating,
+	StillCultivating
 }
