@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using SimpleJSON;
 
 public class Village : MonoBehaviour {
 	VillageType myType;
@@ -49,6 +50,10 @@ public class Village : MonoBehaviour {
 		upgradable = b;
 	}
 
+	public bool getIsActive() { 
+		return isActive;
+	} 
+
 	public void delete(Unit captor) {
 		if (captor != null) {
 			captor.getTile ().getVillage ().changeGold (this.getGold ());
@@ -84,6 +89,63 @@ public class Village : MonoBehaviour {
 			addTile(t);
 		}
 	}
+
+	public JSONNode serialize()
+	{
+		var node = new JSONClass ();
+
+		HashSet<Tile> seriTiles = this.getTiles ();
+
+		node ["type"] = new JSONData((int) this.getVillageType ());
+		node ["wood"] = new JSONData(this.getWood ());
+		node ["gold"] = new JSONData(this.getGold ());
+		if (this.areCultivating() == true) {
+			node ["cultivating"] = new JSONData (1);
+		} else {
+			node ["cultivating"] = new JSONData (0);
+		}
+		if (this.areBuilding() == true) {
+			node ["building"] = new JSONData (1);
+		} else {
+			node ["building"] = new JSONData (0);
+		}
+		if (this.getIsActive() == true) {
+			node ["isActive"] = new JSONData (1);
+		} else {
+			node ["isActive"] = new JSONData (0);
+		}
+		if (this.getUpgradable() == true) {
+			node ["upgradable"] = new JSONData (1);
+		} else {
+			node ["upgradable"] = new JSONData (0);
+		}	
+		node ["Player"] = new JSONData(this.getOwner ().photonPlayer.name);
+		node ["tiles"] = new JSONArray ();
+
+		int i = 0;
+		Debug.Log (seriTiles.Count);
+		foreach (Tile t in seriTiles) {
+			var tileJSON = new JSONClass();
+			tileJSON["q"] = new JSONData(t.pos.q);
+			tileJSON ["r"] = new JSONData(t.pos.r);
+			if (t.getUnit () != null){
+				tileJSON ["unit"] = new JSONData((int) t.getUnit ().getUnitType());
+				tileJSON ["actionType"] = new JSONData((int) t.getUnit ().getActionType());
+			}else{
+				tileJSON ["unit"] = new JSONData(5);
+				tileJSON ["actionType"] = new JSONData(0);
+			}
+			// THIS NEEDS TO BE FIXED
+			//tileJSON ["struct"] = new JSONData(t.getStructure ());
+			node["tiles"][i] = tileJSON;
+			i++;
+		}
+
+		Debug.Log (node.ToJSON(4));
+		return node;
+		
+	}
+
 	
 	public void removeTile(Tile dest) {
 		tiles.Remove(dest);

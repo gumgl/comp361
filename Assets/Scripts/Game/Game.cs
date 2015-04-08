@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using SimpleJSON;
 using Random = UnityEngine.Random;
 
 public class Game : MonoBehaviour {
@@ -11,12 +13,13 @@ public class Game : MonoBehaviour {
 	public NetworkManager nm;
 	public GameObject playerColor;
 	public Button endTurnButton;
+	public string savePath;
 
 	private List<Player> players = new List<Player>();
 	private int localPlayer; // Index of the local player (on this machine)
 	private int currPlayer; // Index of the current player
 	private Phase currPhase;
-
+    
 	private Color[] colors = new Color[]{Color.yellow, Color.red, Color.gray, Color.green, Color.magenta};
 	private int colorIterator = 0;
 
@@ -32,12 +35,42 @@ public class Game : MonoBehaviour {
 	}
 
 	void Start () {
+		savePath = Application.persistentDataPath + "/saveGame.json";
 		currPlayer = 0;
 		currPhase = Phase.Move;
 	}
 
 	void Update () {
 	}
+
+
+
+	//[RPC]
+	/*public void SaveBoard()
+	{
+		Dictionary<Hex, Tile> savingMap = board.getMap ();
+		StreamWriter sw = null;
+		try {
+			sw = new StreamWriter(savePath);			
+			JSONNode savedBoard = new JSONClass();
+
+			foreach (KeyValuePair<Hex, Tile> entry in savingMap) 
+			{
+				savedBoard["name"]
+			}
+
+			savedBoard["name"] = new JSONData(props["n"] as string);
+			savedBoard["gamesPlayed"] = new JSONData((int) props["g"]);
+			savedBoard["gamesWon"] = new JSONData((int)props["w"]);
+			sw.Write(savedBoard.ToJSON(4));
+		} catch (Exception e) {
+			Debug.LogError("Error saving profile to disk");
+		} finally {
+			if (sw != null)
+				sw.Close();
+		}
+	}*/
+
 
 
 	[RPC]

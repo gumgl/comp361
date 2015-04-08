@@ -30,6 +30,8 @@ public class Board : Photon.MonoBehaviour {
 		generateHexagonalGrid(seed);
 		connectNeighbours();
         createVillages();
+		foreach (Village v in game.GetLocalPlayer ().getVillages ())
+			v.serialize ();
 	}
 
 	void Start() {}

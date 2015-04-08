@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using SimpleJSON;
 
 public class Tile : Photon.MonoBehaviour {
 	public Dictionary<Hex.Direction, Tile> neighbours = new Dictionary<Hex.Direction, Tile>();
@@ -60,6 +61,16 @@ public class Tile : Photon.MonoBehaviour {
 	public Dictionary<Hex.Direction, Tile> getNeighbours() { 
 		return this.neighbours;
 	}
+
+	/*public JSONNode serialize()
+	{
+		var node = new JSONNode ();
+		node ["q"] = pos.q;
+		node ["r"] = pos.r;
+		node ["natural"] = (int)this.getLandType;
+		return node;
+
+	}*/
 	
 	public void setAcceptsUnit(bool b) {
 		acceptsUnit = b;
