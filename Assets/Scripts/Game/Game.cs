@@ -118,6 +118,14 @@ public class Game : MonoBehaviour {
 	}
 
 	void IncomePhase(){
+		foreach(Village v in players[currPlayer].getVillages()){
+			foreach(Tile t in v.getTiles()){
+				if(t.getLandType() == LandType.Grass)
+					v.changeGold(1);
+				else if(t.getLandType() == LandType.Meadow)
+					v.changeGold(2);
+			}
+		}
 	}
 
 
