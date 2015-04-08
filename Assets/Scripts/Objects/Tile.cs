@@ -66,6 +66,10 @@ public class Tile : Photon.MonoBehaviour {
 	
 	public void setAcceptsUnit(bool b) {
 		acceptsUnit = b;
+		if(b){
+			Debug.Log("BOOM");
+			this.board.unitCostsPanel.text = "Numkey 1----Peasant----Cost: 10 Gold\nNumkey 2----Infantry----Cost: 20 Gold\nNumkey 3----Soldier-----Cost: 30 Gold\nNumkey 4----Knight------Cost: 40 Gold\nNumkey 5----Cannon-----Cost:35 Gold and 12 Wood";
+		}
 	}
 	
 	public Unit getUnit() {
@@ -204,6 +208,21 @@ public class Tile : Photon.MonoBehaviour {
 		return Hex.Distance(a.pos, b.pos);
 	}
 
+	void Update () {
+		if(this.acceptsUnit){
+			if(Input.GetKeyDown("1"))
+				this.getOwner().setUnitToBuild(0);
+			else if(Input.GetKeyDown("2"))
+				this.getOwner().setUnitToBuild(1);
+			else if(Input.GetKeyDown("3"))
+				this.getOwner().setUnitToBuild(2);
+			else if(Input.GetKeyDown("4"))
+				this.getOwner().setUnitToBuild(3);
+			else if(Input.GetKeyDown("5"))
+				this.getOwner().setUnitToBuild(4);
+		}
+	}
+
 	void OnMouseDown() {
 		//Debug.Log(this.getVillage().getTiles().Count);
 	}
@@ -211,22 +230,24 @@ public class Tile : Photon.MonoBehaviour {
 	void OnMouseUp() {
 //		Debug.Log("Tile " + pos.ToString() + " OnMouseUp");
 		if(this.transform.root.GetComponent<Game>().GetCurrPlayer() == this.transform.root.GetComponent<Game>().GetLocalPlayer()){
-		if (board.selectedUnit != null) {
-			//Debug.Log(board.selectedUnit.getVillage());
-			board.selectedUnit.getVillage().GetComponent<PhotonView>().RPC("moveUnit", PhotonTargets.All, board.selectedUnit.getTile().pos.q, board.selectedUnit.getTile().pos.r, this.pos.q, this.pos.r); 
-			//board.selectedUnit.MoveTo(this);
-		}
-		if(this.acceptsUnit){
-			village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, this.pos.q, this.pos.r, 0);
-			village.setUpgradable(false);
-			foreach(Tile t in village.getTiles()){
-				t.acceptsUnit = false;
-				t.transform.GetChild(0).renderer.material.color = village.getOwner().getColor();
-				t.transform.GetChild(1).renderer.material.color = village.getOwner().getColor();
-				t.transform.GetChild(2).renderer.material.color = village.getOwner().getColor();
-				village.transform.GetChild(0).renderer.material.color = Color.green;
+			if (board.selectedUnit != null) {
+				//Debug.Log(board.selectedUnit.getVillage());
+				board.selectedUnit.getVillage().GetComponent<PhotonView>().RPC("moveUnit", PhotonTargets.All, board.selectedUnit.getTile().pos.q, board.selectedUnit.getTile().pos.r, this.pos.q, this.pos.r); 
+				//board.selectedUnit.MoveTo(this);
+			}
+			if(this.acceptsUnit && this.getOwner().getUnitToBuild() != 5){
+				village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, this.pos.q, this.pos.r, this.getOwner().getUnitToBuild());
+				village.setUpgradable(false);
+				this.board.unitCostsPanel.text = "";
+				this.getOwner().setUnitToBuild(5);
+				foreach(Tile t in village.getTiles()){
+					t.acceptsUnit = false;
+					t.transform.GetChild(0).renderer.material.color = village.getOwner().getColor();
+					t.transform.GetChild(1).renderer.material.color = village.getOwner().getColor();
+					t.transform.GetChild(2).renderer.material.color = village.getOwner().getColor();
+					village.transform.GetChild(0).renderer.material.color = Color.green;
+				}
 			}
 		}
-	}
 	}
 }

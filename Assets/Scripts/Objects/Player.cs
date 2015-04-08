@@ -10,6 +10,7 @@ public class Player
 	private int wins = 0;
 	private int losses = 0;
 	private Color color = Color.clear;
+	private int unitToBuild = 5;
 
 	public Player(PhotonPlayer pp) {
 		photonPlayer = pp;
@@ -17,6 +18,13 @@ public class Player
 
 	public void setActive() {
 
+	}
+	public void setUnitToBuild(int index){
+		unitToBuild = index;
+	}
+
+	public int getUnitToBuild(){
+		return unitToBuild;
 	}
 
 	public HashSet<Village> getVillages() {

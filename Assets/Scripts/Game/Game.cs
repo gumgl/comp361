@@ -41,10 +41,7 @@ public class Game : MonoBehaviour {
 		//Debug.Log("About to init board with " + players.Count + " players...");
 		board.init((int) PhotonNetwork.room.customProperties["s"]);
 		endTurnButton.image.color = players[currPlayer].getColor();
-		if(localPlayer == currPlayer)
-			endTurnButton.interactable = true;
-		else
-			endTurnButton.interactable = false;
+		endTurnButton.interactable = (localPlayer == currPlayer);
 
 		TombstonePhase();
 	}
@@ -133,10 +130,8 @@ public class Game : MonoBehaviour {
 					toKill.kill();
 			}
 		}
-		if(localPlayer == currPlayer)
-			endTurnButton.interactable = true;
-		else
-			endTurnButton.interactable = false;
+		endTurnButton.interactable = (localPlayer == currPlayer);
+
 	}
 
 
@@ -194,6 +189,7 @@ public class Game : MonoBehaviour {
 	void NextTurn(){
 		currPlayer = NextPlayer();
 		endTurnButton.image.color = players[currPlayer].getColor();
+		endTurnButton.interactable = false;
 		if(currPlayer == 0){
 			//currPhase = Phase.TreeGrowth;
 			TreeGrowth();

@@ -255,7 +255,6 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	public void MoveTo(Tile target) {
-		
 		if (this.getActionType() == ActionType.Moved){
 			board.setErrorText ("Unit Already Moved This Turn");
 			board.selectedUnit = null;
