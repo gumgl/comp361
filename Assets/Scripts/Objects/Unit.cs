@@ -65,7 +65,7 @@ public class Unit : Photon.MonoBehaviour {
 
 	public void captureTile() {
 	
-		if (this.getActionType() == ActionType.ReadyForOrders){
+		
 	
 		bool opponentTile = false; 
 		Village possibleOpponentVillage = this.tile.getVillage (); 
@@ -156,10 +156,6 @@ public class Unit : Photon.MonoBehaviour {
 			} 
 		}
 		
-		}
-		else {
-			board.setErrorText("Unit not ready to move."); 
-		}
 	}
 	
 	public bool isAdjacentToListTiles (List<Tile> list, Tile t) { 
@@ -260,17 +256,32 @@ public class Unit : Photon.MonoBehaviour {
 
 	public void MoveTo(Tile target) {
 		
+		if (this.getActionType() == ActionType.Moved){
+			board.setErrorText ("Unit Already Moved This Turn");
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+			return;
+		}
+		
+		if (this.getActionType() == ActionType.Cultivating || this.getActionType() == ActionType.BuildingRoad || this.getActionType() == ActionType.StillCultivating){ 
+			board.setErrorText ("Unit Busy This Turn!");
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+			return;
+		}
+		
 		if (this.getUnitType() == UnitType.Cannon) { 
-		board.setErrorText ("Cannons can't move stupid."); 
+		board.setErrorText ("Cannons Cannot Be Moved"); 
 		board.selectedUnit = null;
 		halo.SetActive(false); 
 		return;
 		}
 		
+		//this needs to be removed, we want to upgrade units if they are friendly and everything is right. 
 		if (containsUnit (target)) {
 			board.selectedUnit = null;
 			halo.SetActive(false);
-			board.setErrorText ("Tile occupied.");
+			board.setErrorText ("Tile Occupied");
 			return; 
 		}
 	 	Unit potentialEnemy = this.getTile().containsEnemyInNeighbour(target); 

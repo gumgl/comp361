@@ -153,7 +153,7 @@ public class Game : MonoBehaviour {
 			}
 			else  {
 				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
-				board.setErrorText("You need to select a Peasant ( one that is ready for orders)"); 
+				board.setErrorText("Unit Is Busy This Turn!"); 
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
 			}
@@ -172,7 +172,7 @@ public class Game : MonoBehaviour {
 			}
 			else  {
 				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
-				board.setErrorText("You need to select a Peasant ( one that is ready for orders)");  
+				board.setErrorText("Unit Is Busy This Turn!");  
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
 			}
