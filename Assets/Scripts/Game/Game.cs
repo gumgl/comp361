@@ -122,9 +122,11 @@ public class Game : MonoBehaviour {
 				board.selectedUnit = null; 
 				Debug.Log ("Building Road"); 
 			}
-			else Debug.Log ("You need to select a Peasant ( one that is ready for orders)"); 
-			//board.selectedUnit.halo.SetActive (false);
-			board.selectedUnit = null; 
+			else  {
+				Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
+				board.selectedUnit.halo.SetActive (false);
+				board.selectedUnit = null; 
+			}
 		}
 		else Debug.Log("Select a Fucking Unit."); 	
 	}
@@ -137,9 +139,11 @@ public class Game : MonoBehaviour {
 				board.selectedUnit = null; 
 				Debug.Log ("Cultivating Meadow"); 
 			}
-			else Debug.Log ("You need to select a Peasant ( one that is ready for orders)"); 
-			//board.selectedUnit.halo.SetActive (false);
-			board.selectedUnit = null; 
+			else  {
+				Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
+				board.selectedUnit.halo.SetActive (false);
+				board.selectedUnit = null; 
+			}
 		}
 		else Debug.Log("Select a Fucking Unit."); 
 		
