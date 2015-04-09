@@ -83,7 +83,8 @@ public class Unit : Photon.MonoBehaviour {
 		Debug.Log ("Unit actionType should now be ClearedTile due to unowned tile."); 
 		this.getTile().setVillage(this.getVillage()); //fixed just now from this.tile.setVillage(...)
 		this.getVillage().addTile(this.tile);
-		//this.setActionType(ActionType.Moved); 
+
+		if (this.getUnitType() == UnitType.Cannon)this.setActionType(ActionType.Moved); 
 		
 		if (opponentTile){
 			Dictionary<Hex.Direction, Tile> neighbours = this.tile.getNeighbours(); 
@@ -303,8 +304,15 @@ public class Unit : Photon.MonoBehaviour {
 
 	public void MoveTo(Tile target) {
 		
-		if (this.getUnitType () == UnitType.Peasant && target.getOwner () != this.getOwner () && target.getOwner () != null) { 
-			board.setErrorText ("Peasants cannot invade enemy territory");
+		if (this.getUnitType () == UnitType.Cannon && this.getActionType() == ActionType.Moved) { 
+			board.setErrorText ("Cannons cannot move more than one tile a turn.");
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+			return;
+		}
+		
+		if ((this.getUnitType () == UnitType.Peasant || this.getUnitType () == UnitType.Cannon) && target.getOwner () != this.getOwner () && target.getOwner () != null) { 
+			board.setErrorText ("Peasants and Cannons cannot invade enemy territory");
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;	
@@ -349,7 +357,7 @@ public class Unit : Photon.MonoBehaviour {
 		}
 		
 	 	Unit potentialEnemy = this.getTile().containsEnemyInNeighbour(target); 
-	 	if (potentialEnemy != null) { 
+	 	if (potentialEnemy != null && potentialEnemy.getUnitType() != UnitType.Cannon) { 
 	 		if (!combat (potentialEnemy)) { 
 				board.selectedUnit = null;
 				halo.SetActive(false);
@@ -357,7 +365,7 @@ public class Unit : Photon.MonoBehaviour {
 				return; 
 	 		}
 	 	}
-		Debug.Log(this.getTile().DistanceTo(target));
+
 		if(this.getUnitType() == UnitType.Cannon && this.getTile().DistanceTo(target) > 2){
 			board.setErrorText ("Cannons cannot move more than one tile a turn"); 
 			board.selectedUnit = null;
@@ -559,7 +567,7 @@ public class Unit : Photon.MonoBehaviour {
 				board.selectedUnit = this;
 				foreach(Village v in this.getOwner().getVillages())
 					foreach(Unit u in v.getUnits())
-						u.halo.SetActive(false);
+				u.halo.SetActive(false);
 				halo.SetActive(true);
 			}
 			else{
