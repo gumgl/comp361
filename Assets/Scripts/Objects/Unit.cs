@@ -235,13 +235,59 @@ public class Unit : Photon.MonoBehaviour {
 	}
 	*/
 	
-	//returns true if the tile has any unit on it, you're not allowed to move onto a tile that has a unit on it. 
-	public bool containsUnit (Tile target) { 
+	//returns true if the tile has enemy unit on it. 
+	public bool containsEnemyUnit (Tile target) { 
 		Unit potentialUnit = target.getUnit (); 
-		if (potentialUnit != null) { 
+		if (potentialUnit != null && potentialUnit.getOwner () != this.getOwner ()) { 
 			return true; 
 		}
 		return false; 
+	}
+	
+	public bool containsFriendlyUnit (Tile target) { 
+		Unit potentialUnit = target.getUnit (); 
+		if (potentialUnit != null && potentialUnit.getOwner () == this.getOwner ()) { 
+			return true; 
+		}
+		return false; 
+	}
+	
+	//different villages? FIX TODO
+	public bool combineUnits (Unit other) { 
+		
+		if (this.getUnitType() == UnitType.Peasant && other.getUnitType() == UnitType.Peasant) { 
+			int totalGold = 0; 
+			if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
+			else totalGold = this.getVillage().getGold() + other.getVillage().getGold (); 
+			if (this.getVillage ().getGold () >= 6) { //only upkeep
+				this.setUnitType (UnitType.Infantry); 
+				other.kill (false); 
+				return true; 
+			}
+		}
+		else if ((this.getUnitType() == UnitType.Infantry && other.getUnitType() == UnitType.Peasant) || (this.getUnitType() == UnitType.Peasant && other.getUnitType() == UnitType.Infantry)) { 
+			int totalGold = 0; 
+			if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
+			else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
+			if (this.getVillage ().getGold () >= 18) { //only upkeep
+				this.setUnitType (UnitType.Soldier); 
+				other.kill (false); 
+				return true; 
+			}
+		}
+		
+		else if (this.getUnitType() == UnitType.Infantry && other.getUnitType() == UnitType.Infantry) { 
+			int totalGold = 0; 
+			if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
+			else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
+			if (this.getVillage ().getGold () >= 54) { //only upkeep
+				this.setUnitType (UnitType.Knight); 
+				other.kill (false); 
+				return true;
+			}
+		}
+		return false; 
+		
 	}
 
 	public void MoveTo(Tile target) {
@@ -267,12 +313,22 @@ public class Unit : Photon.MonoBehaviour {
 		}
 		
 		//this needs to be removed, we want to upgrade units if they are friendly and everything is right. 
-		if (containsUnit (target)) {
+		if (containsEnemyUnit (target)) {
 			board.selectedUnit = null;
 			halo.SetActive(false);
-			board.setErrorText ("Tile Occupied");
+			board.setErrorText ("Tile Occupied By Enemy");
 			return; 
 		}
+		
+		if (containsFriendlyUnit (target)) { 
+			if (!combineUnits (target.getUnit ())) {
+				board.selectedUnit = null;
+				halo.SetActive(false); 
+				board.setErrorText ("You Can Either Not Afford This Or Invalid Combine.");
+				return;
+			}
+		}
+		
 	 	Unit potentialEnemy = this.getTile().containsEnemyInNeighbour(target); 
 	 	if (potentialEnemy != null) { 
 	 		if (!combat (potentialEnemy)) { 
@@ -361,12 +417,12 @@ public class Unit : Photon.MonoBehaviour {
 		board.selectedUnit = null;
 		halo.SetActive(false);
 		if (potentialEnemy != null) {
-			potentialEnemy.kill();
+			potentialEnemy.kill(true);
 		}
 	}
 
-	public void kill(){
-		this.getTile().setLandType(LandType.Tombstone);
+	public void kill(bool tomb){
+		if (tomb == true)this.getTile().setLandType(LandType.Tombstone);
 		GameObject.Destroy(this.gameObject);
 	}
 

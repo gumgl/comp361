@@ -131,7 +131,7 @@ public class Game : MonoBehaviour {
 				if(v.getVillageType() == VillageType.Castle)
 					v.setVillageType(VillageType.Fort);
 				foreach(Unit toKill in v.getUnits())
-					toKill.kill();
+					toKill.kill(true);
 			}
 		}
 		endTurnButton.interactable = (localPlayer == currPlayer);
@@ -155,7 +155,7 @@ public class Game : MonoBehaviour {
 			}
 			else  {
 				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
-				board.setErrorText("Unit Is Busy This Turn!"); 
+				board.setErrorText("Unit Is Either Busy Or Not Peasant"); 
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
 			}
@@ -175,7 +175,7 @@ public class Game : MonoBehaviour {
 			}
 			else  {
 				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
-				board.setErrorText("Unit Is Busy This Turn!");  
+				board.setErrorText("Unit Is Either Busy Or Not Peasant");  
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
 			}
