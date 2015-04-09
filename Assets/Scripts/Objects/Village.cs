@@ -256,6 +256,7 @@ public class Village : MonoBehaviour {
 			this.changeGold(v.getGold());
 			this.changeWood(v.getWood());
 			v.getStructTile().setStructure(Structure.None);
+			v.getStructTile().setLandType(LandType.Meadow);
 			GameObject.Destroy(v.gameObject);
 		}
 
@@ -271,6 +272,7 @@ public class Village : MonoBehaviour {
 			v.changeGold(this.getGold());
 			v.changeWood(this.getWood());
 			this.getStructTile().setStructure(Structure.None);
+			this.getStructTile().setLandType(LandType.Meadow);
 			GameObject.Destroy(this.gameObject);
 		}
 		else if(this.getTiles().Count >= v.getTiles().Count){
@@ -285,6 +287,7 @@ public class Village : MonoBehaviour {
 			this.changeGold(v.getGold());
 			this.changeWood(v.getWood());
 			v.getStructTile().setStructure(Structure.None);
+			v.getStructTile().setLandType(LandType.Meadow);
 			GameObject.Destroy(v.gameObject);
 		}
 		else{
@@ -299,6 +302,7 @@ public class Village : MonoBehaviour {
 			v.changeGold(this.getGold());
 			v.changeWood(this.getWood());
 			this.getStructTile().setStructure(Structure.None);
+			this.getStructTile().setLandType(LandType.Meadow);
 			GameObject.Destroy(this.gameObject);
 		}
 	}
