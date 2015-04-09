@@ -15,6 +15,7 @@ public class Board : Photon.MonoBehaviour {
 	Village activeVillage; 
 	public UnityEngine.UI.Text panel;
 	public UnityEngine.UI.Text unitCostsPanel;
+	public bool started = false;
 	//LandType[,] tileTypes;
 	//Tile[,] grid;
 	Dictionary<Hex, Tile> map;
@@ -33,11 +34,16 @@ public class Board : Photon.MonoBehaviour {
 		generateHexagonalGrid(seed);
 		connectNeighbours();
         createVillages();
+		started= true;
 	}
 
 	void Start() {}
   
 	void Update() {}
+
+	public bool isStarted(){
+		return started;
+	}
 
 	public Dictionary<Hex, Tile> getMap() {
 		return map;

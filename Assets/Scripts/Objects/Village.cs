@@ -304,6 +304,7 @@ public class Village : MonoBehaviour {
 	}
 	
 	void OnMouseUp () {
+		Debug.Log(this.getVillageType());
 		foreach(Village v in this.getOwner().getVillages())
 			foreach(Unit u in v.getUnits()){
 					board.selectedUnit = null;
@@ -367,6 +368,7 @@ public class Village : MonoBehaviour {
 
 	[RPC]
 	void upgradeVillage(int q, int r) {
+		Debug.Log("HITHITHITHITHTI");
 		Tile tempTile = board.getTile(new Hex(q,r));
 		Debug.Log(tempTile.getVillage().getVillageType());
 		if (tempTile.getVillage().getVillageType() == VillageType.Hovel && tempTile.getVillage().getWood() >= VillageType.Town.getUpgradeCost()) { 
