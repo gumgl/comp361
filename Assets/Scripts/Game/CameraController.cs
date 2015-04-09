@@ -41,7 +41,7 @@ public class CameraController : MonoBehaviour {
 			if (Input.GetAxis ("Mouse ScrollWheel") > 0 && transform.position.y >= 4) {
 				transform.Translate (Vector3.forward * zoomSpeed * Time.deltaTime);  
 			}
-			if (Input.GetAxis ("Mouse ScrollWheel") < 0 && transform.position.y <= 26) {
+			if (Input.GetAxis ("Mouse ScrollWheel") < 0 && transform.position.y <= 17) {
 				transform.Translate (Vector3.forward * -zoomSpeed * Time.deltaTime);  
 			}
 		}

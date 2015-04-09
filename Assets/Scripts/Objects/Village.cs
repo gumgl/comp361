@@ -345,7 +345,7 @@ public class Village : MonoBehaviour {
 			GetComponent<PhotonView>().RPC("upgradeVillage", PhotonTargets.All, this.getStructTile().pos.q, this.structTile.pos.r);
 			//upgradeVillage(this.getStructTile().pos.q, this.structTile.pos.r); 
 		}
-		else if (getVillageType() != VillageType.Fort) {
+		else if (getVillageType() != VillageType.Castle) {
 			setUpgradable (true);
 		}
 		}
