@@ -83,7 +83,7 @@ public class Unit : Photon.MonoBehaviour {
 		Debug.Log ("Unit actionType should now be ClearedTile due to unowned tile."); 
 		this.getTile().setVillage(this.getVillage()); //fixed just now from this.tile.setVillage(...)
 		this.getVillage().addTile(this.tile);
-		this.setActionType(ActionType.Moved); 
+		if (this.getUnitType() == UnitType.Cannon)this.setActionType(ActionType.Moved); 
 		
 		if (opponentTile){
 			Dictionary<Hex.Direction, Tile> neighbours = this.tile.getNeighbours(); 
@@ -300,6 +300,13 @@ public class Unit : Photon.MonoBehaviour {
 
 	public void MoveTo(Tile target) {
 		
+		if (this.getUnitType () == UnitType.Cannon && this.getActionType() == ActionType.Moved) { 
+			board.setErrorText ("Cannons cannot move more than one tile a turn.");
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+			return;
+		}
+		
 		if ((this.getUnitType () == UnitType.Peasant || this.getUnitType () == UnitType.Cannon) && target.getOwner () != this.getOwner () && target.getOwner () != null) { 
 			board.setErrorText ("Peasants and Cannons cannot invade enemy territory");
 			board.selectedUnit = null;
@@ -355,7 +362,7 @@ public class Unit : Photon.MonoBehaviour {
 	 		}
 	 	}
 
-		if(this.getUnitType() == UnitType.Cannon && this.getTile().DistanceTo(target) > 1){
+		if(this.getUnitType() == UnitType.Cannon && this.getTile().DistanceTo(target) > 2){
 			board.setErrorText ("Cannons cannot move more than one tile a turn"); 
 			board.selectedUnit = null;
 			halo.SetActive(false); 
