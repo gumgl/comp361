@@ -25,7 +25,6 @@ public class Unit : Photon.MonoBehaviour {
 			for (int i = 0; i < currentPath.Count-1; i++) { // Debug line
 				Vector3 start = board.TileCoordToWorldCoord(currentPath[i].getPixelPos()) + new Vector3(0f, 4, 0f);
 				Vector3 end = board.TileCoordToWorldCoord(currentPath[i + 1].getPixelPos()) + new Vector3(0f, 4, 0f);
-
 				Debug.DrawLine(start, end, Color.red);
 			}
 			var unitPos = new Vector2(transform.position.x, transform.position.z);
@@ -60,19 +59,14 @@ public class Unit : Photon.MonoBehaviour {
 			}
 		}
 	}
-	
-	
 
 	public void captureTile() {
-	
-		
-	
 		bool opponentTile = false; 
 		Village possibleOpponentVillage = this.tile.getVillage (); 
 		if (possibleOpponentVillage != null){
 			if (possibleOpponentVillage.getOwner () != this.getVillage().getOwner ()){
 				opponentTile = true; 
-				this.tile.getVillage().removeTile (this.tile); 
+				this.tile.getVillage().removeTile (this.tile);
 				if (this.tile.getVillage ().getTiles ().Count < 3) { 
 					this.tile.getVillage().delete (this); 
 				}
@@ -131,11 +125,9 @@ public class Unit : Photon.MonoBehaviour {
 				}
 
 				if(callVillageTiles(toKeep).Count < 3){
-					Debug.Log("CASE 1");
 					toKeep.getVillage().delete(this);
 				}
 				else if(toKeep == hasVillage){
-					Debug.Log("CASE 2");
 					foreach(Tile t in separated){
 						if(t != toKeep){
 							foreach(Tile deadTile in callVillageTiles(t))
@@ -144,7 +136,6 @@ public class Unit : Photon.MonoBehaviour {
 					}
 				}
 				else{
-					Debug.Log("CASE 3");
 					toKeep.getVillage().moveVillage(callVillageTiles(toKeep)[Random.Range(0, callVillageTiles(toKeep).Count)]);
 					foreach(Tile t in separated){
 						if(t!= toKeep){
@@ -155,7 +146,6 @@ public class Unit : Photon.MonoBehaviour {
 				}
 			} 
 		}
-		
 	}
 	
 	public bool isAdjacentToListTiles (List<Tile> list, Tile t) { 
@@ -255,22 +245,22 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	public void MoveTo(Tile target) {
-		if (this.getActionType() == ActionType.Moved){
-			board.setErrorText ("Unit Already Moved This Turn");
+		if (this.getActionType() == ActionType.ClearedTile){
+			board.setErrorText ("Unit has already performed an action this turn");
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;
 		}
 		
 		if (this.getActionType() == ActionType.Cultivating || this.getActionType() == ActionType.BuildingRoad || this.getActionType() == ActionType.StillCultivating){ 
-			board.setErrorText ("Unit Busy This Turn!");
+			board.setErrorText ("Unit is busy this turn");
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;
 		}
 		
-		if (this.getUnitType() == UnitType.Cannon) { 
-		board.setErrorText ("Cannons Cannot Be Moved"); 
+		if (this.getUnitType() == UnitType.Cannon && target.getOwner() != this.getOwner()) { 
+		board.setErrorText ("Cannons cannot invade enemy territory"); 
 		board.selectedUnit = null;
 		halo.SetActive(false); 
 		return;
@@ -288,23 +278,30 @@ public class Unit : Photon.MonoBehaviour {
 	 		if (!combat (potentialEnemy)) { 
 				board.selectedUnit = null;
 				halo.SetActive(false);
-				board.setErrorText ("Stronger Enemy in close proximity? You Gon' Die.");
+				board.setErrorText ("Stronger enemy in close proximity! You'll die if you go there");
 				return; 
 	 		}
 	 	}
-	 	
+
+		if(this.getUnitType() == UnitType.Cannon && this.getTile().DistanceTo(target) > 1){
+			board.setErrorText ("Cannons cannot move more than one tile a turn"); 
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+			return;
+		}
+		
 	 	if (this.getUnitType() == UnitType.Knight && (target.getLandType () == LandType.Tree || target.getLandType () == LandType.Tombstone)){ 
 	 		//Debug.Log ("Knights and Cannons cannot clear tombstones/trees"); 
-	 		board.setErrorText ("Knights and Cannons cannot clear tombstones!"); 
+	 		board.setErrorText ("Knights and cannons cannot clear tombstones"); 
 	 		board.selectedUnit = null;
 	 		halo.SetActive(false); 
 	 		return;  
 	 	}
 		
 		if (isMoving())
-			Debug.LogError("Unit already moving");
+			Debug.LogError("Unit is already moving");
 		else if (target.canEnter(this) == false)
-			board.setErrorText ("You wanna drown or somethin'?");
+			board.setErrorText ("Your units can't swim");
 			//Debug.LogError("Cannot move to this tile");
 		else {
 
@@ -449,6 +446,14 @@ public class Unit : Photon.MonoBehaviour {
 		return getVillage().getOwner();
 	}
 
+	public void upgrade(){
+		if(this.getUnitType() < UnitType.Knight && this.getVillage().getGold() >= 10)
+			this.getVillage().GetComponent<PhotonView>().RPC("upgradeUnit", PhotonTargets.All, this.getTile().pos.q, this.getTile().pos.r);
+		else{
+			board.setErrorText ("Not enough money to upgrade");
+		}
+	}
+
 	void callCapture(int q, int r){
 		Tile tempTile = null;
 		foreach(Tile t in board.getMap().Values){
@@ -468,16 +473,24 @@ public class Unit : Photon.MonoBehaviour {
 		}
 		tempTile.setLandType(LandType.Grass);
 		if (type == LandType.Tree)tempTile.getVillage().changeWood(1);
+		this.setActionType(ActionType.ClearedTile);
 	}
 
 	void OnMouseUp() {
 		if(this.transform.root.GetComponent<Game>().GetCurrPlayer() == this.transform.root.GetComponent<Game>().GetLocalPlayer() && this.getOwner() == this.transform.root.GetComponent<Game>().GetLocalPlayer()){
-	//	Debug.Log("Unit OnMouseUp");
-			owner = this.tile.getOwner();
-			board.selectedUnit = this;
-			halo.SetActive(true);
+			if(board.selectedUnit != this){
+				board.selectedUnit = this;
+				foreach(Village v in this.getOwner().getVillages())
+					foreach(Unit u in v.getUnits())
+						u.halo.SetActive(false);
+				halo.SetActive(true);
+			}
+			else{
+				board.selectedUnit = null;
+				halo.SetActive(false);
+				this.upgrade();
+			}
 		}
-		//this.transform.renderer.material.color = Color.green;
 	}
 
 }

@@ -119,13 +119,17 @@ public class Game : MonoBehaviour {
 
 	void PaymentPhase(){
 		foreach(Village v in players[currPlayer].getVillages()){
+			if(v.getVillageType() == VillageType.Castle)
+				v.changeGold(-80);
 			foreach(Unit u in v.getUnits()){
 				v.changeGold(-u.getUnitType().getUpkeep());
-				if(u.getActionType() == ActionType.Moved)
+				if(u.getActionType() == ActionType.Moved || u.getActionType() == ActionType.ClearedTile)
 					u.setActionType(ActionType.ReadyForOrders);
 			}
 			if(v.getGold() < 0){
 				v.setGold(0);
+				if(v.getVillageType() == VillageType.Castle)
+					v.setVillageType(VillageType.Fort);
 				foreach(Unit toKill in v.getUnits())
 					toKill.kill();
 			}
@@ -187,6 +191,7 @@ public class Game : MonoBehaviour {
 	/// <summary>Move to next player phase (also modifies currPlayer)</summary>
 	[RPC]
 	void NextTurn(){
+		this.board.unitCostsPanel.text = "";
 		currPlayer = NextPlayer();
 		endTurnButton.image.color = players[currPlayer].getColor();
 		endTurnButton.interactable = false;

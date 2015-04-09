@@ -67,8 +67,10 @@ public class Tile : Photon.MonoBehaviour {
 	public void setAcceptsUnit(bool b) {
 		acceptsUnit = b;
 		if(b){
-			Debug.Log("BOOM");
 			this.board.unitCostsPanel.text = "Numkey 1----Peasant----Cost: 10 Gold\nNumkey 2----Infantry----Cost: 20 Gold\nNumkey 3----Soldier-----Cost: 30 Gold\nNumkey 4----Knight------Cost: 40 Gold\nNumkey 5----Cannon-----Cost:35 Gold and 12 Wood";
+		}
+		else{
+			this.board.unitCostsPanel.text = "";
 		}
 	}
 	
@@ -214,11 +216,11 @@ public class Tile : Photon.MonoBehaviour {
 				this.getOwner().setUnitToBuild(0);
 			else if(Input.GetKeyDown("2"))
 				this.getOwner().setUnitToBuild(1);
-			else if(Input.GetKeyDown("3"))
+			else if(Input.GetKeyDown("3") && this.getVillage().getVillageType() >= VillageType.Town)
 				this.getOwner().setUnitToBuild(2);
-			else if(Input.GetKeyDown("4"))
+			else if(Input.GetKeyDown("4") && this.getVillage().getVillageType() >= VillageType.Fort)
 				this.getOwner().setUnitToBuild(3);
-			else if(Input.GetKeyDown("5"))
+			else if(Input.GetKeyDown("5") && this.getVillage().getVillageType() >= VillageType.Castle)
 				this.getOwner().setUnitToBuild(4);
 		}
 	}
@@ -241,7 +243,7 @@ public class Tile : Photon.MonoBehaviour {
 				this.board.unitCostsPanel.text = "";
 				this.getOwner().setUnitToBuild(5);
 				foreach(Tile t in village.getTiles()){
-					t.acceptsUnit = false;
+					t.setAcceptsUnit(false);
 					t.transform.GetChild(0).renderer.material.color = village.getOwner().getColor();
 					t.transform.GetChild(1).renderer.material.color = village.getOwner().getColor();
 					t.transform.GetChild(2).renderer.material.color = village.getOwner().getColor();

@@ -222,7 +222,7 @@ public class Village : MonoBehaviour {
 				if(type == 4)
 					tempTile.getVillage().changeWood(-12);
 
-				Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.identity) as Unit;
+				Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.Euler(0, 180, 0)) as Unit;
 				u.transform.parent = board.transform;
 				u.board = this.board;
 				u.setVillage(tempTile.getVillage());
@@ -304,6 +304,11 @@ public class Village : MonoBehaviour {
 	}
 	
 	void OnMouseUp () {
+		foreach(Village v in this.getOwner().getVillages())
+			foreach(Unit u in v.getUnits()){
+					board.selectedUnit = null;
+					u.halo.SetActive(false);
+			}		
 		if(this.transform.root.GetComponent<Game>().GetCurrPlayer() == this.transform.root.GetComponent<Game>().GetLocalPlayer() && this.getOwner() == this.transform.root.GetComponent<Game>().GetLocalPlayer()){
 		if(!this.isActive){
 			this.isActive = true;
@@ -346,26 +351,24 @@ public class Village : MonoBehaviour {
 	}
 
 	[RPC]
+	public void upgradeUnit(int q, int r){
+		Tile tempTile = board.getTile(new Hex(q, r));
+		tempTile.getUnit().setUnitType(tempTile.getUnit().getUnitType() + 1);
+		tempTile.getVillage().changeGold(-10);
+	}
+
+	[RPC]
 	public void moveUnit(int q, int r, int q1, int r1){
 		Tile tempTile = board.getTile(new Hex(q, r));
 		board.selectedUnit = tempTile.getUnit();
-		board.selectedUnit.tile.getOwner();
 		Tile tempTile2 = board.getTile(new Hex(q1, r1));
-	//	foreach(Tile t in board.getMap().Values){
-	//		if(t.pos.q == q && t.pos.r == r){
-		//		tempTile = t;
-		//	}
-		//	else if(t.pos.q == q1 && t.pos.r == r1){
-		//		tempTile2 = t;
-			//}
-		//}
 		tempTile.getUnit().MoveTo(tempTile2);
 	}
 
 	[RPC]
 	void upgradeVillage(int q, int r) {
 		Tile tempTile = board.getTile(new Hex(q,r));
-		
+		Debug.Log(tempTile.getVillage().getVillageType());
 		if (tempTile.getVillage().getVillageType() == VillageType.Hovel && tempTile.getVillage().getWood() >= VillageType.Town.getUpgradeCost()) { 
 			tempTile.getVillage().transform.GetChild(0).gameObject.SetActive(false);
 			tempTile.getVillage().transform.GetChild(1).gameObject.SetActive(true);
