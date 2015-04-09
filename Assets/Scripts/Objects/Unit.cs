@@ -448,8 +448,27 @@ public class Unit : Photon.MonoBehaviour {
 		GameObject.Destroy(this.gameObject);
 	}
 	
-	public void cannonFire () { 
-	
+	public void highlight2HexRadius (Unit cannon, bool select) { 
+		if (cannon.getUnitType() == UnitType.Cannon) { 
+			List<Tile> visited = new List<Tile>(); 
+			Dictionary<Hex.Direction, Tile> neighbours = cannon.getTile ().getNeighbours (); 
+			foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours) { 
+				visited.Add (pair.Value); 
+				Dictionary<Hex.Direction, Tile>  n2 = pair.Value.getNeighbours (); 
+				foreach (KeyValuePair<Hex.Direction, Tile> p2 in n2) { 
+					if (!visited.Contains (p2.Value)) visited.Add (p2.Value); 
+				}
+			}	
+		foreach (Tile t in visited) { 
+			Unit potentialUnit = t.getUnit (); 
+			if (potentialUnit != null) { 
+				if (potentialUnit.getOwner() != this.getOwner ()) { 
+					potentialUnit.cannonHalo.SetActive (select); 
+				}
+			}
+		}
+		}
+		
 	}
 
 	public bool isMoving() {
@@ -561,17 +580,23 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	void OnMouseUp() {
+		//PAUL RPC
+		if (this.cannonHalo.GetActive()) this.kill (true); 
+		
 		if(this.transform.root.GetComponent<Game>().GetCurrPlayer() == this.transform.root.GetComponent<Game>().GetLocalPlayer() && this.getOwner() == this.transform.root.GetComponent<Game>().GetLocalPlayer()){
 			if(board.selectedUnit != this){
 				board.selectedUnit = this;
 				foreach(Village v in this.getOwner().getVillages())
-					foreach(Unit u in v.getUnits())
-				u.halo.SetActive(false);
+					foreach(Unit u in v.getUnits()){
+						u.halo.SetActive(false);
+						}
 				halo.SetActive(true);
+				if (this.getUnitType() == UnitType.Cannon) highlight2HexRadius(this,true); 
 			}
 			else{
 				board.selectedUnit = null;
 				halo.SetActive(false);
+				if (this.getUnitType() == UnitType.Cannon) highlight2HexRadius(this,false); 
 				this.upgrade();
 			}
 		}
