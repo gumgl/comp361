@@ -346,7 +346,7 @@ public class Unit : Photon.MonoBehaviour {
 		}
 		
 	 	Unit potentialEnemy = this.getTile().containsEnemyInNeighbour(target); 
-	 	if (potentialEnemy != null) { 
+	 	if (potentialEnemy != null && potentialEnemy.getUnitType() != UnitType.Cannon) { 
 	 		if (!combat (potentialEnemy)) { 
 				board.selectedUnit = null;
 				halo.SetActive(false);
@@ -554,7 +554,7 @@ public class Unit : Photon.MonoBehaviour {
 				board.selectedUnit = this;
 				foreach(Village v in this.getOwner().getVillages())
 					foreach(Unit u in v.getUnits())
-						u.halo.SetActive(false);
+				u.halo.SetActive(false);
 				halo.SetActive(true);
 			}
 			else{
