@@ -6,7 +6,7 @@ public class Unit : Photon.MonoBehaviour {
 	Village village;
 
 	UnitType myType;
-	ActionType currentAction = ActionType.ReadyForOrders;
+	public ActionType currentAction = ActionType.ReadyForOrders;
 	public Tile tile;
 	public List<Tile> currentPath = null;
 	public int currentPathIndex;
@@ -83,7 +83,7 @@ public class Unit : Photon.MonoBehaviour {
 		Debug.Log ("Unit actionType should now be ClearedTile due to unowned tile."); 
 		this.getTile().setVillage(this.getVillage()); //fixed just now from this.tile.setVillage(...)
 		this.getVillage().addTile(this.tile);
-		this.setActionType(ActionType.Moved); 
+		//this.setActionType(ActionType.Moved); 
 		
 		if (opponentTile){
 			Dictionary<Hex.Direction, Tile> neighbours = this.tile.getNeighbours(); 
@@ -269,6 +269,7 @@ public class Unit : Photon.MonoBehaviour {
 			else totalGold = this.getVillage().getGold() + other.getVillage().getGold (); 
 			if (this.getVillage ().getGold () >= 6) { //only upkeep
 				this.setUnitType (UnitType.Infantry); 
+				other.getVillage().getUnits().Remove(other);
 				other.kill (false); 
 				return true; 
 			}
@@ -279,6 +280,7 @@ public class Unit : Photon.MonoBehaviour {
 			else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
 			if (this.getVillage ().getGold () >= 6) { //only upkeep
 				this.setUnitType (UnitType.Soldier); 
+				other.getVillage().getUnits().Remove(other);
 				other.kill (false); 
 				return true; 
 			}
@@ -290,6 +292,7 @@ public class Unit : Photon.MonoBehaviour {
 			else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
 			if (this.getVillage ().getGold () >= 6) { //only upkeep
 				this.setUnitType (UnitType.Knight); 
+				other.getVillage().getUnits().Remove(other);
 				other.kill (false); 
 				return true;
 			}
@@ -340,7 +343,7 @@ public class Unit : Photon.MonoBehaviour {
 			if (!combineUnits (target.getUnit ())) {
 				board.selectedUnit = null;
 				halo.SetActive(false); 
-				board.setErrorText ("You Can Either Not Afford This Or Invalid Combine.");
+				board.setErrorText ("You can either not afford this or invalid combine.");
 				return;
 			}
 		}
@@ -354,8 +357,8 @@ public class Unit : Photon.MonoBehaviour {
 				return; 
 	 		}
 	 	}
-
-		if(this.getUnitType() == UnitType.Cannon && this.getTile().DistanceTo(target) > 1){
+		Debug.Log(this.getTile().DistanceTo(target));
+		if(this.getUnitType() == UnitType.Cannon && this.getTile().DistanceTo(target) > 2){
 			board.setErrorText ("Cannons cannot move more than one tile a turn"); 
 			board.selectedUnit = null;
 			halo.SetActive(false); 
@@ -521,9 +524,11 @@ public class Unit : Photon.MonoBehaviour {
 	public void upgrade(){
 		if(this.getUnitType() < UnitType.Knight && this.getVillage().getGold() >= 10)
 			this.getVillage().GetComponent<PhotonView>().RPC("upgradeUnit", PhotonTargets.All, this.getTile().pos.q, this.getTile().pos.r);
-		else{
-			board.setErrorText ("Not enough money to upgrade");
+		else if(this.getUnitType() == UnitType.Knight){
+			board.setErrorText ("Knights can't be ugraded any further");
 		}
+		else
+			board.setErrorText ("Not enough money to upgrade");
 	}
 
 	void callCapture(int q, int r){

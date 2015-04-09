@@ -20,7 +20,7 @@ public static class Config {
 		unitUpkeep[UnitType.Infantry] = 6;
 		unitUpkeep[UnitType.Soldier] = 18;
 		unitUpkeep[UnitType.Knight] = 54;
-		unitUpkeep[UnitType.Cannon] = 80;
+		unitUpkeep[UnitType.Cannon] = 5;
 
 		unitCost[UnitType.Peasant] = 10;
 		unitCost[UnitType.Infantry] = 20;
