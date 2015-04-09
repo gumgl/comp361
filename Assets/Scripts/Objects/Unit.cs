@@ -300,8 +300,8 @@ public class Unit : Photon.MonoBehaviour {
 
 	public void MoveTo(Tile target) {
 		
-		if (this.getUnitType () == UnitType.Peasant && target.getOwner () != this.getOwner () && target.getOwner () != null) { 
-			board.setErrorText ("Peasants cannot invade enemy territory");
+		if ((this.getUnitType () == UnitType.Peasant || this.getUnitType () == UnitType.Cannon) && target.getOwner () != this.getOwner () && target.getOwner () != null) { 
+			board.setErrorText ("Peasants and Cannons cannot invade enemy territory");
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;	
