@@ -221,7 +221,7 @@ public class Unit : Photon.MonoBehaviour {
 		UnitType thisType = this.getUnitType(); 
 		UnitType otherType = other.getUnitType (); 
 		
-		if (thisType > otherType) return true;
+		if (thisType.getCombatLevel() > otherType.getCombatLevel ()) return true;
 		else return false;   
 		
 	}
@@ -301,7 +301,7 @@ public class Unit : Photon.MonoBehaviour {
 	public void MoveTo(Tile target) {
 		
 		if (this.getUnitType () == UnitType.Cannon && this.getActionType() == ActionType.Moved) { 
-			board.setErrorText ("Cannons cannot move more than one tile a turn.");
+			board.setErrorText ("Cannons can only move or fire once per turn each.");
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;
@@ -326,13 +326,6 @@ public class Unit : Photon.MonoBehaviour {
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;
-		}
-		
-		if (this.getUnitType() == UnitType.Cannon && target.getOwner() != this.getOwner()) { 
-		board.setErrorText ("Cannons cannot invade enemy territory"); 
-		board.selectedUnit = null;
-		halo.SetActive(false); 
-		return;
 		}
 		
 		//this needs to be removed, we want to upgrade units if they are friendly and everything is right. 
@@ -447,6 +440,10 @@ public class Unit : Photon.MonoBehaviour {
 	public void kill(bool tomb){
 		if (tomb == true)this.getTile().setLandType(LandType.Tombstone);
 		GameObject.Destroy(this.gameObject);
+	}
+	
+	public void cannonFire () { 
+	
 	}
 
 	public bool isMoving() {

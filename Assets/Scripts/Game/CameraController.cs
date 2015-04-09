@@ -15,7 +15,7 @@ public class CameraController : MonoBehaviour {
 	void Start () {
 		x = transform.eulerAngles.y;
 	}
-	
+	/*
 	// Update is called once per frame
 	void Update () {
 		if (board.isStarted ()) {
@@ -46,4 +46,5 @@ public class CameraController : MonoBehaviour {
 			}
 		}
 	}
+	*/
 }
