@@ -304,6 +304,7 @@ public class Village : MonoBehaviour {
 	}
 	
 	void OnMouseUp () {
+		Debug.Log(this.getVillageType());
 		foreach(Village v in this.getOwner().getVillages())
 			foreach(Unit u in v.getUnits()){
 					board.selectedUnit = null;
