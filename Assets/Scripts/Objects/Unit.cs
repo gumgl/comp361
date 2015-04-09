@@ -42,6 +42,11 @@ public class Unit : Photon.MonoBehaviour {
 			currentPathIndex ++; // Next tile!
 			if (currentPathIndex < currentPath.Count) { // Unit is still getting there
 				setTile(currentPath[currentPathIndex]);
+				//WORKS!
+				if((this.getUnitType() == UnitType.Knight || this.getUnitType() == UnitType.Soldier) && this.getTile().getLandType() == LandType.Meadow) { 
+					this.getTile ().setLandType (LandType.Grass); 	
+				}
+				
 			} else { // Unit has arrived at target
 				this.tile.setUnit(this);
 				//this.tile.setVillage(this.getVillage());
@@ -66,14 +71,17 @@ public class Unit : Photon.MonoBehaviour {
 		if (possibleOpponentVillage != null){
 			if (possibleOpponentVillage.getOwner () != this.getVillage().getOwner ()){
 				opponentTile = true; 
+				this.setActionType (ActionType.ClearedTile); //invaded tile
+				Debug.Log ("Unit actionType should now be ClearedTile due to invasion."); 
 				this.tile.getVillage().removeTile (this.tile);
 				if (this.tile.getVillage ().getTiles ().Count < 3) { 
 					this.tile.getVillage().delete (this); 
 				}
 			}
 		}
-		
-		this.tile.setVillage(this.getVillage());
+		if (this.tile.getOwner () == null) this.setActionType(ActionType.ClearedTile); //captured unowned tile. 
+		Debug.Log ("Unit actionType should now be ClearedTile due to unowned tile."); 
+		this.getTile().setVillage(this.getVillage()); //fixed just now from this.tile.setVillage(...)
 		this.getVillage().addTile(this.tile);
 		this.setActionType(ActionType.Moved); 
 		
@@ -269,7 +277,7 @@ public class Unit : Photon.MonoBehaviour {
 			int totalGold = 0; 
 			if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
 			else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
-			if (this.getVillage ().getGold () >= 18) { //only upkeep
+			if (this.getVillage ().getGold () >= 6) { //only upkeep
 				this.setUnitType (UnitType.Soldier); 
 				other.kill (false); 
 				return true; 
@@ -280,7 +288,7 @@ public class Unit : Photon.MonoBehaviour {
 			int totalGold = 0; 
 			if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
 			else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
-			if (this.getVillage ().getGold () >= 54) { //only upkeep
+			if (this.getVillage ().getGold () >= 6) { //only upkeep
 				this.setUnitType (UnitType.Knight); 
 				other.kill (false); 
 				return true;
@@ -291,6 +299,13 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	public void MoveTo(Tile target) {
+		
+			board.setErrorText ("Peasants cannot invade enemy territory");
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+			return;	
+		}
+		
 		if (this.getActionType() == ActionType.ClearedTile){
 			board.setErrorText ("Unit has already performed an action this turn");
 			board.selectedUnit = null;
