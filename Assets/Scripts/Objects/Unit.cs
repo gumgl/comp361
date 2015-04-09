@@ -14,10 +14,12 @@ public class Unit : Photon.MonoBehaviour {
 	public Player owner = null;
 	public float moveSpeed = 5f; // In portion of length
 	public GameObject halo;
+	public GameObject cannonHalo;
 
 	void Start()
 	{
 		halo = transform.Find("SelectedHalo").gameObject;
+		cannonHalo = transform.Find("CannonHalo").gameObject;
 	}
 
 	void Update() {
@@ -331,14 +333,7 @@ public class Unit : Photon.MonoBehaviour {
 			halo.SetActive(false); 
 			return;
 		}
-		
-		if (this.getUnitType() == UnitType.Cannon && target.getOwner() != this.getOwner()) { 
-		board.setErrorText ("Cannons cannot invade enemy territory"); 
-		board.selectedUnit = null;
-		halo.SetActive(false); 
-		return;
-		}
-		
+
 		//this needs to be removed, we want to upgrade units if they are friendly and everything is right. 
 		if (containsEnemyUnit (target)) {
 			board.selectedUnit = null;
@@ -351,7 +346,7 @@ public class Unit : Photon.MonoBehaviour {
 			if (!combineUnits (target.getUnit ())) {
 				board.selectedUnit = null;
 				halo.SetActive(false); 
-				board.setErrorText ("You can either not afford this or invalid combine.");
+				board.setErrorText ("You can either not afford this or it is an invalid combine.");
 				return;
 			}
 		}
@@ -375,7 +370,7 @@ public class Unit : Photon.MonoBehaviour {
 		
 	 	if (this.getUnitType() == UnitType.Knight && (target.getLandType () == LandType.Tree || target.getLandType () == LandType.Tombstone)){ 
 	 		//Debug.Log ("Knights and Cannons cannot clear tombstones/trees"); 
-	 		board.setErrorText ("Knights and cannons cannot clear tombstones"); 
+	 		board.setErrorText ("Knights and cannons cannot clear tombstones or fell trees"); 
 	 		board.selectedUnit = null;
 	 		halo.SetActive(false); 
 	 		return;  
