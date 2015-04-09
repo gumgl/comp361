@@ -28,7 +28,6 @@ public class DemoGame : Photon.MonoBehaviour {
 	}
 
 	public void initPlayers(){
-		p1.setActive();
 		p1.setColor(Color.red);
 
 		p2.setColor(Color.yellow);

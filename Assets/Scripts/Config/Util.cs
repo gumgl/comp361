@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SimpleJSON;
 
 /// <summary>
 /// A class where a bunch of constants about the game, and utility functions
@@ -80,5 +81,14 @@ public static class Config {
 		float x = Tile.size * 3.0f / 2.0f * hex.q;
 		float y = Tile.size * Mathf.Sqrt(3) * (hex.r + hex.q / 2.0f);
 		return new Vector2(x, y);
+	}
+	static public JSONNode Serialize(this Hex hex)
+	{
+		var node = new JSONClass();
+		/*node["q"] = new JSONData(hex.q);
+		node["r"] = new JSONData(hex.r);*/
+		node["q"].AsInt = hex.q;
+		node["r"].AsInt = hex.r;
+		return node;
 	}
 }

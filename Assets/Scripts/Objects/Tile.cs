@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using SimpleJSON;
 
 public class Tile : Photon.MonoBehaviour {
 	public Dictionary<Hex.Direction, Tile> neighbours = new Dictionary<Hex.Direction, Tile>();
@@ -11,6 +12,23 @@ public class Tile : Photon.MonoBehaviour {
 	public LandType type;
 	static public float size = 1;
 	bool acceptsUnit = false;
+
+	public JSONNode Serialize() {
+		var node = new JSONClass();
+
+		node["pos"] = pos.Serialize();
+		node["structure"].AsInt = (int) getStructure();
+		node["type"].AsInt = (int) getLandType();
+
+		return node;
+	}
+
+	public void UnSerialize(JSONNode node)
+	{
+		pos = new Hex(node["pos"]);
+		structure = (Structure) node["structure"].AsInt;
+		type = (LandType) node["type"].AsInt;
+	}
 
 	public bool hasStructure() {
 		if (this.structure != Structure.None)
@@ -211,22 +229,22 @@ public class Tile : Photon.MonoBehaviour {
 	void OnMouseUp() {
 //		Debug.Log("Tile " + pos.ToString() + " OnMouseUp");
 		if(this.transform.root.GetComponent<Game>().GetCurrPlayer() == this.transform.root.GetComponent<Game>().GetLocalPlayer()){
-		if (board.selectedUnit != null) {
-			//Debug.Log(board.selectedUnit.getVillage());
-			board.selectedUnit.getVillage().GetComponent<PhotonView>().RPC("moveUnit", PhotonTargets.All, board.selectedUnit.getTile().pos.q, board.selectedUnit.getTile().pos.r, this.pos.q, this.pos.r); 
-			//board.selectedUnit.MoveTo(this);
-		}
-		if(this.acceptsUnit){
-			village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, this.pos.q, this.pos.r);
-			village.setUpgradable(false);
-			foreach(Tile t in village.getTiles()){
-				t.acceptsUnit = false;
-				t.transform.GetChild(0).renderer.material.color = village.getOwner().getColor();
-				t.transform.GetChild(1).renderer.material.color = village.getOwner().getColor();
-				t.transform.GetChild(2).renderer.material.color = village.getOwner().getColor();
-				village.transform.GetChild(0).renderer.material.color = Color.green;
+			if (board.selectedUnit != null) {
+				//Debug.Log(board.selectedUnit.getVillage());
+				board.selectedUnit.getVillage().GetComponent<PhotonView>().RPC("moveUnit", PhotonTargets.All, board.selectedUnit.getTile().pos.q, board.selectedUnit.getTile().pos.r, this.pos.q, this.pos.r); 
+				//board.selectedUnit.MoveTo(this);
+			}
+			if(this.acceptsUnit){
+				village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, this.pos.q, this.pos.r);
+				village.setUpgradable(false);
+				foreach(Tile t in village.getTiles()){
+					t.acceptsUnit = false;
+					t.transform.GetChild(0).renderer.material.color = village.getOwner().getColor();
+					t.transform.GetChild(1).renderer.material.color = village.getOwner().getColor();
+					t.transform.GetChild(2).renderer.material.color = village.getOwner().getColor();
+					village.transform.GetChild(0).renderer.material.color = Color.green;
+				}
 			}
 		}
-	}
 	}
 }

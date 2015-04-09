@@ -1,10 +1,16 @@
 using System;
+using SimpleJSON;
 using UnityEngine;
 public struct Hex {
 	public int q, r;
 	public Hex(int iq, int ir) {
 		q = iq;
 		r = ir;
+	}
+	public Hex(JSONNode node)
+	{
+		q = node["q"].AsInt;
+		r = node["r"].AsInt;
 	}
 	public enum Direction {
 		Up,

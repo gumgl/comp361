@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using SimpleJSON;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -21,13 +22,32 @@ public class Game : MonoBehaviour {
 	private Color[] colors = new Color[]{Color.yellow, Color.red, Color.gray, Color.green, Color.magenta};
 	private int colorIterator = 0;
 
+	public JSONNode Serialize()
+	{
+		var node = new JSONClass();
+
+		node["colorIterator"].AsInt = colorIterator;
+		node["currPlayer"] = GetCurrPlayer().SerializeID();
+
+		node["players"] = new JSONArray();
+		foreach (var player in players) {
+			node["players"][-1] = player.Serialize();
+		}
+
+		node["tiles"] = new JSONArray();
+		foreach (var entry in board.getMap()) {
+			node["tiles"][-1] = entry.Value.Serialize();
+		}
+
+		return node;
+	}
+
 	void Start () {
 		currPlayer = 0;
 	}
 
 	void Update () {
 	}
-
 
 	[RPC]
 	public void InitBoard()
@@ -41,10 +61,61 @@ public class Game : MonoBehaviour {
 		//Debug.Log("About to init board with " + players.Count + " players...");
 		board.init((int) PhotonNetwork.room.customProperties["s"]);
 		endTurnButton.image.color = players[currPlayer].getColor();
-		if(localPlayer == currPlayer)
-			endTurnButton.interactable = true;
-		else
-			endTurnButton.interactable = false;
+		endTurnButton.interactable = (localPlayer == currPlayer);
+
+		var json = Serialize();
+		Debug.Log(json.ToJSON(1));
+	}
+
+	[RPC]
+	public void LoadGame()
+	{
+		string filePath = Application.persistentDataPath + "/game.json";
+
+		var game = JSONNode.LoadFromFile(filePath);
+		colorIterator = game["colorIterator"].AsInt;
+		currPlayer = game["currPlayer"].AsInt;
+
+		// First clear everything
+		foreach (Transform child in board.transform) {
+			Destroy(child.gameObject);
+		}
+		board.getMap().Clear();
+		players.Clear();
+		
+		/*
+		foreach (var player in players)
+		{
+			foreach (var village in player.getVillages())
+			{
+				
+				Destroy(village.gameObject);
+			}
+		}
+
+		foreach(var entry in board.getMap())
+			Destroy(entry.Value.gameObject);
+		board.getMap().Clear();
+		*/
+
+		// Then recreate it all from saved game
+
+		foreach (var tile in game["tiles"].AsArray)
+		{
+			
+		}
+
+		foreach (var player in game["players"].AsArray)
+		{
+			
+		}
+
+	}
+
+	[RPC]
+	public void SaveGame()
+	{
+		
 	}
 
 	void AddPlayers() {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using SimpleJSON;
 using UnityEngine;
 
 public class Player
@@ -6,17 +7,30 @@ public class Player
 	public Game currGame;
 	public readonly PhotonPlayer photonPlayer;
 	private HashSet<Village> villages = new HashSet<Village>();
-//	private bool isActive = false;
 	private int wins = 0;
 	private int losses = 0;
 	private Color color = Color.clear;
 
-	public Player(PhotonPlayer pp) {
-		photonPlayer = pp;
+	public JSONNode Serialize() {
+		var node = new JSONClass();
+
+		node["name"] = photonPlayer.name;
+
+		node["villages"] = new JSONArray();
+		foreach (var village in getVillages()) {
+			node["villages"][-1] = village.Serialize();
+		}
+
+		return node;
 	}
 
-	public void setActive() {
+	public JSONNode SerializeID()
+	{
+		return new JSONData(photonPlayer.name);
+	}
 
+	public Player(PhotonPlayer pp) {
+		photonPlayer = pp;
 	}
 
 	public HashSet<Village> getVillages() {
@@ -49,6 +63,14 @@ public class Player
 
 	public Color getColor() {
 		return color;
+	}
+
+	public string GetName()
+	{
+		if (photonPlayer.customProperties.ContainsKey("n"))
+			return photonPlayer.customProperties["n"].ToString();
+		else
+			return "";
 	}
 }
 

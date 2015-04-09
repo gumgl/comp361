@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SimpleJSON;
 
 public class Unit : Photon.MonoBehaviour {
 	public Board board = null;
@@ -14,6 +15,26 @@ public class Unit : Photon.MonoBehaviour {
 	public Player owner = null;
 	public float moveSpeed = 5f; // In portion of length
 	public GameObject halo;
+
+	public JSONNode Serialize()
+	{
+		var node = new JSONClass();
+
+		node["pos"] = getTile().pos.Serialize();
+		node["unitType"].AsInt = (int)getUnitType();
+		node["actionType"].AsInt = (int)getActionType();
+
+		return node;
+	}
+
+	public void UnSerialize(JSONNode node) {
+		var pos = new Hex(node["pos"]);
+		setTile(board.getTile(pos));
+		positionOverTile();
+
+		myType = (UnitType) node["unitType"].AsInt;
+		currentAction = (ActionType) node["actionType"].AsInt;
+	}
 
 	void Start()
 	{
@@ -457,5 +478,4 @@ public class Unit : Photon.MonoBehaviour {
 		}
 		//this.transform.renderer.material.color = Color.green;
 	}
-
 }

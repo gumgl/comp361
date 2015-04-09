@@ -1,4 +1,5 @@
 using UnityEngine;
+using SimpleJSON;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -16,6 +17,54 @@ public class Village : MonoBehaviour {
 	Board board;
 	public Tile structTile; // Where the HQ is
 	public Unit unitPrefab;
+
+	public JSONNode Serialize() {
+		var node = new JSONClass();
+
+		node["type"].AsInt = (int)this.getVillageType();
+		node["HQpos"] = getStructTile().pos.Serialize();
+
+		node["wood"].AsInt = this.getWood();
+		node["gold"].AsInt = this.getGold();
+		node["building"].AsBool = this.areBuilding();
+		//node["owner"] = this.getOwner().photonPlayer.name;
+
+		node["tiles"] = new JSONArray();
+		foreach (Tile tile in this.getTiles()) {
+			node["tiles"][-1] = tile.pos.Serialize();
+		}
+
+		node["units"] = new JSONArray();
+		foreach (var unit in this.getUnits()) {
+			node["units"][-1] = unit.Serialize();
+		}
+		return node;
+	}
+
+	public void UnSerialize(JSONNode node) {
+		myType = (VillageType) node["type"].AsInt;
+
+		var HQpos = new Hex(node["HQpos"]);
+		structTile = board.getTile(HQpos);
+
+		wood = node["wood"].AsInt;
+		gold = node["gold"].AsInt;
+		//node["owner"] = this.getOwner().photonPlayer.name;
+
+		var tileNodes = node["tiles"].AsArray;
+		foreach (JSONNode tileNode in tileNodes) {
+			var pos = new Hex(tileNode);
+			tiles.Add(board.getTile(pos));
+		}
+
+		var unitNodes = node["units"].AsArray;
+		foreach (JSONNode unitNode in unitNodes) {
+			Unit unit = Instantiate(unitPrefab, Vector3.zero, Quaternion.identity) as Unit;
+			unit.transform.parent = board.transform;
+			unit.UnSerialize(unitNode);
+			unit.setVillage(this);
+		}
+	}
 
 	public void init(Player own, Board bor, VillageType type, int gl, int wd, Tile tile){
 		board = bor;
@@ -386,8 +435,6 @@ public class Village : MonoBehaviour {
 				
 			}
 		}
-
 	}
-
 }
 
