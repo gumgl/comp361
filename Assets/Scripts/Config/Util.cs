@@ -20,13 +20,14 @@ public static class Config {
 		unitUpkeep[UnitType.Infantry] = 6;
 		unitUpkeep[UnitType.Soldier] = 18;
 		unitUpkeep[UnitType.Knight] = 54;
-		unitUpkeep[UnitType.Cannon] = 80;
+		unitUpkeep[UnitType.Cannon] = 5;
 
 		unitCost[UnitType.Peasant] = 10;
 		unitCost[UnitType.Infantry] = 20;
 		unitCost[UnitType.Soldier] = 30;
 		unitCost[UnitType.Knight] = 40;
 		unitCost[UnitType.Cannon] = 35;
+		unitCost[UnitType.Tower] = 0;
 
 		villageUpgradeCost[VillageType.Hovel] = 8;
 		villageUpgradeCost[VillageType.Town] = 8;

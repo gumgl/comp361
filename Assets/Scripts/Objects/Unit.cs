@@ -14,10 +14,12 @@ public class Unit : Photon.MonoBehaviour {
 	public Player owner = null;
 	public float moveSpeed = 5f; // In portion of length
 	public GameObject halo;
+	public GameObject cannonHalo;
 
 	void Start()
 	{
 		halo = transform.Find("SelectedHalo").gameObject;
+		cannonHalo = transform.Find("CannonHalo").gameObject;
 	}
 
 	void Update() {
@@ -35,6 +37,11 @@ public class Unit : Photon.MonoBehaviour {
 			transform.position = Vector3.Lerp(transform.position, tile.transform.position, moveSpeed * Time.deltaTime);
 			setHeightAboveBoard();
 		}
+		if (Input.GetKey (KeyCode.Escape)) {
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+		}
+
 	}
 
 	public void MoveToNextTile() {
@@ -300,6 +307,13 @@ public class Unit : Photon.MonoBehaviour {
 
 	public void MoveTo(Tile target) {
 		
+		if (this.getUnitType () == UnitType.Tower && target.getOwner () != null) { 
+			board.setErrorText ("Towers cannot move.");
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+			return;	
+		}
+
 		if (this.getUnitType () == UnitType.Peasant && target.getOwner () != this.getOwner () && target.getOwner () != null) { 
 			board.setErrorText ("Peasants cannot invade enemy territory");
 			board.selectedUnit = null;

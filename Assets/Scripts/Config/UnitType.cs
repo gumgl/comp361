@@ -5,4 +5,5 @@ public enum UnitType {
 	Soldier,
 	Knight,
 	Cannon,
+	Tower,
 }

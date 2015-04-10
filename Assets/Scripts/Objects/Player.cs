@@ -10,7 +10,7 @@ public class Player
 	private int wins = 0;
 	private int losses = 0;
 	private Color color = Color.clear;
-	private int unitToBuild = 5;
+	private int unitToBuild = 6;
 
 	public Player(PhotonPlayer pp) {
 		photonPlayer = pp;

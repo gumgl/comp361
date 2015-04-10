@@ -11,6 +11,8 @@ public class Game : MonoBehaviour {
 	public NetworkManager nm;
 	public GameObject playerColor;
 	public Button endTurnButton;
+	public GameObject InGameButtons;
+
 	//public UnityEngine.UI.Text panel;
 
 	private List<Player> players = new List<Player>();
@@ -22,11 +24,18 @@ public class Game : MonoBehaviour {
 	private int colorIterator = 0;
 
 	void Start () {
+		InGameButtons.SetActive (false);
 		currPlayer = 0;
 	}
 
 	void Update () {
+
+		if (Input.GetKey (KeyCode.Escape)) {
+			board.setErrorText (" ");
+		}
 	}
+
+
 
 
 	[RPC]
@@ -40,6 +49,7 @@ public class Game : MonoBehaviour {
 		
 		//Debug.Log("About to init board with " + players.Count + " players...");
 		board.init((int) PhotonNetwork.room.customProperties["s"]);
+		InGameButtons.SetActive (true);
 		endTurnButton.image.color = players[currPlayer].getColor();
 		endTurnButton.interactable = (localPlayer == currPlayer);
 
@@ -182,10 +192,6 @@ public class Game : MonoBehaviour {
 		}
 		else board.setErrorText ("Select a fucking Unit!"); 
 		
-	}
-	
-	public void onOkClick () { 
-		board.setErrorText (" "); 
 	}
 	
 	/// <summary>Move to next player phase (also modifies currPlayer)</summary>
