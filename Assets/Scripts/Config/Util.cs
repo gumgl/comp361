@@ -28,6 +28,7 @@ public static class Config {
 		unitCost[UnitType.Soldier] = 30;
 		unitCost[UnitType.Knight] = 40;
 		unitCost[UnitType.Cannon] = 35;
+		unitCost[UnitType.Tower] = 0;
 
 		villageUpgradeCost[VillageType.Hovel] = 8;
 		villageUpgradeCost[VillageType.Town] = 8;

@@ -207,6 +207,22 @@ public class Village : MonoBehaviour {
 	}
 	void Update() {
 
+		if (Input.GetKey (KeyCode.Escape)) {
+			this.isActive = false;
+			this.setUpgradable (false);
+			this.transform.GetChild(0).renderer.material.color = Color.clear;
+			this.transform.GetChild(1).renderer.material.color = Color.clear;
+			this.transform.GetChild(2).renderer.material.color = Color.clear;
+			this.transform.GetChild(3).renderer.material.color = Color.clear;
+
+			foreach(Tile t in tiles){
+				if((t.getLandType() == LandType.Grass || t.getLandType() == LandType.Meadow) && t != this.getStructTile() && t.containsEnemyInNeighbour(t) == null){
+					t.setAcceptsUnit(false);
+					t.transform.GetChild(0).renderer.material.color = t.getVillage().getOwner().getColor();
+				}
+			}
+		}
+
 	}
 	[RPC]
 	public void hireVillager(int q, int r, int type) { 
@@ -217,11 +233,13 @@ public class Village : MonoBehaviour {
 			}
 		}
 		if(tempTile.getVillage().getGold() >= ((UnitType)type).getCost()){
-			if((type == 4 && tempTile.getVillage().getWood() >= 12) || type != 4){
+			if((type == 4 && tempTile.getVillage().getWood() >= 12) || (type == 5 && tempTile.getVillage().getWood()>= 5) || type <= 3){
 				tempTile.getVillage().changeGold(-((UnitType)type).getCost());
 				if(type == 4)
 					tempTile.getVillage().changeWood(-12);
-
+				if(type == 5)
+					tempTile.getVillage().changeWood(-5);
+				
 				Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.Euler(0, 180, 0)) as Unit;
 				u.transform.parent = board.transform;
 				u.board = this.board;
