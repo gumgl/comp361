@@ -105,7 +105,7 @@ public class Game : MonoBehaviour {
 		if (Input.GetKeyDown (KeyCode.Escape)) {
 			board.setErrorText (" ");
 		}
-		if (Input.GetKeyDown (KeyCode.Return)){
+		if (Input.GetKeyDown (KeyCode.Return) && currPlayer == localPlayer){
 			GetComponent<PhotonView>().RPC("NextTurn", PhotonTargets.All);
 			HashSet<Village> listVillages = this.players[localPlayer].getVillages ();
 			foreach (Village v in listVillages) {
@@ -124,41 +124,12 @@ public class Game : MonoBehaviour {
 			board.errorTimer = board.errorTimer - errorCounterSpeed * Time.deltaTime;
 			Debug.Log (board.errorTimer);
 		}
-		if(Input.GetKeyDown("b") && board.started){
-			if (board.selectedUnit != null){
-				if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
-					board.selectedUnit.setActionType (ActionType.BuildingRoad);
-					board.selectedUnit.halo.SetActive (false);
-					board.selectedUnit = null; 
-					Debug.Log ("Building Road"); 
-				}
-				else  {
-					//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
-					board.setErrorText("Unit Is Either Busy Or Not Peasant"); 
-					board.selectedUnit.halo.SetActive (false);
-					board.selectedUnit = null; 
-				}
-			}
-			
-			else board.setErrorText ("You must first select a unit"); 
+		if(Input.GetKeyDown("b") && board.started && currPlayer == localPlayer){
+			cultivateMeadow();
+			 
 		}
-		else if(Input.GetKeyDown("c") && board.started){
-			if (board.selectedUnit != null){
-				if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
-					board.selectedUnit.setActionType (ActionType.Cultivating);
-					board.selectedUnit.halo.SetActive (false);
-					board.selectedUnit = null; 
-					Debug.Log ("Cultivating Meadow"); 
-				}
-				else  {
-					//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
-					board.setErrorText("Unit Is Either Busy Or Not Peasant");  
-					board.selectedUnit.halo.SetActive (false);
-					board.selectedUnit = null; 
-				}
-			}
-			else board.setErrorText ("You must first select a unit"); 
-
+		else if(Input.GetKeyDown("c") && board.started && currPlayer == localPlayer){
+			buildRoad();
 		}
 
 	}
@@ -335,14 +306,53 @@ public class Game : MonoBehaviour {
 
 	public void endTurnButtonAction(){
 	}
-	
-	public void selectedUnitBuildRoad () { 
 
-			
+	public void buildRoad () { 
+		if (board.selectedUnit != null){
+			if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
+				GetComponent<PhotonView>().RPC("setUnitTypeToRoad", PhotonTargets.All, board.selectedUnit.getTile().pos.q, board.selectedUnit.getTile().pos.r);
+				board.selectedUnit = null; 
+			}
+			else  {
+				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
+				board.setErrorText("Unit Is Either Busy Or Not Peasant"); 
+				board.selectedUnit.halo.SetActive (false);
+				board.selectedUnit = null; 
+			}
+		}
+		
+		else board.setErrorText ("You must first select a unit");
 	}
-	
-	public void selectedUnitCultivateMeadow (){ 
 
+	[RPC]
+	public void setUnitTypeToRoad(int q, int r){
+		Unit u = board.getTile(new Hex(q, r)).getUnit();
+		u.setActionType (ActionType.BuildingRoad);
+		u.halo.SetActive (false);
+	}
+
+	[RPC]
+	public void setUnitTypeToCultivate(int q, int r){
+		Unit u = board.getTile(new Hex(q, r)).getUnit();
+		u.setActionType(ActionType.Cultivating);
+		u.halo.SetActive(false);
+	}
+
+	[RPC]
+	public void cultivateMeadow (){ 
+		if (board.selectedUnit != null){
+			if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
+				GetComponent<PhotonView>().RPC("ssetUnitTypeToCultivate", PhotonTargets.All, board.selectedUnit.getTile().pos.q, board.selectedUnit.getTile().pos.r);
+				board.selectedUnit = null; 
+			}
+			else  {
+				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
+				board.setErrorText("Unit Is Either Busy Or Not Peasant");  
+				board.selectedUnit.halo.SetActive (false);
+				board.selectedUnit = null; 
+			}
+		}
+		else board.setErrorText ("You must first select a unit"); 
 	}
 	
 	public void onOkClick () { 
