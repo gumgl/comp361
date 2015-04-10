@@ -114,7 +114,7 @@ public class Game : MonoBehaviour {
 			board.errorTimer = board.errorTimer - errorCounterSpeed * Time.deltaTime;
 			Debug.Log (board.errorTimer);
 		}
-		if(Input.GetKeyDown("b")){
+		if(Input.GetKeyDown("b") && board.started){
 			if (board.selectedUnit != null){
 				if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
 					board.selectedUnit.setActionType (ActionType.BuildingRoad);
@@ -132,7 +132,7 @@ public class Game : MonoBehaviour {
 			
 			else board.setErrorText ("You must first select a unit"); 
 		}
-		else if(Input.GetKeyDown("c")){
+		else if(Input.GetKeyDown("c") && board.started){
 			if (board.selectedUnit != null){
 				if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
 					board.selectedUnit.setActionType (ActionType.Cultivating);
