@@ -194,7 +194,8 @@ public class Game : MonoBehaviour {
 		UnSerialize(game);
 
 		//board.init((int)PhotonNetwork.room.customProperties["s"]);
-		endTurnButton.image.color = GetCurrPlayer().getColor();
+		InGameButtons.SetActive(true);
+		endTurnButton.image.color = players[currPlayer].getColor();
 		endTurnButton.interactable = (localPlayer == currPlayer);
 		playerColor.GetComponent<Image>().color = GetLocalPlayer().getColor();
 		playerColor.SetActive(true);
@@ -206,7 +207,7 @@ public class Game : MonoBehaviour {
 		string filename = GetSeed().ToString();
 		string filePath = Application.persistentDataPath + "/"+filename+".json";
 		Debug.Log("SaveGame() to " + filePath);
-		var sw = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Write));
+		var sw = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None));
 		JSONNode toSave = Serialize();
 		sw.Write(toSave.ToJSON(1));
 		sw.Close();
