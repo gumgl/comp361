@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using SimpleJSON;
 
@@ -12,6 +13,14 @@ public class Tile : Photon.MonoBehaviour {
 	public LandType type;
 	static public float size = 1;
 	bool acceptsUnit = false;
+	
+	public Button PeasantButton;
+	public Button InfantryButton;
+	public Button SoldierButton;
+	public Button KnightButton;
+	public Button TowerButton;
+	public Button CannonButton;
+
 
 	public JSONNode Serialize() {
 		var node = new JSONClass();
@@ -88,12 +97,6 @@ public class Tile : Photon.MonoBehaviour {
 	
 	public void setAcceptsUnit(bool b) {
 		acceptsUnit = b;
-		if(b){
-			this.board.unitCostsPanel.text = "Numkey 1----Peasant----Cost: 10 Gold\nNumkey 2----Infantry----Cost: 20 Gold\nNumkey 3----Soldier-----Cost: 30 Gold\nNumkey 4----Knight------Cost: 40 Gold\nNumkey 5----Cannon-----Cost:35 Gold and 12 Wood\nNumkey 6----Tower-----Cost:8 Wood";
-		}
-		else{
-			this.board.unitCostsPanel.text = "";
-		}
 	}
 	
 	public Unit getUnit() {
@@ -231,6 +234,7 @@ public class Tile : Photon.MonoBehaviour {
 	static public int HexDistance(Tile a, Tile b) {
 		return Hex.Distance(a.pos, b.pos);
 	}
+
 
 	void Update () {
 		if(this.acceptsUnit){

@@ -15,12 +15,21 @@ public class Game : MonoBehaviour {
 	public Button endTurnButton;
 	public GameObject InGameButtons;
 
+	public Button PeasantButton;
+	public Button InfantryButton;
+	public Button SoldierButton;
+	public Button KnightButton;
+	public Button TowerButton;
+	public Button CannonButton;
+
 	//public UnityEngine.UI.Text panel;
 
 	private List<Player> players = new List<Player>();
 	private int localPlayer; // Index of the local player (on this machine)
 	private int currPlayer; // Index of the current player
 	//private Phase currPhase;
+
+	public float errorCounterSpeed = 666f;
 
 	private Color[] colors = new Color[]{Color.yellow, Color.red, Color.gray, Color.green, Color.magenta};
 	private int colorIterator = 0;
@@ -89,11 +98,52 @@ public class Game : MonoBehaviour {
 			GetComponent<PhotonView>().RPC("SaveGame", PhotonTargets.All);
 		if (Input.GetKeyDown(KeyCode.F6))
 			GetComponent<PhotonView>().RPC("LoadGame", PhotonTargets.All);
-		if (Input.GetKey (KeyCode.Escape)) {
+		if (Input.GetKeyDown (KeyCode.Escape)) {
 			board.setErrorText (" ");
 		}
+		if (Input.GetKeyDown (KeyCode.Return)){
+			GetComponent<PhotonView>().RPC("NextTurn", PhotonTargets.All);
+		}
+		if (board.errorTimer <= 0) {
+			board.setErrorText (" ");
+		} else {
+			board.errorTimer = board.errorTimer - errorCounterSpeed * Time.deltaTime;
+			Debug.Log (board.errorTimer);
+		}
+
 	}
+
 	
+	public void PressPeasant (){
+		players[currPlayer].setUnitToBuild(0);
+	}
+
+	public void PressInfantry (){
+		players[currPlayer].setUnitToBuild(1);
+	}
+<<<<<<< HEAD
+	
+=======
+
+	public void PressSoldier (){
+		players[currPlayer].setUnitToBuild(2);
+	}
+
+	public void PressKnight (){
+		players[currPlayer].setUnitToBuild(3);
+	}
+
+	public void PressCannon (){
+		players[currPlayer].setUnitToBuild(4);
+	}
+
+	public void PressTower (){
+		players[currPlayer].setUnitToBuild(5);
+	}
+
+
+
+>>>>>>> ca2e6acecbb3883372236e92d1d7f6162223a55c
 	[RPC]
 	public void InitBoard()
 	{
@@ -258,7 +308,7 @@ public class Game : MonoBehaviour {
 			}
 		}
 
-		else board.setErrorText ("Select a fucking Unit!"); 
+		else board.setErrorText ("You must first select a unit"); 
 			
 	}
 	

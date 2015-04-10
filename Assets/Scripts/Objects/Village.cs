@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using SimpleJSON;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -260,6 +261,7 @@ public class Village : MonoBehaviour {
 	void Update() {
 
 		if (Input.GetKey (KeyCode.Escape)) {
+			this.board.game.GetComponent<HovelMenuScript>().CloseBuildMenu();
 			this.isActive = false;
 			this.setUpgradable (false);
 			this.transform.GetChild(0).renderer.material.color = Color.clear;
@@ -305,11 +307,14 @@ public class Village : MonoBehaviour {
 				u.placeUnit();
 				tempTile.getVillage().addUnit(u);
 				tempTile.getVillage().isActive = false;
+				this.board.game.GetComponent<HovelMenuScript>().CloseBuildMenu();
 			}
 		}
 		else{
-			Debug.Log("NOT ENOUGH MONEY");
+			board.setErrorText("Insufficient funds to build this unit.");
+			Camera.main.GetComponent<CameraController>().shakeScreen();
 			tempTile.getVillage().isActive = false;
+			this.board.game.GetComponent<HovelMenuScript>().CloseBuildMenu();
 		}
 	}
 
@@ -378,31 +383,38 @@ public class Village : MonoBehaviour {
 			GameObject.Destroy(this.gameObject);
 		}
 	}
+
+	[RPC]
+	void fireCannonAtVillage(int q, int r){
+		Village v = board.getTile(new Hex(q, r)).getVillage();
+		if (v.health <= 0){
+			if (v.getVillageType() == VillageType.Hovel)
+				v.moveVillage(v.callVillageTiles(v.getStructTile())[Random.Range(0, v.callVillageTiles(v.getStructTile()).Count)], LandType.Tree);
+			else if (v.getVillageType () == VillageType.Town) { 
+				v.setVillageType (VillageType.Hovel);
+				v.transform.GetChild(0).gameObject.SetActive(true);
+				v.transform.GetChild(1).gameObject.SetActive(false);
+			}
+			else if (v.getVillageType () == VillageType.Fort) { 
+				v.setVillageType (VillageType.Town);
+				v.transform.GetChild(1).gameObject.SetActive(true);
+				v.transform.GetChild(2).gameObject.SetActive(false);
+			}
+			else if (v.getVillageType () == VillageType.Castle) { 
+				v.setVillageType (VillageType.Fort);
+				v.transform.GetChild(2).gameObject.SetActive(true);
+				v.transform.GetChild(3).gameObject.SetActive(false);
+			}
+			
+		}
+	}
 	
 	void OnMouseUp () {
 		
 		if (this.cannonHalo.GetActive ()){
 			this.cannonHalo.SetActive (false);
 			this.health--;
-			if (this.health <= 0){
-				if (this.getVillageType() == VillageType.Hovel)moveVillage(callVillageTiles(this.getStructTile ())[Random.Range(0, callVillageTiles(this.getStructTile()).Count)], LandType.Tree);
-				else if (this.getVillageType () == VillageType.Town) { 
-					this.setVillageType (VillageType.Hovel);
-					this.transform.GetChild(0).gameObject.SetActive(true);
-					this.transform.GetChild(1).gameObject.SetActive(false);
-				}
-				else if (this.getVillageType () == VillageType.Fort) { 
-					this.setVillageType (VillageType.Town);
-					this.transform.GetChild(1).gameObject.SetActive(true);
-					this.transform.GetChild(2).gameObject.SetActive(false);
-				}
-				else if (this.getVillageType () == VillageType.Castle) { 
-					this.setVillageType (VillageType.Fort);
-					this.transform.GetChild(2).gameObject.SetActive(true);
-					this.transform.GetChild(3).gameObject.SetActive(false);
-				}
-				
-			}
+			this.GetComponent<PhotonView>().RPC("fireCannonAtVillage", PhotonTargets.All, this.getStructTile().pos.q, this.getStructTile().pos.r);
 			getAssociatedCannon ().setActionType (ActionType.Moved);
 			getAssociatedCannon ().halo.SetActive (false);
 			getAssociatedCannon ().getVillage ().changeWood (-1); 
@@ -431,6 +443,7 @@ public class Village : MonoBehaviour {
 					temp.transform.GetChild(0).renderer.material.color = temp.getVillage().getOwner().getColor();
 				}
 			}
+			this.board.game.GetComponent<HovelMenuScript>().BuildMenu(this.getVillageType());
 			this.isActive = true;
 			this.transform.GetChild(0).renderer.material.color = Color.black;
 			this.transform.GetChild(1).renderer.material.color = Color.black;
@@ -447,6 +460,7 @@ public class Village : MonoBehaviour {
 		}
 		else
 		{
+				this.board.game.GetComponent<HovelMenuScript>().CloseBuildMenu();
 			this.isActive = false;
 			this.transform.GetChild(0).renderer.material.color = Color.clear;
 			this.transform.GetChild(1).renderer.material.color = Color.clear;

@@ -20,6 +20,8 @@ public class Board : Photon.MonoBehaviour {
 	//Tile[,] grid;
 	Dictionary<Hex, Tile> map = new Dictionary<Hex, Tile>();
 
+	public float errorTimer = 0.0f;
+
 //	int mapSizeX = 10;
 //	int mapSizeY = 10;
 	int mapRadius = 11;
@@ -143,7 +145,7 @@ public class Board : Photon.MonoBehaviour {
 			if (tile.getVillage() == null && owner[tile] != null)
 			{
 				Village newVillage = Instantiate(villagePrefab, TileCoordToWorldCoord(tile.getPixelPos()), Quaternion.Euler(1, Random.Range(0, 6) * 60, 1)) as Village;
-				newVillage.init(owner[tile], this, VillageType.Hovel, 1000, 50, tile);
+				newVillage.init(owner[tile], this, VillageType.Hovel, 7, 0, tile);
 				tile.setLandType(LandType.Grass);
 				expandVillage(newVillage, tile, owner);
 			}
@@ -194,7 +196,9 @@ public class Board : Photon.MonoBehaviour {
 	}*/
 	
 	public void setErrorText (string message) { 
-		panel.text = message; 
+		panel.text = message;
+		if(message != " ")
+			errorTimer = 0.5f;
 	}
 	
 }
