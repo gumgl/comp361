@@ -143,7 +143,7 @@ public class Board : Photon.MonoBehaviour {
 			if (tile.getVillage() == null && owner[tile] != null)
 			{
 				Village newVillage = Instantiate(villagePrefab, TileCoordToWorldCoord(tile.getPixelPos()), Quaternion.Euler(1, Random.Range(0, 6) * 60, 1)) as Village;
-				newVillage.init(owner[tile], this, VillageType.Hovel, 7, 50, tile);
+				newVillage.init(owner[tile], this, VillageType.Hovel, 1000, 50, tile);
 				tile.setLandType(LandType.Grass);
 				expandVillage(newVillage, tile, owner);
 			}
