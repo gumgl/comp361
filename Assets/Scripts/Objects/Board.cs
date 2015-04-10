@@ -12,14 +12,17 @@ public class Board : Photon.MonoBehaviour {
 	public Unit selectedUnit = null;
 	public UnityEngine.UI.Text woodText;
 	public UnityEngine.UI.Text goldText;
-	Village activeVillage;
+	Village activeVillage; 
+	public UnityEngine.UI.Text panel;
+	public UnityEngine.UI.Text unitCostsPanel;
+	public bool started = false;
 	//LandType[,] tileTypes;
 	//Tile[,] grid;
 	Dictionary<Hex, Tile> map = new Dictionary<Hex, Tile>();
 
 //	int mapSizeX = 10;
 //	int mapSizeY = 10;
-	int mapRadius = 8;
+	int mapRadius = 11;
 
 //	static float tileHeight = 3.0f;
 //	static float tileWidth = Mathf.Sqrt(3) / 2 * tileHeight;
@@ -31,11 +34,16 @@ public class Board : Photon.MonoBehaviour {
 		generateHexagonalGrid(seed);
 		connectNeighbours();
         createVillages();
+		started= true;
 	}
 
 	void Start() {}
   
 	void Update() {}
+
+	public bool isStarted(){
+		return started;
+	}
 
 	public Dictionary<Hex, Tile> getMap() {
 		return map;
@@ -135,7 +143,7 @@ public class Board : Photon.MonoBehaviour {
 			if (tile.getVillage() == null && owner[tile] != null)
 			{
 				Village newVillage = Instantiate(villagePrefab, TileCoordToWorldCoord(tile.getPixelPos()), Quaternion.Euler(1, Random.Range(0, 6) * 60, 1)) as Village;
-				newVillage.init(owner[tile], this, VillageType.Hovel, 7, 0, tile);
+				newVillage.init(owner[tile], this, VillageType.Hovel, 1000, 50, tile);
 				tile.setLandType(LandType.Grass);
 				expandVillage(newVillage, tile, owner);
 			}
@@ -184,4 +192,9 @@ public class Board : Photon.MonoBehaviour {
 		// we should test a unit's walktype on a clickable tile
 		return true; // tileTypes [tiles [x, y]].isWalkable;
 	}*/
+	
+	public void setErrorText (string message) { 
+		panel.text = message; 
+	}
+	
 }

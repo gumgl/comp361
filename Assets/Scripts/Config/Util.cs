@@ -7,11 +7,12 @@ using SimpleJSON;
 /// </summary>
 public static class Config {
 	private static Dictionary<UnitType, int> unitUpkeep = new Dictionary<UnitType, int>();
+	private static Dictionary<UnitType, int> unitCombatLevel = new Dictionary<UnitType, int>();
+	private static Dictionary<UnitType, int> unitCost = new Dictionary<UnitType, int>();
 	private static Dictionary<LandType, bool> tileMovementAllowed = new Dictionary<LandType, bool>();
 	private static Dictionary<Hex.Direction, Hex> hexDirectionDelta = new Dictionary<Hex.Direction, Hex>();
 	private static int unitUpgradeCost = 10;
-	private static int villageUpgradeCost = 8;
-
+	private static Dictionary<VillageType, int> villageUpgradeCost = new Dictionary<VillageType, int>();
 	public static int test;
 
 	public const int maxTiles = 300;
@@ -21,7 +22,18 @@ public static class Config {
 		unitUpkeep[UnitType.Infantry] = 6;
 		unitUpkeep[UnitType.Soldier] = 18;
 		unitUpkeep[UnitType.Knight] = 54;
-		unitUpkeep[UnitType.Cannon] = 80;
+		unitUpkeep[UnitType.Cannon] = 5;
+
+		unitCost[UnitType.Peasant] = 10;
+		unitCost[UnitType.Infantry] = 20;
+		unitCost[UnitType.Soldier] = 30;
+		unitCost[UnitType.Knight] = 40;
+		unitCost[UnitType.Cannon] = 35;
+
+		villageUpgradeCost[VillageType.Hovel] = 8;
+		villageUpgradeCost[VillageType.Town] = 8;
+		villageUpgradeCost[VillageType.Fort] = 8;
+		villageUpgradeCost[VillageType.Castle] = 12;
 		
 		tileMovementAllowed[LandType.Grass] = true;
 		tileMovementAllowed[LandType.Meadow] = true;
@@ -36,10 +48,25 @@ public static class Config {
 		hexDirectionDelta[Hex.Direction.Down] = new Hex(0, 1);
 		hexDirectionDelta[Hex.Direction.LeftDown] = new Hex(-1, 1);
 		hexDirectionDelta[Hex.Direction.LeftUp] = new Hex(-1, 0);
+		
+		unitCombatLevel[UnitType.Peasant] = 0;
+		unitCombatLevel[UnitType.Infantry] = 1;
+		unitCombatLevel[UnitType.Soldier] = 2;
+		unitCombatLevel[UnitType.Knight] = 3;
+		unitCombatLevel[UnitType.Cannon] = 2;
+		unitCombatLevel[UnitType.Tower] = 1;
 	}
 	
 	public static int getUpkeep(this UnitType ut) {
 		return unitUpkeep[ut];
+	}
+	
+	public static int getCombatLevel(this UnitType ut) {
+		return unitCombatLevel[ut];
+	}
+	
+	public static int getCost(this UnitType ut){
+		return unitCost[ut];
 	}
 	
 	public static int getUpgradeCost(this UnitType ut) {
@@ -47,7 +74,7 @@ public static class Config {
 	}
 	
 	public static int getUpgradeCost(this VillageType vt) {
-		return villageUpgradeCost;
+		return villageUpgradeCost[vt];
 	}
 	
 	public static bool isMovementAllowed(this LandType lt) {

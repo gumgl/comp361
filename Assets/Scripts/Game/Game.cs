@@ -13,7 +13,7 @@ public class Game : MonoBehaviour {
 	public NetworkManager nm;
 	public GameObject playerColor;
 	public Button endTurnButton;
-	public UnityEngine.UI.Text panel; 
+	//public UnityEngine.UI.Text panel;
 
 	private List<Player> players = new List<Player>();
 	private int localPlayer; // Index of the local player (on this machine)
@@ -101,6 +101,7 @@ public class Game : MonoBehaviour {
 		board.init((int) PhotonNetwork.room.customProperties["s"]);
 		endTurnButton.image.color = players[currPlayer].getColor();
 		endTurnButton.interactable = (localPlayer == currPlayer);
+		TombstonePhase();
 	}
 
 	[RPC]
@@ -225,19 +226,23 @@ public class Game : MonoBehaviour {
 
 	void PaymentPhase(){
 		foreach(Village v in players[currPlayer].getVillages()){
+			if(v.getVillageType() == VillageType.Castle)
+				v.changeGold(-80);
 			foreach(Unit u in v.getUnits()){
 				v.changeGold(-u.getUnitType().getUpkeep());
+				if(u.getActionType() == ActionType.Moved || u.getActionType() == ActionType.ClearedTile)
+					u.setActionType(ActionType.ReadyForOrders);
 			}
 			if(v.getGold() < 0){
 				v.setGold(0);
+				if(v.getVillageType() == VillageType.Castle)
+					v.setVillageType(VillageType.Fort);
 				foreach(Unit toKill in v.getUnits())
-					toKill.kill();
+					toKill.kill(true);
 			}
 		}
-		if(localPlayer == currPlayer)
-			endTurnButton.interactable = true;
-		else
-			endTurnButton.interactable = false;
+		endTurnButton.interactable = (localPlayer == currPlayer);
+
 	}
 
 
@@ -249,7 +254,7 @@ public class Game : MonoBehaviour {
 	
 	public void selectedUnitBuildRoad () { 
 		if (board.selectedUnit != null){
-			if (board.selectedUnit.getUnitType () == UnitType.Peasant && board.selectedUnit.getActionType () == ActionType.ReadyForOrders){
+			if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
 				board.selectedUnit.setActionType (ActionType.BuildingRoad);
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
@@ -257,18 +262,19 @@ public class Game : MonoBehaviour {
 			}
 			else  {
 				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
-				panel.text = "You need to select a Peasant ( one that is ready for orders)"; 
+				board.setErrorText("Unit Is Either Busy Or Not Peasant"); 
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
 			}
 		}
-		else panel.text = "Select a fucking Unit!"; 
+
+		else board.setErrorText ("Select a fucking Unit!"); 
 			
 	}
 	
 	public void selectedUnitCultivateMeadow (){ 
 		if (board.selectedUnit != null){
-			if (board.selectedUnit.getUnitType () == UnitType.Peasant && board.selectedUnit.getActionType () == ActionType.ReadyForOrders){
+			if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
 				board.selectedUnit.setActionType (ActionType.Cultivating);
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
@@ -276,20 +282,26 @@ public class Game : MonoBehaviour {
 			}
 			else  {
 				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
-				panel.text = "You need to select a Peasant ( one that is ready for orders)"; 
+				board.setErrorText("Unit Is Either Busy Or Not Peasant");  
 				board.selectedUnit.halo.SetActive (false);
 				board.selectedUnit = null; 
 			}
 		}
-		else panel.text = "Select a fucking Unit!"; 
+		else board.setErrorText ("Select a fucking Unit!"); 
 		
 	}
-
+	
+	public void onOkClick () { 
+		board.setErrorText (" "); 
+	}
+	
 	/// <summary>Move to next player phase (also modifies currPlayer)</summary>
 	[RPC]
 	void NextTurn(){
+		this.board.unitCostsPanel.text = "";
 		currPlayer = NextPlayer();
 		endTurnButton.image.color = players[currPlayer].getColor();
+		endTurnButton.interactable = false;
 		if(currPlayer == 0){
 			//currPhase = Phase.TreeGrowth;
 			TreeGrowth();

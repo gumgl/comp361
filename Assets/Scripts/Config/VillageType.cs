@@ -2,5 +2,6 @@
 public enum VillageType {
 	Hovel = 0,
 	Town = 1,
-	Fort = 2
+	Fort = 2,
+	Castle
 }
