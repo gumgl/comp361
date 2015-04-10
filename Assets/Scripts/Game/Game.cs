@@ -126,11 +126,11 @@ public class Game : MonoBehaviour {
 			board.errorTimer = board.errorTimer - errorCounterSpeed * Time.deltaTime;
 			Debug.Log (board.errorTimer);
 		}
-		if(Input.GetKeyDown("b") && board.started && currPlayer == localPlayer){
+		if(Input.GetKeyDown("c") && board.started && currPlayer == localPlayer){
 			cultivateMeadow();
 			 
 		}
-		else if(Input.GetKeyDown("c") && board.started && currPlayer == localPlayer){
+		else if(Input.GetKeyDown("b") && board.started && currPlayer == localPlayer){
 			buildRoad();
 		}
 
@@ -344,7 +344,7 @@ public class Game : MonoBehaviour {
 	public void cultivateMeadow (){ 
 		if (board.selectedUnit != null){
 			if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
-				GetComponent<PhotonView>().RPC("ssetUnitTypeToCultivate", PhotonTargets.All, board.selectedUnit.getTile().pos.q, board.selectedUnit.getTile().pos.r);
+				GetComponent<PhotonView>().RPC("setUnitTypeToCultivate", PhotonTargets.All, board.selectedUnit.getTile().pos.q, board.selectedUnit.getTile().pos.r);
 				board.selectedUnit = null; 
 			}
 			else  {
