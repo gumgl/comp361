@@ -93,14 +93,6 @@ public class Village : MonoBehaviour {
 		return units;
 	}
 	
-	public void removeUnit(Unit u) {
-		
-	}
-	
-	public void refresh() {
-		
-	}
-	
 	public void tombPhase(HashSet<Tile> tiles) {
 		foreach (Tile t in tiles) { 
 			if (t.getLandType () == LandType.Tombstone) {
@@ -108,12 +100,6 @@ public class Village : MonoBehaviour {
 			}
 		}
 	}
-	
-	public void buildPhase(HashSet<Tile> tiles) {
-
-	
-	}
-	
 
 	//Move the structure of a village to the current tile
 	public void moveVillage(Tile targetTile, LandType landtype){
@@ -224,6 +210,8 @@ public class Village : MonoBehaviour {
 		}
 
 	}
+
+
 	[RPC]
 	public void hireVillager(int q, int r, int type) { 
 		Tile tempTile = null;
@@ -371,6 +359,12 @@ public class Village : MonoBehaviour {
 				setUpgradable (true);
 			}
 		}
+	}
+
+	[RPC]
+	public void fireCannon(int q, int r){
+		Unit u = board.getTile(new Hex(q, r)).getUnit();
+		u.kill(true); 
 	}
 
 	[RPC]

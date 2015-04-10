@@ -41,6 +41,7 @@ public static class Config {
 		tileMovementAllowed[LandType.Tree] = false;
 		tileMovementAllowed[LandType.Water] = false;
 		tileMovementAllowed[LandType.Tombstone] = false;
+		tileMovementAllowed[LandType.RoadMeadow] = true;
 		
 		hexDirectionDelta[Hex.Direction.Up] = new Hex(0, -1);
 		hexDirectionDelta[Hex.Direction.RightUp] = new Hex(1, -1);

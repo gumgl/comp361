@@ -108,7 +108,10 @@ public class Game : MonoBehaviour {
 				}
 				else if(u.getActionType() == ActionType.BuildingRoad){
 					u.setActionType(ActionType.ReadyForOrders);
-					u.getTile().setLandType(LandType.Road);
+					if(u.getTile().getLandType() != LandType.Meadow)
+						u.getTile().setLandType(LandType.Road);
+					else
+						u.getTile().setLandType(LandType.RoadMeadow);
 				}
 			}
 		}
@@ -120,7 +123,7 @@ public class Game : MonoBehaviour {
 			foreach(Tile t in v.getTiles()){
 				if(t.getLandType() == LandType.Grass)
 					v.changeGold(1);
-				else if(t.getLandType() == LandType.Meadow)
+				else if(t.getLandType() == LandType.Meadow || t.getLandType() == LandType.RoadMeadow)
 					v.changeGold(2);
 			}
 		}
