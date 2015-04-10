@@ -4,8 +4,8 @@ using System.Collections;
 public class CameraController : MonoBehaviour {
 	public Board board;
 	bool centered = false;
-	int scrollDistanceVer = Screen.height / 7; 
-	int scrollDistanceHor = Screen.width / 7;
+	int scrollDistanceVer = Screen.height / 16; 
+	int scrollDistanceHor = Screen.width / 16;
 	float scrollSpeed = 14;
 	float zoomSpeed = 70;
 	float shake = 0;
