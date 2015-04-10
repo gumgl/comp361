@@ -52,6 +52,9 @@ public class Unit : Photon.MonoBehaviour {
 			} else { // Unit has arrived at target
 				this.tile.setUnit(this);
 				//this.tile.setVillage(this.getVillage());
+				if(this.tile.getStructure() == Structure.Village && this.tile.getOwner() != this.getOwner()){
+					this.tile.getVillage().moveVillage(callVillageTiles(this.tile)[Random.Range(0, callVillageTiles(this.tile).Count)], LandType.Meadow);
+				}
 				callCapture(tile.pos.q, tile.pos.r);
 				if (this.tile.getLandType() == LandType.Tree || this.tile.getLandType() == LandType.Tombstone) {
 					removeTreeOrTombstone(tile.pos.q, tile.pos.r, this.tile.getLandType ());
@@ -147,7 +150,7 @@ public class Unit : Photon.MonoBehaviour {
 					}
 				}
 				else{
-					toKeep.getVillage().moveVillage(callVillageTiles(toKeep)[Random.Range(0, callVillageTiles(toKeep).Count)]);
+					toKeep.getVillage().moveVillage(callVillageTiles(toKeep)[Random.Range(0, callVillageTiles(toKeep).Count)], LandType.Tree);
 					foreach(Tile t in separated){
 						if(t!= toKeep){
 							foreach(Tile deadTile in callVillageTiles(t))
@@ -305,7 +308,14 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	public void MoveTo(Tile target) {
-		
+
+		if((this.getUnitType() != UnitType.Soldier || this.getUnitType() != UnitType.Knight) && target.getStructure() == Structure.Village && target.getOwner() != this.getOwner()){
+			board.setErrorText ("Only soldiers and knights can invade villages.");
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+			return;
+		}
+
 		if (this.getUnitType () == UnitType.Cannon && this.getActionType() == ActionType.Moved) { 
 			board.setErrorText ("Cannons cannot move more than one tile a turn.");
 			board.selectedUnit = null;
@@ -530,7 +540,10 @@ public class Unit : Photon.MonoBehaviour {
 		else if(this.getUnitType() == UnitType.Knight){
 			board.setErrorText ("Knights can't be ugraded any further");
 		}
-		else
+		else if(this.getUnitType() == UnitType.Tower){
+			board.setErrorText("Towers are not upgradeable units");
+		}
+		else if(this.getUnitType() != UnitType.Cannon)
 			board.setErrorText ("Not enough money to upgrade");
 	}
 

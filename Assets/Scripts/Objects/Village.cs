@@ -116,9 +116,9 @@ public class Village : MonoBehaviour {
 	
 
 	//Move the structure of a village to the current tile
-	public void moveVillage(Tile targetTile){
+	public void moveVillage(Tile targetTile, LandType landtype){
 		structTile.setStructure(Structure.None);
-		structTile.setLandType(LandType.Tree);
+		structTile.setLandType(landtype);
 		setStructTile(targetTile);
 		targetTile.setLandType(LandType.Grass);
 		targetTile.setStructure(Structure.Village);
@@ -345,13 +345,13 @@ public class Village : MonoBehaviour {
 				}
 			}
 		}
-		if (getUpgradable ()){
-			GetComponent<PhotonView>().RPC("upgradeVillage", PhotonTargets.All, this.getStructTile().pos.q, this.structTile.pos.r);
-			//upgradeVillage(this.getStructTile().pos.q, this.structTile.pos.r); 
-		}
-		else if (getVillageType() != VillageType.Castle) {
-			setUpgradable (true);
-		}
+			if (getUpgradable ()){
+				GetComponent<PhotonView>().RPC("upgradeVillage", PhotonTargets.All, this.getStructTile().pos.q, this.structTile.pos.r);
+				//upgradeVillage(this.getStructTile().pos.q, this.structTile.pos.r); 
+			}
+			else if (getVillageType() != VillageType.Castle) {
+				setUpgradable (true);
+			}
 		}
 	}
 
