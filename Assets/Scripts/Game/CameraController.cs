@@ -49,19 +49,19 @@ public class CameraController : MonoBehaviour {
 				}
 			}
 			else{
-				if (mousePosX < scrollDistanceHor) { 
+				if (mousePosX < scrollDistanceHor && transform.localPosition.x >= -16 ) { 
 					transform.Translate (Vector3.right * -scrollSpeed * Time.deltaTime); 
 				} 
 				
-				if (mousePosX >= Screen.width - scrollDistanceHor) { 
+				if (mousePosX >= Screen.width - scrollDistanceHor && transform.localPosition.x <= 16) { 
 					transform.Translate (Vector3.right * scrollSpeed * Time.deltaTime); 
 				}
 				
-				if (mousePosY < scrollDistanceVer) { 
+				if (mousePosY < scrollDistanceVer && transform.localPosition.z >= -20 ) { 
 					transform.Translate (Vector3.forward * -scrollSpeed * Time.deltaTime, Space.World); 
 				} 
 				
-				if (mousePosY >= Screen.height - scrollDistanceVer) { 
+				if (mousePosY >= Screen.height - scrollDistanceVer && transform.localPosition.z <= 14) { 
 					transform.Translate (Vector3.forward * scrollSpeed * Time.deltaTime, Space.World); 
 				}
 				
