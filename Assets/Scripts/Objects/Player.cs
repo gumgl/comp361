@@ -89,7 +89,7 @@ public class Player {
 		return color;
 	}
 
-	public bool CheckLost() {
+	public void CheckLost() {
 		if (villages.Count == 0)
 			hasLost = true;
 	}
