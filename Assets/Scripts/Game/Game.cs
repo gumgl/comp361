@@ -340,6 +340,7 @@ public class Game : MonoBehaviour {
 		if (GetCurrPlayer().HasLost()) { // The player who's turn just ended
 			if (currPlayer == localPlayer) {
 				board.setErrorText("You have lost!\nYou cannot play buy you can watch or quit...");
+				GetCurrPlayer().IncreaseGamesWon();
 			}
 			else {
 				board.setErrorText(GetCurrPlayer().GetName() + " has lost the game and is now a spectator.");
@@ -351,6 +352,7 @@ public class Game : MonoBehaviour {
 				if (!player.HasLost())
 					winner = player;
 
+			GetCurrPlayer().IncreaseGamesPlayed();
 			if (winner == null)
 				Debug.LogError("Oh wtf, everybody has lost?");
 			else {

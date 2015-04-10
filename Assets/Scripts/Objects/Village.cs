@@ -33,6 +33,7 @@ public class Village : MonoBehaviour {
 		node["wood"].AsInt = this.getWood();
 		node["gold"].AsInt = this.getGold();
 		node["building"].AsInt = Convert.ToInt32(this.areBuilding());
+		node["health"].AsInt = this.health;
 		//node["owner"] = this.getOwner().photonPlayer.name;
 
 		node["tiles"] = new JSONArray();
@@ -59,6 +60,7 @@ public class Village : MonoBehaviour {
 		wood = node["wood"].AsInt;
 		gold = node["gold"].AsInt;
 		building = Convert.ToBoolean(node["building"].AsInt);
+		health = node["health"].AsInt;
 		//node["owner"] = this.getOwner().photonPlayer.name;
 
 		var tileNodes = node["tiles"].AsArray;

@@ -98,6 +98,21 @@ public class Player {
 		return hasLost;
 	}
 
+	public void IncreaseGamesPlayed() {
+		if (photonPlayer.customProperties.ContainsKey("g"))
+			photonPlayer.customProperties["g"] = (int)photonPlayer.customProperties["g"] + 1;
+		else
+			photonPlayer.customProperties["g"] = 1;
+	}
+
+	public void IncreaseGamesWon()
+	{
+		if (photonPlayer.customProperties.ContainsKey("w"))
+			photonPlayer.customProperties["w"] = (int)photonPlayer.customProperties["w"] + 1;
+		else
+			photonPlayer.customProperties["w"] = 1;
+	}
+
 	public string GetName()
 	{
 		if (photonPlayer.customProperties.ContainsKey("n"))
