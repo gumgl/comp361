@@ -476,7 +476,7 @@ public class Unit : Photon.MonoBehaviour {
 			if (potentialUnit != null) { 
 				if (potentialUnit.getOwner() != this.getOwner ()) { 
 					if (select)potentialUnit.setAssociatedCannon (cannon); 
-					else potentialUnit.setAssociatedCannon (null); 
+					//else potentialUnit.setAssociatedCannon (null); 
 					potentialUnit.cannonHalo.SetActive (select); 
 				}
 			}
@@ -603,7 +603,16 @@ public class Unit : Photon.MonoBehaviour {
 			
 			this.getAssociatedCannon().setActionType (ActionType.Moved);
 			this.getAssociatedCannon().halo.SetActive (false);
-			highlight2HexRadius(this.getAssociatedCannon(), false);
+			if (this.getAssociatedCannon() != null) Debug.Log ("there is an associated cannon"); 
+			
+			HashSet<Unit> list = this.getVillage ().getUnits (); 
+			
+			foreach (Unit u in list) { 
+				if (u.cannonHalo.GetActive ()) { 
+					u.cannonHalo.SetActive (false); 
+				}
+			}
+			
 			this.kill (true); 
 			
 		}
