@@ -24,6 +24,7 @@ public class Village : MonoBehaviour {
 	public GameObject cannonHalo; 
 	public Unit associatedCannon;
 	public int health; 
+	public int coolDown = 0; 
 
 	public JSONNode Serialize() {
 		var node = new JSONClass();
@@ -220,10 +221,10 @@ public class Village : MonoBehaviour {
 	
 	public void setVillageType(VillageType type) {
 		myType = type;
-		if (type == VillageType.Hovel) this.health = 0;
-		if (type == VillageType.Town) this.health = 2;
-		if (type == VillageType.Fort) this.health = 5;
-		if (type == VillageType.Castle) this.health = 10;
+		if (type == VillageType.Hovel) this.health = 0; 
+		if (type == VillageType.Town) this.health = 2;  
+		if (type == VillageType.Fort) this.health = 5; 
+		if (type == VillageType.Castle) this.health = 10; 
 	}
 
 	public int[] getResources() {
@@ -286,40 +287,42 @@ public class Village : MonoBehaviour {
 
 	[RPC]
 	public void hireVillager(int q, int r, int type) { 
-		Tile tempTile = null;
-		foreach(Tile t in board.getMap().Values){
-			if(t.pos.q == q && t.pos.r == r){
-				tempTile = t;
+			Tile tempTile = null;
+			foreach(Tile t in board.getMap().Values){
+				if(t.pos.q == q && t.pos.r == r){
+					tempTile = t;
+				}
 			}
-		}
-		if(tempTile.getVillage().getGold() >= ((UnitType)type).getCost()){
-			if((type == 4 && tempTile.getVillage().getWood() >= 12) || (type == 5 && tempTile.getVillage().getWood()>= 5) || type <= 3){
-				tempTile.getVillage().changeGold(-((UnitType)type).getCost());
-				if(type == 4)
-					tempTile.getVillage().changeWood(-12);
-				if(type == 5)
-					tempTile.getVillage().changeWood(-5);
-				
-				Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.Euler(0, 180, 0)) as Unit;
-				u.transform.parent = board.transform;
-				u.board = this.board;
-				u.setVillage(tempTile.getVillage());
-				//u.setUnitType(UnitType.Peasant);
-				u.setUnitType((UnitType)type);
-				u.setActionType (ActionType.ReadyForOrders); 
-				u.setTile (tempTile);
-				u.placeUnit();
-				tempTile.getVillage().addUnit(u);
+			if(tempTile.getVillage().getGold() >= ((UnitType)type).getCost()){
+				if((type == 4 && tempTile.getVillage().getWood() >= 12) || (type == 5 && tempTile.getVillage().getWood()>= 5) || type <= 3){
+					tempTile.getVillage().changeGold(-((UnitType)type).getCost());
+					if(type == 4)
+						tempTile.getVillage().changeWood(-12);
+					if(type == 5)
+						tempTile.getVillage().changeWood(-5);
+					
+					Unit u = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.Euler(0, 180, 0)) as Unit;
+					u.transform.parent = board.transform;
+					u.board = this.board;
+					u.setVillage(tempTile.getVillage());
+					//u.setUnitType(UnitType.Peasant);
+					u.setUnitType((UnitType)type);
+					u.setActionType (ActionType.ReadyForOrders); 
+					u.setTile (tempTile);
+					u.placeUnit();
+					tempTile.getVillage().addUnit(u);
+					tempTile.getVillage().isActive = false;
+					this.board.game.GetComponent<HovelMenuScript>().CloseBuildMenu();
+				}
+			}
+			else{
+				board.setErrorText("Insufficient funds to build this unit.");
+				Camera.main.GetComponent<CameraController>().shakeScreen();
 				tempTile.getVillage().isActive = false;
 				this.board.game.GetComponent<HovelMenuScript>().CloseBuildMenu();
 			}
-		}
-		else{
-			board.setErrorText("Insufficient funds to build this unit.");
-			Camera.main.GetComponent<CameraController>().shakeScreen();
-			tempTile.getVillage().isActive = false;
-			this.board.game.GetComponent<HovelMenuScript>().CloseBuildMenu();
-		}
+		
+		
 	}
 
 	//Merges the current village with the passed in village
@@ -480,6 +483,7 @@ public class Village : MonoBehaviour {
 		}
 			if (getUpgradable ()){
 				GetComponent<PhotonView>().RPC("upgradeVillage", PhotonTargets.All, this.getStructTile().pos.q, this.structTile.pos.r);
+				coolDown = 2;
 				//upgradeVillage(this.getStructTile().pos.q, this.structTile.pos.r); 
 			}
 			else if (getVillageType() != VillageType.Castle) {
@@ -515,12 +519,14 @@ public class Village : MonoBehaviour {
 		Debug.Log("HITHITHITHITHTI");
 		Tile tempTile = board.getTile(new Hex(q,r));
 		Debug.Log(tempTile.getVillage().getVillageType());
+		 
 		if (tempTile.getVillage().getVillageType() == VillageType.Hovel && tempTile.getVillage().getWood() >= VillageType.Town.getUpgradeCost()) { 
 			tempTile.getVillage().transform.GetChild(0).gameObject.SetActive(false);
 			tempTile.getVillage().transform.GetChild(1).gameObject.SetActive(true);
 			tempTile.getVillage().setVillageType(VillageType.Town);
 			tempTile.getVillage().changeWood(-VillageType.Town.getUpgradeCost());
 			tempTile.getVillage().setUpgradable(false);
+			//coolDown = 2; 
 			tempTile.getVillage().transform.GetChild(0).renderer.material.color = Color.clear;
 			tempTile.getVillage().transform.GetChild(1).renderer.material.color = Color.clear;
 			tempTile.getVillage().transform.GetChild(2).renderer.material.color = Color.clear;
@@ -536,6 +542,7 @@ public class Village : MonoBehaviour {
 			tempTile.getVillage().setVillageType(VillageType.Fort);
 			tempTile.getVillage().changeWood(-VillageType.Fort.getUpgradeCost());
 			tempTile.getVillage().setUpgradable(false);
+			//coolDown = 2;
 			tempTile.getVillage().transform.GetChild(0).renderer.material.color = Color.clear;
 			tempTile.getVillage().transform.GetChild(1).renderer.material.color = Color.clear;
 			tempTile.getVillage().transform.GetChild(2).renderer.material.color = Color.clear;
@@ -551,6 +558,7 @@ public class Village : MonoBehaviour {
 			tempTile.getVillage().setVillageType(VillageType.Castle);
 			tempTile.getVillage().changeWood(-VillageType.Castle.getUpgradeCost());
 			tempTile.getVillage().setUpgradable(false);
+			//coolDown = 2; 
 			tempTile.getVillage().transform.GetChild(0).renderer.material.color = Color.clear;
 			tempTile.getVillage().transform.GetChild(1).renderer.material.color = Color.clear;
 			tempTile.getVillage().transform.GetChild(2).renderer.material.color = Color.clear;
@@ -560,6 +568,8 @@ public class Village : MonoBehaviour {
 				t.transform.GetChild(0).renderer.material.color = tempTile.getVillage().getOwner().getColor();
 			}
 		}
+		
+		
 	}
 	
 	public Unit getAssociatedCannon () { 
