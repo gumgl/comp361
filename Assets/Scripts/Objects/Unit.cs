@@ -15,6 +15,7 @@ public class Unit : Photon.MonoBehaviour {
 	public float moveSpeed = 5f; // In portion of length
 	public GameObject halo;
 	public GameObject cannonHalo;
+	public Unit associatedCannon; 
 
 	void Start()
 	{
@@ -272,7 +273,7 @@ public class Unit : Photon.MonoBehaviour {
 			else totalGold = this.getVillage().getGold() + other.getVillage().getGold (); 
 			if (this.getVillage ().getGold () >= 6) { //only upkeep
 				this.setUnitType (UnitType.Infantry); 
-				other.getVillage().getUnits().Remove(other);
+			//	other.getVillage().getUnits().Remove(other);
 				other.kill (false); 
 				return true; 
 			}
@@ -283,7 +284,7 @@ public class Unit : Photon.MonoBehaviour {
 			else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
 			if (this.getVillage ().getGold () >= 6) { //only upkeep
 				this.setUnitType (UnitType.Soldier); 
-				other.getVillage().getUnits().Remove(other);
+				//other.getVillage().getUnits().Remove(other);
 				other.kill (false); 
 				return true; 
 			}
@@ -295,7 +296,7 @@ public class Unit : Photon.MonoBehaviour {
 			else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
 			if (this.getVillage ().getGold () >= 6) { //only upkeep
 				this.setUnitType (UnitType.Knight); 
-				other.getVillage().getUnits().Remove(other);
+				//other.getVillage().getUnits().Remove(other);
 				other.kill (false); 
 				return true;
 			}
@@ -445,6 +446,7 @@ public class Unit : Photon.MonoBehaviour {
 
 	public void kill(bool tomb){
 		if (tomb == true)this.getTile().setLandType(LandType.Tombstone);
+		this.getVillage().getUnits().Remove(this);
 		GameObject.Destroy(this.gameObject);
 	}
 	
@@ -463,6 +465,8 @@ public class Unit : Photon.MonoBehaviour {
 			Unit potentialUnit = t.getUnit (); 
 			if (potentialUnit != null) { 
 				if (potentialUnit.getOwner() != this.getOwner ()) { 
+					if (select)potentialUnit.setAssociatedCannon (cannon); 
+					else potentialUnit.setAssociatedCannon (null); 
 					potentialUnit.cannonHalo.SetActive (select); 
 				}
 			}
@@ -581,7 +585,15 @@ public class Unit : Photon.MonoBehaviour {
 
 	void OnMouseUp() {
 		//PAUL RPC
-		if (this.cannonHalo.GetActive()) this.kill (true); 
+		
+		if (this.cannonHalo.GetActive ()) {
+			
+			this.getAssociatedCannon().setActionType (ActionType.Moved);
+			this.getAssociatedCannon().halo.SetActive (false);
+			highlight2HexRadius(this.getAssociatedCannon(), false);
+			this.kill (true); 
+			
+		}
 		
 		if(this.transform.root.GetComponent<Game>().GetCurrPlayer() == this.transform.root.GetComponent<Game>().GetLocalPlayer() && this.getOwner() == this.transform.root.GetComponent<Game>().GetLocalPlayer()){
 			if(board.selectedUnit != this){
@@ -591,7 +603,12 @@ public class Unit : Photon.MonoBehaviour {
 						u.halo.SetActive(false);
 						}
 				halo.SetActive(true);
-				if (this.getUnitType() == UnitType.Cannon) highlight2HexRadius(this,true); 
+				if (this.getUnitType() == UnitType.Cannon){
+					 if (this.getVillage ().getWood () > 1) {
+					 	highlight2HexRadius(this,true);
+					 }
+					 else Debug.Log ("You cannot afford to shoot Cannons. Not enough Wood."); 
+				}	 
 			}
 			else{
 				board.selectedUnit = null;
@@ -600,6 +617,14 @@ public class Unit : Photon.MonoBehaviour {
 				this.upgrade();
 			}
 		}
+	}
+	
+	public Unit getAssociatedCannon () { 
+		return this.associatedCannon; 
+	}
+	
+	public void setAssociatedCannon (Unit u) { 
+		this.associatedCannon = u;
 	}
 
 }
