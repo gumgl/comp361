@@ -132,25 +132,6 @@ public class Game : MonoBehaviour {
 		JSONNode toSave = Serialize();
 		sw.Write(toSave.ToJSON(1));
 		sw.Close();
-		/*StreamWriter sw = null;
-		try
-		{
-			sw = new StreamWriter(filePath);
-
-			JSONNode toSave = Serialize();
-
-			sw.Write(toSave.ToJSON(1));
-			Debug.Log("Saving successful!");
-		}
-		catch (Exception e)
-		{
-			Debug.LogError("Error saving gamestate to disk");
-		}
-		finally
-		{
-			if (sw != null)
-				sw.Close();
-		}*/
 	}
 
 	void AddPlayers() {
