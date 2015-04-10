@@ -13,7 +13,7 @@ public class Village : MonoBehaviour {
 	int wood = 0;
 	bool cultivating = false;
 	bool building = false;
-	bool isActive = false;
+	public bool isActive = false;
 	bool upgradable = false; 
     Player owner; // Should be set in constructor
 	HashSet<Tile> tiles = new HashSet<Tile>();
