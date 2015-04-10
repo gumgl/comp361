@@ -55,6 +55,7 @@ public class Game : MonoBehaviour {
 
 	public void UnSerialize(JSONNode node) {
 		// Create all the tiles, position them and add them to map
+		board.started = true;
 		board.getMap().Clear();
 		foreach (JSONNode tileNode in node["tiles"].AsArray) {
 			Tile tile = Instantiate(board.landPrefab, Vector3.zero, Quaternion.identity) as Tile;
@@ -93,6 +94,7 @@ public class Game : MonoBehaviour {
 		currPlayer = 0;
 	}
 
+
 	void Update () {
 		if (Input.GetKeyDown(KeyCode.F5))
 			GetComponent<PhotonView>().RPC("SaveGame", PhotonTargets.All);
@@ -111,6 +113,42 @@ public class Game : MonoBehaviour {
 		} else {
 			board.errorTimer = board.errorTimer - errorCounterSpeed * Time.deltaTime;
 			Debug.Log (board.errorTimer);
+		}
+		if(Input.GetKeyDown("b")){
+			if (board.selectedUnit != null){
+				if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
+					board.selectedUnit.setActionType (ActionType.BuildingRoad);
+					board.selectedUnit.halo.SetActive (false);
+					board.selectedUnit = null; 
+					Debug.Log ("Building Road"); 
+				}
+				else  {
+					//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
+					board.setErrorText("Unit Is Either Busy Or Not Peasant"); 
+					board.selectedUnit.halo.SetActive (false);
+					board.selectedUnit = null; 
+				}
+			}
+			
+			else board.setErrorText ("You must first select a unit"); 
+		}
+		else if(Input.GetKeyDown("c")){
+			if (board.selectedUnit != null){
+				if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
+					board.selectedUnit.setActionType (ActionType.Cultivating);
+					board.selectedUnit.halo.SetActive (false);
+					board.selectedUnit = null; 
+					Debug.Log ("Cultivating Meadow"); 
+				}
+				else  {
+					//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
+					board.setErrorText("Unit Is Either Busy Or Not Peasant");  
+					board.selectedUnit.halo.SetActive (false);
+					board.selectedUnit = null; 
+				}
+			}
+			else board.setErrorText ("You must first select a unit"); 
+
 		}
 
 	}
@@ -286,48 +324,15 @@ public class Game : MonoBehaviour {
 
 
 	public void endTurnButtonAction(){
-		//if(localPlayer == currPlayer){
-			GetComponent<PhotonView>().RPC("NextTurn", PhotonTargets.All);
-		//}
 	}
 	
 	public void selectedUnitBuildRoad () { 
-		if (board.selectedUnit != null){
-			if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
-				board.selectedUnit.setActionType (ActionType.BuildingRoad);
-				board.selectedUnit.halo.SetActive (false);
-				board.selectedUnit = null; 
-				Debug.Log ("Building Road"); 
-			}
-			else  {
-				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
-				board.setErrorText("Unit Is Either Busy Or Not Peasant"); 
-				board.selectedUnit.halo.SetActive (false);
-				board.selectedUnit = null; 
-			}
-		}
 
-		else board.setErrorText ("You must first select a unit"); 
 			
 	}
 	
 	public void selectedUnitCultivateMeadow (){ 
-		if (board.selectedUnit != null){
-			if (board.selectedUnit.getUnitType () == UnitType.Peasant && (board.selectedUnit.getActionType () == ActionType.ReadyForOrders || board.selectedUnit.getActionType() == ActionType.Moved)){
-				board.selectedUnit.setActionType (ActionType.Cultivating);
-				board.selectedUnit.halo.SetActive (false);
-				board.selectedUnit = null; 
-				Debug.Log ("Cultivating Meadow"); 
-			}
-			else  {
-				//Debug.Log("You need to select a Peasant ( one that is ready for orders)"); 
-				board.setErrorText("Unit Is Either Busy Or Not Peasant");  
-				board.selectedUnit.halo.SetActive (false);
-				board.selectedUnit = null; 
-			}
-		}
-		else board.setErrorText ("Select a fucking Unit!"); 
-		
+
 	}
 	
 	public void onOkClick () { 
@@ -337,7 +342,6 @@ public class Game : MonoBehaviour {
 	/// <summary>Move to next player phase (also modifies currPlayer)</summary>
 	[RPC]
 	void NextTurn(){
-		this.board.unitCostsPanel.text = "";
 
 		GetCurrPlayer().CheckLost();
 		if (GetCurrPlayer().HasLost()) { // The player who's turn just ended

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using SimpleJSON;
@@ -259,6 +260,7 @@ public class Tile : Photon.MonoBehaviour {
 	
 	void OnMouseUp() {
 //		Debug.Log("Tile " + pos.ToString() + " OnMouseUp");
+		//if(EventSystem.current.IsPointerOverGameObject()){
 		if(this.transform.root.GetComponent<Game>().GetCurrPlayer() == this.transform.root.GetComponent<Game>().GetLocalPlayer()){
 			if (board.selectedUnit != null) {
 				//Debug.Log(board.selectedUnit.getVillage());
@@ -272,7 +274,7 @@ public class Tile : Photon.MonoBehaviour {
 				else{
 					village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, this.pos.q, this.pos.r, this.getOwner().getUnitToBuild());
 					village.setUpgradable(false);
-					this.board.unitCostsPanel.text = "";
+				
 					this.getOwner().setUnitToBuild(6);
 					foreach(Tile t in village.getTiles()){
 						t.setAcceptsUnit(false);
@@ -284,5 +286,6 @@ public class Tile : Photon.MonoBehaviour {
 				}
 			}
 		}
+		//}
 	}
 }

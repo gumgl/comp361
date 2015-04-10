@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using SimpleJSON;
 
@@ -674,7 +675,7 @@ public class Unit : Photon.MonoBehaviour {
 
 	void OnMouseUp() {
 		//PAUL RPC
-
+		//if(EventSystem.current.IsPointerOverGameObject()){
 
 		if (this.cannonHalo.GetActive()) {
 			this.getAssociatedCannon().setActionType(ActionType.Moved);
@@ -713,6 +714,7 @@ public class Unit : Photon.MonoBehaviour {
 				halo.renderer.material.color = Color.black;
 			}
 		}
+		//}
 	}
 	
 	public Unit getAssociatedCannon () { 

@@ -14,7 +14,7 @@ public class Board : Photon.MonoBehaviour {
 	public UnityEngine.UI.Text goldText;
 	Village activeVillage; 
 	public UnityEngine.UI.Text panel;
-	public UnityEngine.UI.Text unitCostsPanel;
+
 	public bool started = false;
 	//LandType[,] tileTypes;
 	//Tile[,] grid;

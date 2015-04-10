@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using SimpleJSON;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
@@ -413,7 +414,7 @@ public class Village : MonoBehaviour {
 	}
 	
 	void OnMouseUp () {
-		
+		//if(EventSystem.current.IsPointerOverGameObject()){
 		if (this.cannonHalo.GetActive ()){
 			this.cannonHalo.SetActive (false);
 			this.health--;
@@ -485,6 +486,7 @@ public class Village : MonoBehaviour {
 				setUpgradable (true);
 			}
 		}
+		//}
 	}
 
 	[RPC]
