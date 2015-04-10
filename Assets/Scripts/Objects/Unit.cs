@@ -17,6 +17,7 @@ public class Unit : Photon.MonoBehaviour {
 	public GameObject cannonHalo;
 	public Unit associatedCannon;
 	public bool canBeUpgraded = false;
+	
 
 	void Start()
 	{
@@ -479,14 +480,19 @@ public class Unit : Photon.MonoBehaviour {
 			List<Tile> visited = new List<Tile>(); 
 			Dictionary<Hex.Direction, Tile> neighbours = cannon.getTile ().getNeighbours (); 
 			foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours) { 
-				visited.Add (pair.Value); 
+				if (!visited.Contains (pair.Value) && pair.Value.getOwner () != cannon.getOwner ()) visited.Add (pair.Value); 
 				Dictionary<Hex.Direction, Tile>  n2 = pair.Value.getNeighbours (); 
 				foreach (KeyValuePair<Hex.Direction, Tile> p2 in n2) { 
-					if (!visited.Contains (p2.Value)) visited.Add (p2.Value); 
+					if (!visited.Contains (p2.Value) && pair.Value.getOwner () != cannon.getOwner ()) visited.Add (p2.Value); 
 				}
 			}	
 			
 		foreach (Tile t in visited) { 
+			if (t.getStructure() == Structure.Village && t.getOwner () != cannon.getOwner ()){
+				t.getVillage ().cannonHalo.SetActive (select);
+				if (select) t.getVillage ().setAssociatedCannon (this); 
+				else t.getVillage ().setAssociatedCannon (null);
+			}
 			Unit potentialUnit = t.getUnit (); 
 			if (potentialUnit != null) { 
 				if (potentialUnit.getOwner() != cannon.getOwner ()) { 
@@ -616,7 +622,7 @@ public class Unit : Photon.MonoBehaviour {
 		if (this.cannonHalo.GetActive()) {
 			this.getAssociatedCannon().setActionType(ActionType.Moved);
 			this.getAssociatedCannon().halo.SetActive (false);
-			if (this.getAssociatedCannon() != null) Debug.Log ("there is an associated cannon"); 
+			//if (this.getAssociatedCannon() != null) Debug.Log ("there is an associated cannon"); 
 			highlight2HexRadius(this.getAssociatedCannon (),false);
 			this.getVillage().GetComponent<PhotonView>().RPC("fireCannon", PhotonTargets.All, this.getTile().pos.q, this.getTile().pos.r);
 		}

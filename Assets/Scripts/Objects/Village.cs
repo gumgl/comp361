@@ -16,6 +16,9 @@ public class Village : MonoBehaviour {
 	Board board;
 	public Tile structTile; // Where the HQ is
 	public Unit unitPrefab;
+	public GameObject cannonHalo; 
+	public Unit associatedCannon;
+	public int health; 
 
 	public void init(Player own, Board bor, VillageType type, int gl, int wd, Tile tile){
 		board = bor;
@@ -149,6 +152,10 @@ public class Village : MonoBehaviour {
 	
 	public void setVillageType(VillageType type) {
 		myType = type;
+		if (type == VillageType.Hovel) this.health = 0;
+		if (type == VillageType.Town) this.health = 2;
+		if (type == VillageType.Fort) this.health = 5;
+		if (type == VillageType.Castle) this.health = 10;
 	}
 
 	public int[] getResources() {
@@ -314,6 +321,40 @@ public class Village : MonoBehaviour {
 	}
 	
 	void OnMouseUp () {
+		
+		if (this.cannonHalo.GetActive ()){
+			this.cannonHalo.SetActive (false);
+			this.health--;
+			if (this.health <= 0){
+				if (this.getVillageType() == VillageType.Hovel)moveVillage(callVillageTiles(this.getStructTile ())[Random.Range(0, callVillageTiles(this.getStructTile()).Count)], LandType.Tree);
+				else if (this.getVillageType () == VillageType.Town) { 
+					this.setVillageType (VillageType.Hovel);
+					this.transform.GetChild(0).gameObject.SetActive(true);
+					this.transform.GetChild(1).gameObject.SetActive(false);
+				}
+				else if (this.getVillageType () == VillageType.Fort) { 
+					this.setVillageType (VillageType.Town);
+					this.transform.GetChild(1).gameObject.SetActive(true);
+					this.transform.GetChild(2).gameObject.SetActive(false);
+				}
+				else if (this.getVillageType () == VillageType.Castle) { 
+					this.setVillageType (VillageType.Fort);
+					this.transform.GetChild(2).gameObject.SetActive(true);
+					this.transform.GetChild(3).gameObject.SetActive(false);
+				}
+				
+			}
+			getAssociatedCannon ().setActionType (ActionType.Moved);
+			getAssociatedCannon ().halo.SetActive (false);
+			getAssociatedCannon ().getVillage ().changeWood (-1); 
+			//this.getStructTile().killTile();
+			//this.removeTile (this.getStructTile());
+			/*if (this.getTiles ().Count < 3) { 
+				this.delete (this.getAssociatedCannon ()); 
+			}
+			return; */	 
+		}
+		
 		Debug.Log(this.getVillageType());
 		foreach(Village v in this.getOwner().getVillages())
 			foreach(Unit u in v.getUnits()){
@@ -434,6 +475,30 @@ public class Village : MonoBehaviour {
 		}
 
 	}
-
+	
+	public Unit getAssociatedCannon () { 
+		return this.associatedCannon; 
+	}
+	
+	public void setAssociatedCannon (Unit u) { 
+		this.associatedCannon = u;
+	}
+	
+	public List<Tile> villageTiles(Tile t, List<Tile> visited) { 
+		visited.Add (t); 
+		//int size = 1; 
+		Dictionary<Hex.Direction, Tile> neighbours = t.getNeighbours (); 
+		foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours){ 
+			if (!visited.Contains (pair.Value) && pair.Value.getOwner () == t.getOwner ()){
+				villageTiles(pair.Value, visited); 
+			}
+		}
+		return visited; 
+	}
+	//call VillageTiles with an empty list. 
+	public List<Tile> callVillageTiles (Tile t) {
+		List<Tile> visited = new List<Tile>(); 
+		return villageTiles (t, visited);
+	} 
 }
 

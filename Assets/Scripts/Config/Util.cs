@@ -7,6 +7,7 @@ using System.Collections.Generic;
 public static class Config {
 	private static Dictionary<UnitType, int> unitUpkeep = new Dictionary<UnitType, int>();
 	private static Dictionary<UnitType, int> unitCombatLevel = new Dictionary<UnitType, int>();
+	private static Dictionary<UnitType, int> structureHealth = new Dictionary<UnitType, int>();
 	private static Dictionary<UnitType, int> unitCost = new Dictionary<UnitType, int>();
 	private static Dictionary<LandType, bool> tileMovementAllowed = new Dictionary<LandType, bool>();
 	private static Dictionary<Hex.Direction, Hex> hexDirectionDelta = new Dictionary<Hex.Direction, Hex>();
@@ -17,6 +18,8 @@ public static class Config {
 	public const int maxTiles = 300;
 
 	static Config() {
+	
+		
 		unitUpkeep[UnitType.Peasant] = 2;
 		unitUpkeep[UnitType.Infantry] = 6;
 		unitUpkeep[UnitType.Soldier] = 18;
