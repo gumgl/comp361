@@ -243,16 +243,21 @@ public class Tile : Photon.MonoBehaviour {
 				//board.selectedUnit.MoveTo(this);
 			}
 			if(this.acceptsUnit && this.getOwner().getUnitToBuild() != 6){
-				village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, this.pos.q, this.pos.r, this.getOwner().getUnitToBuild());
-				village.setUpgradable(false);
-				this.board.unitCostsPanel.text = "";
-				this.getOwner().setUnitToBuild(6);
-				foreach(Tile t in village.getTiles()){
-					t.setAcceptsUnit(false);
-					t.transform.GetChild(0).renderer.material.color = village.getOwner().getColor();
-					t.transform.GetChild(1).renderer.material.color = village.getOwner().getColor();
-					t.transform.GetChild(2).renderer.material.color = village.getOwner().getColor();
-					village.transform.GetChild(0).renderer.material.color = Color.green;
+				if(this.getVillage().getStructTile().HexDistanceTo(this) > 1.8 && this.getOwner().getUnitToBuild() == 4){
+					board.setErrorText ("Cannons must be built adjacent to castles.");
+				}
+				else{
+					village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, this.pos.q, this.pos.r, this.getOwner().getUnitToBuild());
+					village.setUpgradable(false);
+					this.board.unitCostsPanel.text = "";
+					this.getOwner().setUnitToBuild(6);
+					foreach(Tile t in village.getTiles()){
+						t.setAcceptsUnit(false);
+						t.transform.GetChild(0).renderer.material.color = village.getOwner().getColor();
+						t.transform.GetChild(1).renderer.material.color = village.getOwner().getColor();
+						t.transform.GetChild(2).renderer.material.color = village.getOwner().getColor();
+						village.transform.GetChild(0).renderer.material.color = Color.green;
+					}
 				}
 			}
 		}

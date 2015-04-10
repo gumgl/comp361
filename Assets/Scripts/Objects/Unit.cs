@@ -282,7 +282,7 @@ public class Unit : Photon.MonoBehaviour {
 			int totalGold = 0; 
 			if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
 			else totalGold = this.getVillage().getGold() + other.getVillage().getGold (); 
-			if (this.getVillage ().getGold () >= 6) { //only upkeep
+			if (this.getVillage().getVillageType() >= VillageType.Hovel) { //only upkeep
 				this.setUnitType (UnitType.Infantry); 
 			//	other.getVillage().getUnits().Remove(other);
 				other.kill (false); 
@@ -293,7 +293,7 @@ public class Unit : Photon.MonoBehaviour {
 			int totalGold = 0; 
 			if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
 			else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
-			if (this.getVillage ().getGold () >= 6) { //only upkeep
+			if (this.getVillage().getVillageType() >= VillageType.Town) { //only upkeep
 				this.setUnitType (UnitType.Soldier); 
 				//other.getVillage().getUnits().Remove(other);
 				other.kill (false); 
@@ -305,7 +305,7 @@ public class Unit : Photon.MonoBehaviour {
 			int totalGold = 0; 
 			if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
 			else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
-			if (this.getVillage ().getGold () >= 6) { //only upkeep
+			if (this.getVillage().getVillageType() >= VillageType.Fort) { //only upkeep
 				this.setUnitType (UnitType.Knight); 
 				//other.getVillage().getUnits().Remove(other);
 				other.kill (false); 
@@ -325,6 +325,13 @@ public class Unit : Photon.MonoBehaviour {
 			return;
 		}
 
+		if(target.getStructure() == Structure.Village && target.getVillage().getOwner() == this.getOwner()){
+			board.setErrorText ("Movement to your own villages is not allowed.");
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+			return;
+		}
+
 		if (this.getUnitType () == UnitType.Cannon && this.getActionType() == ActionType.Moved) { 
 			board.setErrorText ("Cannons can only move or fire once per turn each.");
 			board.selectedUnit = null;
@@ -334,6 +341,10 @@ public class Unit : Photon.MonoBehaviour {
 		
 		if ((this.getUnitType () == UnitType.Peasant || this.getUnitType () == UnitType.Cannon) && target.getOwner () != this.getOwner () && target.getOwner () != null) { 
 			board.setErrorText ("Peasants and Cannons cannot invade enemy territory");
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+			return;	
+		}
 		
 		if (this.getUnitType () == UnitType.Tower && target.getOwner () != null) { 
 			board.setErrorText ("Towers cannot move.");
@@ -341,11 +352,6 @@ public class Unit : Photon.MonoBehaviour {
 			halo.SetActive(false); 
 			return;	
 		}
-			board.selectedUnit = null;
-			halo.SetActive(false); 
-			return;	
-		}
-		
 		if (this.getActionType() == ActionType.ClearedTile){
 			board.setErrorText ("Unit has already performed an action this turn");
 			board.selectedUnit = null;
@@ -372,8 +378,21 @@ public class Unit : Photon.MonoBehaviour {
 			if (!combineUnits (target.getUnit ())) {
 				board.selectedUnit = null;
 				halo.SetActive(false); 
-				board.setErrorText ("You can either not afford this or it is an invalid combine.");
+				board.setErrorText ("This combine is either invalid or you don't have the village type to support the new unit.");
 				return;
+			}
+		}
+
+		foreach(Player p in this.board.game.GetPlayers()){
+			foreach(Village v in p.getVillages()){
+				foreach (KeyValuePair<Hex.Direction, Tile> pair in v.getStructTile().getNeighbours()){
+					if(target == pair.Value && v.getVillageType() == VillageType.Castle){
+						board.selectedUnit = null;
+						halo.SetActive(false);
+						board.setErrorText ("The castle is protecting that location.");
+						return; 
+					}
+				}
 			}
 		}
 		
@@ -394,7 +413,7 @@ public class Unit : Photon.MonoBehaviour {
 			return;
 		}
 		
-	 	if (this.getUnitType() == UnitType.Knight && (target.getLandType () == LandType.Tree || target.getLandType () == LandType.Tombstone)){ 
+		if ((this.getUnitType() == UnitType.Knight || this.getUnitType() == UnitType.Cannon)  && (target.getLandType () == LandType.Tree || target.getLandType () == LandType.Tombstone)){ 
 	 		//Debug.Log ("Knights and Cannons cannot clear tombstones/trees"); 
 	 		board.setErrorText ("Knights and cannons cannot clear tombstones or fell trees"); 
 	 		board.selectedUnit = null;

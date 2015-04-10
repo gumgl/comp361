@@ -356,13 +356,22 @@ public class Village : MonoBehaviour {
 		}
 		
 		Debug.Log(this.getVillageType());
-		foreach(Village v in this.getOwner().getVillages())
+		foreach(Village v in this.getOwner().getVillages()){
 			foreach(Unit u in v.getUnits()){
 					board.selectedUnit = null;
 					u.halo.SetActive(false);
 			}		
+		}
 		if(this.transform.root.GetComponent<Game>().GetCurrPlayer() == this.transform.root.GetComponent<Game>().GetLocalPlayer() && this.getOwner() == this.transform.root.GetComponent<Game>().GetLocalPlayer()){
 		if(!this.isActive){
+			foreach(Village v in this.getOwner().getVillages()){
+				v.isActive = false;
+				v.setUpgradable (false);
+				foreach(Tile temp in v.getTiles()){
+					temp.setAcceptsUnit(false);
+					temp.transform.GetChild(0).renderer.material.color = temp.getVillage().getOwner().getColor();
+				}
+			}
 			this.isActive = true;
 			this.transform.GetChild(0).renderer.material.color = Color.black;
 			this.transform.GetChild(1).renderer.material.color = Color.black;

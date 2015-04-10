@@ -240,6 +240,10 @@ public class Game : MonoBehaviour {
 		return players[index];
 	}
 
+	public List<Player> GetPlayers(){
+		return players;
+	}
+
 	private void AddPlayer(PhotonPlayer pp)
 	{
 		Player player = new Player(pp);
