@@ -331,13 +331,13 @@ public class Unit : Photon.MonoBehaviour {
 		
 		if ((this.getUnitType () == UnitType.Peasant || this.getUnitType () == UnitType.Cannon) && target.getOwner () != this.getOwner () && target.getOwner () != null) { 
 			board.setErrorText ("Peasants and Cannons cannot invade enemy territory");
-		
-		if (this.getUnitType () == UnitType.Tower && target.getOwner () != null) { 
-			board.setErrorText ("Towers cannot move.");
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;	
 		}
+
+		if (this.getUnitType () == UnitType.Tower) { 
+			board.setErrorText ("Towers cannot move.");
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;	

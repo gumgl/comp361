@@ -31,7 +31,7 @@ public class NetworkManager : MonoBehaviour
 
 	public void ConnectToLobby() {
 		// connects to the server that is defined in our usersettings file, checking version names match
-		PhotonNetwork.ConnectUsingSettings ("game-lobby");
+		PhotonNetwork.ConnectUsingSettings ("andrej");
 	}
 
 	public void JoinARoom() {

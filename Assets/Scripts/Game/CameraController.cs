@@ -21,7 +21,7 @@ public class CameraController : MonoBehaviour {
 	void Start () {
 	}
 
-	/*
+
 	// Update is called once per frame
 	void Update () {
 		if (board.isStarted ()) {
@@ -49,7 +49,7 @@ public class CameraController : MonoBehaviour {
 			
 			
 			if(!centered){
-				if (mousePosX <= Screen.width - scrollDistanceHor*2 && mousePosX > scrollDistanceHor*2 && mousePosY > scrollDistanceVer*2 && mousePosY <= Screen.height - 2*scrollDistanceVer) { 
+				if (mousePosX <= Screen.width - scrollDistanceHor*4 && mousePosX > scrollDistanceHor*4 && mousePosY > scrollDistanceVer*4 && mousePosY <= Screen.height - 4*scrollDistanceVer) { 
 					centered = true;
 				}
 			}
@@ -79,5 +79,5 @@ public class CameraController : MonoBehaviour {
 			}
 		}
 	}
-	*/
+
 }

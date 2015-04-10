@@ -30,9 +30,13 @@ public class Game : MonoBehaviour {
 
 	void Update () {
 
-		if (Input.GetKey (KeyCode.Escape)) {
+		if (Input.GetKeyDown (KeyCode.Escape)) {
 			board.setErrorText (" ");
 		}
+		if (Input.GetKeyDown (KeyCode.Return)){
+			GetComponent<PhotonView>().RPC("NextTurn", PhotonTargets.All);
+		}
+
 	}
 
 
