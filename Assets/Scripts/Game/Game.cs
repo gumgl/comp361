@@ -98,6 +98,8 @@ public class Game : MonoBehaviour {
 			GetComponent<PhotonView>().RPC("SaveGame", PhotonTargets.All);
 		if (Input.GetKeyDown(KeyCode.F6))
 			GetComponent<PhotonView>().RPC("LoadGame", PhotonTargets.All);
+		if (Input.GetKeyDown(KeyCode.F4))
+			Application.Quit();
 		if (Input.GetKeyDown (KeyCode.Escape)) {
 			board.setErrorText (" ");
 		}
