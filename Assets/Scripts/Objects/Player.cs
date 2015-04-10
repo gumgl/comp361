@@ -28,7 +28,7 @@ public class Player {
 	}
 
 	public void UnSerialize(JSONNode node) {
-		hasLost = Convert.ToBoolean(node["lost"]);
+		hasLost = Convert.ToBoolean(node["lost"].AsInt);
 
 		var villages = node["villages"].AsArray;
 		foreach (JSONNode villageNode in villages) {
