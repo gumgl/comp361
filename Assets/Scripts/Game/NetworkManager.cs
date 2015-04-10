@@ -38,7 +38,7 @@ public class NetworkManager : MonoBehaviour
 		PhotonNetwork.JoinRandomRoom();
 	}
 
-	void LoadProfile() {
+	public void LoadProfile() {
 		var sr = new StreamReader(new FileStream(profilePath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read));
 		var profile = JSON.Parse(sr.ReadToEnd()) ?? new JSONClass();
 
@@ -60,7 +60,7 @@ public class NetworkManager : MonoBehaviour
 		sr.Close();
 	}
 
-	void SaveProfile() {
+	public void SaveProfile() {
 		var sw = new StreamWriter(new FileStream(profilePath, FileMode.Create, FileAccess.Write, FileShare.Write));
 		var props = PhotonNetwork.player.customProperties;
 

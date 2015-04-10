@@ -180,9 +180,10 @@ public class Game : MonoBehaviour {
 	}
 
 	[RPC]
-	public void SaveGame()
-	{
-		string filePath = Application.persistentDataPath + "/"+GetSeed().ToString()+".json";
+	public void SaveGame() {
+		var now = DateTime.Now;
+		string filename = GetSeed().ToString();
+		string filePath = Application.persistentDataPath + "/"+filename+".json";
 		Debug.Log("SaveGame() to " + filePath);
 		var sw = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Write));
 		JSONNode toSave = Serialize();
@@ -341,6 +342,7 @@ public class Game : MonoBehaviour {
 			if (currPlayer == localPlayer) {
 				board.setErrorText("You have lost!\nYou cannot play buy you can watch or quit...");
 				GetCurrPlayer().IncreaseGamesWon();
+				nm.SaveProfile();
 			}
 			else {
 				board.setErrorText(GetCurrPlayer().GetName() + " has lost the game and is now a spectator.");
@@ -353,6 +355,7 @@ public class Game : MonoBehaviour {
 					winner = player;
 
 			GetCurrPlayer().IncreaseGamesPlayed();
+			nm.SaveProfile();
 			if (winner == null)
 				Debug.LogError("Oh wtf, everybody has lost?");
 			else {
