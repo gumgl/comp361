@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 
 public class Unit : Photon.MonoBehaviour {
@@ -18,6 +19,7 @@ public class Unit : Photon.MonoBehaviour {
 	public Unit associatedCannon;
 	public bool canBeUpgraded = false;
 	
+
 
 	void Start()
 	{
@@ -45,6 +47,7 @@ public class Unit : Photon.MonoBehaviour {
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 		}
+
 
 	}
 
@@ -127,8 +130,7 @@ public class Unit : Photon.MonoBehaviour {
 					break; 
 				}			
 			}
-			
-			//FOR PAUL
+					
 			if (!pathExists) { 
 				Tile hasVillage = null;
 				Tile toKeep = separated[0];
@@ -320,6 +322,7 @@ public class Unit : Photon.MonoBehaviour {
 
 		if((this.getUnitType() != UnitType.Soldier && this.getUnitType() != UnitType.Knight) && target.getStructure() == Structure.Village && target.getOwner() != this.getOwner()){
 			board.setErrorText ("Only soldiers and knights can invade villages.");
+			Camera.main.GetComponent<CameraController>().shakeScreen();
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;
@@ -328,12 +331,14 @@ public class Unit : Photon.MonoBehaviour {
 		if(target.getStructure() == Structure.Village && target.getVillage().getOwner() == this.getOwner()){
 			board.setErrorText ("Movement to your own villages is not allowed.");
 			board.selectedUnit = null;
+			Camera.main.GetComponent<CameraController>().shakeScreen();
 			halo.SetActive(false); 
 			return;
 		}
 
 		if (this.getUnitType () == UnitType.Cannon && this.getActionType() == ActionType.Moved) { 
 			board.setErrorText ("Cannons can only move or fire once per turn each.");
+			Camera.main.GetComponent<CameraController>().shakeScreen();
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;
@@ -341,19 +346,23 @@ public class Unit : Photon.MonoBehaviour {
 		
 		if ((this.getUnitType () == UnitType.Peasant || this.getUnitType () == UnitType.Cannon) && target.getOwner () != this.getOwner () && target.getOwner () != null) { 
 			board.setErrorText ("Peasants and Cannons cannot invade enemy territory");
+
+			Camera.main.GetComponent<CameraController>().shakeScreen();
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;	
 		}
-		
-		if (this.getUnitType () == UnitType.Tower && target.getOwner () != null) { 
+
+		if (this.getUnitType () == UnitType.Tower) { 
 			board.setErrorText ("Towers cannot move.");
+			Camera.main.GetComponent<CameraController>().shakeScreen();
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;	
 		}
 		if (this.getActionType() == ActionType.ClearedTile){
 			board.setErrorText ("Unit has already performed an action this turn");
+			Camera.main.GetComponent<CameraController>().shakeScreen();
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;
@@ -361,6 +370,7 @@ public class Unit : Photon.MonoBehaviour {
 		
 		if (this.getActionType() == ActionType.Cultivating || this.getActionType() == ActionType.BuildingRoad || this.getActionType() == ActionType.StillCultivating){ 
 			board.setErrorText ("Unit is busy this turn");
+			Camera.main.GetComponent<CameraController>().shakeScreen();
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;
@@ -371,6 +381,7 @@ public class Unit : Photon.MonoBehaviour {
 			board.selectedUnit = null;
 			halo.SetActive(false);
 			board.setErrorText ("Tile Occupied By Enemy");
+			Camera.main.GetComponent<CameraController>().shakeScreen();
 			return; 
 		}
 		
@@ -379,6 +390,7 @@ public class Unit : Photon.MonoBehaviour {
 				board.selectedUnit = null;
 				halo.SetActive(false); 
 				board.setErrorText ("This combine is either invalid or you don't have the village type to support the new unit.");
+				Camera.main.GetComponent<CameraController>().shakeScreen();
 				return;
 			}
 		}
@@ -402,12 +414,14 @@ public class Unit : Photon.MonoBehaviour {
 				board.selectedUnit = null;
 				halo.SetActive(false);
 				board.setErrorText ("Stronger enemy in close proximity! You'll die if you go there");
+				Camera.main.GetComponent<CameraController>().shakeScreen();
 				return; 
 	 		}
 	 	}
 
 		if(this.getUnitType() == UnitType.Cannon && this.getTile().DistanceTo(target) > 2){
 			board.setErrorText ("Cannons cannot move more than one tile a turn"); 
+			Camera.main.GetComponent<CameraController>().shakeScreen();
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;
@@ -415,7 +429,8 @@ public class Unit : Photon.MonoBehaviour {
 		
 		if ((this.getUnitType() == UnitType.Knight || this.getUnitType() == UnitType.Cannon)  && (target.getLandType () == LandType.Tree || target.getLandType () == LandType.Tombstone)){ 
 	 		//Debug.Log ("Knights and Cannons cannot clear tombstones/trees"); 
-	 		board.setErrorText ("Knights and cannons cannot clear tombstones or fell trees"); 
+	 		board.setErrorText ("Knights and cannons cannot clear tombstones or fell trees");
+			Camera.main.GetComponent<CameraController>().shakeScreen();
 	 		board.selectedUnit = null;
 	 		halo.SetActive(false); 
 	 		return;  
@@ -479,6 +494,7 @@ public class Unit : Photon.MonoBehaviour {
 			} 
 			else { 
 			board.setErrorText ("Path Obscure or Blocked.");
+				Camera.main.GetComponent<CameraController>().shakeScreen();
 			}
 		}
 		board.selectedUnit = null;
@@ -614,12 +630,15 @@ public class Unit : Photon.MonoBehaviour {
 		}
 		else if(this.getUnitType() == UnitType.Knight){
 			board.setErrorText ("Knights can't be ugraded any further");
+			Camera.main.GetComponent<CameraController>().shakeScreen();
 		}
 		else if(this.getUnitType() == UnitType.Tower){
 			board.setErrorText("Towers are not upgradeable units");
+			Camera.main.GetComponent<CameraController>().shakeScreen();
 		}
 		else if(this.getUnitType() != UnitType.Cannon)
 			board.setErrorText ("Not enough money to upgrade");
+		Camera.main.GetComponent<CameraController>().shakeScreen();
 	}
 
 	void removeTreeOrTombstone(int q, int r, LandType type){

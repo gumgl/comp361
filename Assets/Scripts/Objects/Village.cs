@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -19,6 +20,7 @@ public class Village : MonoBehaviour {
 	public GameObject cannonHalo; 
 	public Unit associatedCannon;
 	public int health; 
+
 
 	public void init(Player own, Board bor, VillageType type, int gl, int wd, Tile tile){
 		board = bor;
@@ -201,6 +203,7 @@ public class Village : MonoBehaviour {
 	void Update() {
 
 		if (Input.GetKey (KeyCode.Escape)) {
+			this.board.game.GetComponent<HovelMenuScript>().CloseBuildMenu();
 			this.isActive = false;
 			this.setUpgradable (false);
 			this.transform.GetChild(0).renderer.material.color = Color.clear;
@@ -246,11 +249,14 @@ public class Village : MonoBehaviour {
 				u.placeUnit();
 				tempTile.getVillage().addUnit(u);
 				tempTile.getVillage().isActive = false;
+				this.board.game.GetComponent<HovelMenuScript>().CloseBuildMenu();
 			}
 		}
 		else{
-			Debug.Log("NOT ENOUGH MONEY");
+			board.setErrorText("Insufficient funds to build this unit.");
+			Camera.main.GetComponent<CameraController>().shakeScreen();
 			tempTile.getVillage().isActive = false;
+			this.board.game.GetComponent<HovelMenuScript>().CloseBuildMenu();
 		}
 	}
 
@@ -379,6 +385,7 @@ public class Village : MonoBehaviour {
 					temp.transform.GetChild(0).renderer.material.color = temp.getVillage().getOwner().getColor();
 				}
 			}
+			this.board.game.GetComponent<HovelMenuScript>().BuildMenu(this.getVillageType());
 			this.isActive = true;
 			this.transform.GetChild(0).renderer.material.color = Color.black;
 			this.transform.GetChild(1).renderer.material.color = Color.black;
@@ -395,6 +402,7 @@ public class Village : MonoBehaviour {
 		}
 		else
 		{
+				this.board.game.GetComponent<HovelMenuScript>().CloseBuildMenu();
 			this.isActive = false;
 			this.transform.GetChild(0).renderer.material.color = Color.clear;
 			this.transform.GetChild(1).renderer.material.color = Color.clear;
