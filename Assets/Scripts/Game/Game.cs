@@ -174,7 +174,7 @@ public class Game : MonoBehaviour {
 			}
 		}
 
-		else board.setErrorText ("Select a fucking Unit!"); 
+		else board.setErrorText ("You must first select a unit"); 
 			
 	}
 	

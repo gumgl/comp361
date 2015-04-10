@@ -319,31 +319,38 @@ public class Village : MonoBehaviour {
 			GameObject.Destroy(this.gameObject);
 		}
 	}
+
+	[RPC]
+	void fireCannonAtVillage(int q, int r){
+		Village v = board.getTile(new Hex(q, r)).getVillage();
+		if (v.health <= 0){
+			if (v.getVillageType() == VillageType.Hovel)
+				v.moveVillage(v.callVillageTiles(v.getStructTile())[Random.Range(0, v.callVillageTiles(v.getStructTile()).Count)], LandType.Tree);
+			else if (v.getVillageType () == VillageType.Town) { 
+				v.setVillageType (VillageType.Hovel);
+				v.transform.GetChild(0).gameObject.SetActive(true);
+				v.transform.GetChild(1).gameObject.SetActive(false);
+			}
+			else if (v.getVillageType () == VillageType.Fort) { 
+				v.setVillageType (VillageType.Town);
+				v.transform.GetChild(1).gameObject.SetActive(true);
+				v.transform.GetChild(2).gameObject.SetActive(false);
+			}
+			else if (v.getVillageType () == VillageType.Castle) { 
+				v.setVillageType (VillageType.Fort);
+				v.transform.GetChild(2).gameObject.SetActive(true);
+				v.transform.GetChild(3).gameObject.SetActive(false);
+			}
+			
+		}
+	}
 	
 	void OnMouseUp () {
 		
 		if (this.cannonHalo.GetActive ()){
 			this.cannonHalo.SetActive (false);
 			this.health--;
-			if (this.health <= 0){
-				if (this.getVillageType() == VillageType.Hovel)moveVillage(callVillageTiles(this.getStructTile ())[Random.Range(0, callVillageTiles(this.getStructTile()).Count)], LandType.Tree);
-				else if (this.getVillageType () == VillageType.Town) { 
-					this.setVillageType (VillageType.Hovel);
-					this.transform.GetChild(0).gameObject.SetActive(true);
-					this.transform.GetChild(1).gameObject.SetActive(false);
-				}
-				else if (this.getVillageType () == VillageType.Fort) { 
-					this.setVillageType (VillageType.Town);
-					this.transform.GetChild(1).gameObject.SetActive(true);
-					this.transform.GetChild(2).gameObject.SetActive(false);
-				}
-				else if (this.getVillageType () == VillageType.Castle) { 
-					this.setVillageType (VillageType.Fort);
-					this.transform.GetChild(2).gameObject.SetActive(true);
-					this.transform.GetChild(3).gameObject.SetActive(false);
-				}
-				
-			}
+			this.GetComponent<PhotonView>().RPC("fireCannonAtVillage", PhotonTargets.All, this.getStructTile().pos.q, this.getStructTile().pos.r);
 			getAssociatedCannon ().setActionType (ActionType.Moved);
 			getAssociatedCannon ().halo.SetActive (false);
 			getAssociatedCannon ().getVillage ().changeWood (-1); 
