@@ -27,12 +27,7 @@ public class CameraController : MonoBehaviour {
 		if (board.isStarted ()) {
 			float mousePosX = Input.mousePosition.x; 
 			float mousePosY = Input.mousePosition.y;
-			
-			if (Input.GetKeyDown (KeyCode.Escape)) {
-				this.shake = 4;
-				preShake = this.transform.position;
-				startShake = true;
-			}
+
 			if (this.shake > 0.0f) {
 				transform.position = Vector3.Lerp(transform.position, new Vector3 (this.transform.localPosition.x + Random.Range (-maxShake, maxShake), this.transform.localPosition.y, this.transform.localPosition.z + Random.Range (-maxShake, maxShake)), smooth * Time.deltaTime);
 				this.shake -= 0.5f;
@@ -78,6 +73,12 @@ public class CameraController : MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	public void shakeScreen(){
+			this.shake = 4;
+			preShake = this.transform.position;
+			startShake = true;
 	}
 
 }

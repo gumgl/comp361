@@ -19,27 +19,36 @@ public class HovelMenuScript : MonoBehaviour {
 	
 	
 	public void Update () {
-		if(Input.GetKeyUp(KeyCode.Escape) && !isPaused){
-			PauseGame();
-		}
-		
-		else if(Input.GetKeyUp(KeyCode.Escape) && isPaused){
-			UnpauseGame();
-		}
+
 	}
 	
 	
-	public void PauseGame(){
-		
+	public void BuildMenu(VillageType type){
+
+		this.GetComponent<Game> ().SoldierButton.interactable = false;
+		this.GetComponent<Game> ().KnightButton.interactable = false;
+		this.GetComponent<Game> ().CannonButton.interactable = false;
+		this.GetComponent<Game> ().TowerButton.interactable = false;
+
+		if (type >= VillageType.Town) {
+			this.GetComponent<Game> ().SoldierButton.interactable = true;
+			this.GetComponent<Game> ().TowerButton.interactable = true;
+		}
+		if (type >= VillageType.Fort) {
+			this.GetComponent<Game> ().KnightButton.interactable = true;
+		}
+		if (type >= VillageType.Castle) {
+			this.GetComponent<Game> ().CannonButton.interactable = true;
+		}
+
 		anim.enabled = true;
-		
 		anim.Play("HovelMenuSlideIn");
 		//set the isPaused flag to true to indicate that the game is paused
 		isPaused = true;
 
 	}
 	//function to unpause the game
-	public void UnpauseGame(){
+	public void CloseBuildMenu(){
 		//set the isPaused flag to false to indicate that the game is not paused
 		isPaused = false;
 		//play the SlideOut animation
