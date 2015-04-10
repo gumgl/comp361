@@ -36,6 +36,7 @@ public class Unit : Photon.MonoBehaviour {
 		var pos = new Hex(node["pos"]);
 		setTile(board.getTile(pos));
 		positionOverTile();
+		tile.setUnit(this);
 
 		setUnitType((UnitType) node["unitType"].AsInt);
 		setActionType((ActionType) node["actionType"].AsInt);

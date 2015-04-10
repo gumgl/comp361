@@ -33,7 +33,7 @@ public class Village : MonoBehaviour {
 
 		node["wood"].AsInt = this.getWood();
 		node["gold"].AsInt = this.getGold();
-		node["building"].AsInt = Convert.ToInt32(this.areBuilding());
+		//node["building"].AsInt = Convert.ToInt32(this.areBuilding());
 		node["health"].AsInt = this.health;
 		//node["owner"] = this.getOwner().photonPlayer.name;
 
@@ -50,7 +50,7 @@ public class Village : MonoBehaviour {
 	}
 
 	public void UnSerialize(JSONNode node) {
-		myType = (VillageType) node["type"].AsInt;
+		setVillageType((VillageType) node["type"].AsInt);
 
 		var HQpos = new Hex(node["HQpos"]);
 		structTile = board.getTile(HQpos);
@@ -60,7 +60,7 @@ public class Village : MonoBehaviour {
 
 		wood = node["wood"].AsInt;
 		gold = node["gold"].AsInt;
-		building = Convert.ToBoolean(node["building"].AsInt);
+		//building = Convert.ToBoolean(node["building"].AsInt);
 		health = node["health"].AsInt;
 		//node["owner"] = this.getOwner().photonPlayer.name;
 
@@ -81,6 +81,33 @@ public class Village : MonoBehaviour {
 			unit.UnSerialize(unitNode);
 			unit.setVillage(this);
 			units.Add(unit);
+		}
+		
+		if (myType == VillageType.Hovel) {
+			transform.GetChild(0).gameObject.SetActive(true);
+			transform.GetChild(1).gameObject.SetActive(false);
+			transform.GetChild(2).gameObject.SetActive(false);
+			transform.GetChild(3).gameObject.SetActive(false);
+		}
+		if (myType == VillageType.Town)
+		{
+			transform.GetChild(0).gameObject.SetActive(false);
+			transform.GetChild(1).gameObject.SetActive(true);
+			transform.GetChild(2).gameObject.SetActive(false);
+			transform.GetChild(3).gameObject.SetActive(false);
+		} 
+		if (myType == VillageType.Fort)
+		{
+			transform.GetChild(0).gameObject.SetActive(false);
+			transform.GetChild(1).gameObject.SetActive(false);
+			transform.GetChild(2).gameObject.SetActive(true);
+			transform.GetChild(3).gameObject.SetActive(false);
+		} 
+		if (myType == VillageType.Castle){			
+			transform.GetChild(0).gameObject.SetActive(false);
+			transform.GetChild(1).gameObject.SetActive(false);
+			transform.GetChild(2).gameObject.SetActive(false);
+			transform.GetChild(3).gameObject.SetActive(true);
 		}
 	}
 

@@ -184,6 +184,7 @@ public class Game : MonoBehaviour {
 	[RPC]
 	public void LoadGame()
 	{
+		PhotonNetwork.room.open = false;
 		nm.lobby.SetActive(false);
 		string filePath = Application.persistentDataPath + "/load.json";
 		Debug.Log("LoadGame() from " + filePath);
