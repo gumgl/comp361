@@ -26,11 +26,12 @@ public class NetworkManager : MonoBehaviour
 		profilePath = Application.persistentDataPath + "/profile.json";
 		//ConnectToLobby ();
 		LoadProfile();
+		SaveProfile(); // In case it was empty and we just created it
 	}
 
 	public void ConnectToLobby() {
 		// connects to the server that is defined in our usersettings file, checking version names match
-		PhotonNetwork.ConnectUsingSettings ("serialization");
+		PhotonNetwork.ConnectUsingSettings ("profile");
 	}
 
 	public void JoinARoom() {
@@ -38,75 +39,41 @@ public class NetworkManager : MonoBehaviour
 	}
 
 	void LoadProfile() {
-		StreamReader sr = null;
-		try {
-			sr = new StreamReader(profilePath);
-		} catch (Exception e) {
-			Debug.LogError("Error loading profile from disk");
-		}
-		finally
-		{
-			string fileContent = sr.ReadToEnd();
+		var sr = new StreamReader(new FileStream(profilePath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read));
+		var profile = JSON.Parse(sr.ReadToEnd()) ?? new JSONClass();
 
-			var profile = JSON.Parse(fileContent);
-			if (profile["name"] == null)
-				profile["name"] = new JSONData("");
-			if (profile["gamesPlayed"] == null)
-				profile["gamesPlayed"] = new JSONData(0);
-			if (profile["gamesWon"] == null)
-				profile["gamesWon"] = new JSONData(0);
-
-			PhotonNetwork.player.SetCustomProperties(new Hashtable()
-			{
-				{ "n", profile["name"].Value },
-				{ "g", profile["gamesPlayed"].Value },
-				{ "w", profile["gamesWon"].Value }
-			});
-			LoadPlayerName();
-			if (sr != null)
-				sr.Close();
-		}
-		/*var profile = JSONClass.LoadFromFile(profilePath);
 		if (profile["name"] == null)
-			profile["name"] = new JSONData("");
+			profile["name"] = "Anon"+Random.Range(100,999); // add 3 random digits to it
 		if (profile["gamesPlayed"] == null)
-			profile["gamesPlayed"] = new JSONData(0);
+			profile["gamesPlayed"].AsInt = 0;
 		if (profile["gamesWon"] == null)
-			profile["gamesWon"] = new JSONData(0);
+			profile["gamesWon"].AsInt = 0;
+
 		PhotonNetwork.player.SetCustomProperties(new Hashtable()
-			{
-				{ "n", profile["name"].Value },
-				{ "g", profile["gamesPlayed"].Value },
-				{ "w", profile["gamesWon"].Value }
-			});
-		LoadPlayerName();*/
+		{
+			{ "n", profile["name"].Value },
+			{ "g", profile["gamesPlayed"].AsInt },
+			{ "w", profile["gamesWon"].AsInt }
+		});
+		LoadPlayerName();
+
+		sr.Close();
 	}
 
 	void SaveProfile() {
-		StreamWriter sw = null;
-		try {
-			sw = new StreamWriter(profilePath);
-			var props = PhotonNetwork.player.customProperties;
+		var sw = new StreamWriter(new FileStream(profilePath, FileMode.Create, FileAccess.Write, FileShare.Write));
+		var props = PhotonNetwork.player.customProperties;
 
-			JSONNode profile = new JSONClass();
-			if (props.ContainsKey("n"))
-				profile["name"] = new JSONData(props["n"] as string);
-			if (props.ContainsKey("g"))
-				profile["gamesPlayed"] = new JSONData((int)props["g"]);
-			if (props.ContainsKey("w"))
-				profile["gamesWon"] = new JSONData((int)props["w"]);
-			sw.Write(profile.ToJSON(4));
-			//profile.SaveToFile(profilePath);
-		} catch (Exception e) {
-			Debug.LogError("Error saving profile to disk");
-		} finally {
-			if (sw != null)
-				sw.Close();
-		}
-		/*var profile = new JSONClass();
-		//profile["name"] = new JSONData(playerNameInputField.text);
-		profile["test"] = "wow";
-		profile.SaveToFile(profilePath);*/
+		JSONNode profile = new JSONClass();
+		if (props.ContainsKey("n"))
+			profile["name"] = props["n"] as string;
+		if (props.ContainsKey("g"))
+			profile["gamesPlayed"].AsInt = (int)props["g"];
+		if (props.ContainsKey("w"))
+			profile["gamesWon"].AsInt = (int)props["w"];
+
+		sw.Write(profile.ToJSON(1));
+		sw.Close();
 	}
 
 	// shows connection status
@@ -128,7 +95,7 @@ public class NetworkManager : MonoBehaviour
 		// replace 'null' with room name
 		var options = new RoomOptions();
 		options.maxPlayers = 5;
-		options.customRoomProperties = new Hashtable(){{"s", Random.Range(0,100000)}};
+		options.customRoomProperties = new Hashtable(){{"s", seedInputField.text.Equals("") ? Random.Range(0,100000) : int.Parse(seedInputField.text)}};
 		options.customRoomPropertiesForLobby = new string[]{"s"};
 		PhotonNetwork.CreateRoom(null, options, null); // unique room name
 	}
@@ -209,17 +176,22 @@ public class NetworkManager : MonoBehaviour
 	void UpdatePlayerList() {
 		playerListText.text = "";
 		var list = PhotonNetwork.playerList;
-		System.Array.Sort(list, delegate(PhotonPlayer p1, PhotonPlayer p2) { return p1.ID.CompareTo(p2.ID); });
+		System.Array.Sort(list, (p1, p2) => p1.ID.CompareTo(p2.ID));
 
 		foreach (var player in list) {
 			string name = player.customProperties.ContainsKey("n") && ! player.customProperties["n"].ToString().Equals("") ? player.customProperties["n"].ToString() : "Anonymous";
 
-			string description = "#" + player.ID.ToString() + ": "+ name;
+			string description = String.Format("{0}. {1}", player.ID.ToString(), name);
 			if (player.isMasterClient)
 				description = "<color=\"yellow\">" + description + "</color>";
 			if (player.isLocal)
 				description = "<b>" + description + "</b> (you)";
-			playerListText.text += description + "\n";
+
+			string stats = "";
+			if (player.customProperties.ContainsKey("w") && player.customProperties.ContainsKey("g"))
+				stats = String.Format(" <color=\"pink\">[{0}/{1}]</color>", player.customProperties["w"], player.customProperties["g"]);
+
+			playerListText.text += stats + description + "\n";
 		}
 	}
 }
