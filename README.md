@@ -3,6 +3,7 @@ Medieval Warfare
 
 - [COMP-361 Software Engineering Project 2014-2015](http://www.cs.mcgill.ca/~joerg/SEL/COMP-361_Handouts.html)
 - The project requirements are available in the `/ref` folder.
+- [Online demo](http://guillaume.labran.ch/demos/comp361/MedievalWarfare.html)
 
 Usage
 =======
