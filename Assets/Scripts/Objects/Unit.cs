@@ -16,7 +16,9 @@ public class Unit : Photon.MonoBehaviour {
 	public float moveSpeed = 5f; // In portion of length
 	public GameObject halo;
 	public GameObject cannonHalo;
-	public Unit associatedCannon; 
+	public Unit associatedCannon;
+	public bool canBeUpgraded = false;
+	
 
 	public JSONNode Serialize()
 	{
@@ -42,6 +44,7 @@ public class Unit : Photon.MonoBehaviour {
 	{
 		halo = transform.Find("SelectedHalo").gameObject;
 		cannonHalo = transform.Find("CannonHalo").gameObject;
+		halo.renderer.material.color = Color.cyan;
 	}
 
 	void Update() {
@@ -59,6 +62,11 @@ public class Unit : Photon.MonoBehaviour {
 			transform.position = Vector3.Lerp(transform.position, tile.transform.position, moveSpeed * Time.deltaTime);
 			setHeightAboveBoard();
 		}
+		if (Input.GetKey (KeyCode.Escape)) {
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+		}
+
 	}
 
 	public void MoveToNextTile() {
@@ -74,10 +82,7 @@ public class Unit : Photon.MonoBehaviour {
 			} else { // Unit has arrived at target
 				this.tile.setUnit(this);
 				//this.tile.setVillage(this.getVillage());
-				if(this.tile.getStructure() == Structure.Village && this.tile.getOwner() != this.getOwner()){
-					this.tile.getVillage().moveVillage(callVillageTiles(this.tile)[Random.Range(0, callVillageTiles(this.tile).Count)], LandType.Meadow);
-				}
-				callCapture(tile.pos.q, tile.pos.r);
+				captureTile();
 				if (this.tile.getLandType() == LandType.Tree || this.tile.getLandType() == LandType.Tombstone) {
 					removeTreeOrTombstone(tile.pos.q, tile.pos.r, this.tile.getLandType ());
 					//	this.tile.getVillage().GetComponent<PhotonView>().RPC("harvestTree", PhotonTargets.All, tile.pos.q, tile.pos.r);
@@ -100,6 +105,9 @@ public class Unit : Photon.MonoBehaviour {
 				opponentTile = true; 
 				this.setActionType (ActionType.ClearedTile); //invaded tile
 				Debug.Log ("Unit actionType should now be ClearedTile due to invasion."); 
+				if(this.tile.getStructure() == Structure.Village && this.tile.getOwner() != this.getOwner()){
+					this.tile.getVillage().moveVillage(callVillageTiles(this.tile)[Random.Range(0, callVillageTiles(this.tile).Count)], LandType.Meadow);
+				}
 				this.tile.getVillage().removeTile (this.tile);
 				if (this.tile.getVillage ().getTiles ().Count < 3) { 
 					this.tile.getVillage().delete (this); 
@@ -249,7 +257,7 @@ public class Unit : Photon.MonoBehaviour {
 		UnitType thisType = this.getUnitType(); 
 		UnitType otherType = other.getUnitType (); 
 		
-		if (thisType.getCombatLevel() > otherType.getCombatLevel ()) return true;
+		if (thisType.getCombatLevel() > otherType.getCombatLevel()) return true;
 		else return false;   
 		
 	}
@@ -295,7 +303,7 @@ public class Unit : Photon.MonoBehaviour {
 			int totalGold = 0; 
 			if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
 			else totalGold = this.getVillage().getGold() + other.getVillage().getGold (); 
-			if (this.getVillage ().getGold () >= 6) { //only upkeep
+			if (this.getVillage().getVillageType() >= VillageType.Hovel) { //only upkeep
 				this.setUnitType (UnitType.Infantry); 
 			//	other.getVillage().getUnits().Remove(other);
 				other.kill (false); 
@@ -306,7 +314,7 @@ public class Unit : Photon.MonoBehaviour {
 			int totalGold = 0; 
 			if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
 			else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
-			if (this.getVillage ().getGold () >= 6) { //only upkeep
+			if (this.getVillage().getVillageType() >= VillageType.Town) { //only upkeep
 				this.setUnitType (UnitType.Soldier); 
 				//other.getVillage().getUnits().Remove(other);
 				other.kill (false); 
@@ -318,7 +326,7 @@ public class Unit : Photon.MonoBehaviour {
 			int totalGold = 0; 
 			if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
 			else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
-			if (this.getVillage ().getGold () >= 6) { //only upkeep
+			if (this.getVillage().getVillageType() >= VillageType.Fort) { //only upkeep
 				this.setUnitType (UnitType.Knight); 
 				//other.getVillage().getUnits().Remove(other);
 				other.kill (false); 
@@ -331,8 +339,15 @@ public class Unit : Photon.MonoBehaviour {
 
 	public void MoveTo(Tile target) {
 
-		if((this.getUnitType() != UnitType.Soldier || this.getUnitType() != UnitType.Knight) && target.getStructure() == Structure.Village && target.getOwner() != this.getOwner()){
+		if((this.getUnitType() != UnitType.Soldier && this.getUnitType() != UnitType.Knight) && target.getStructure() == Structure.Village && target.getOwner() != this.getOwner()){
 			board.setErrorText ("Only soldiers and knights can invade villages.");
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+			return;
+		}
+
+		if(target.getStructure() == Structure.Village && target.getVillage().getOwner() == this.getOwner()){
+			board.setErrorText ("Movement to your own villages is not allowed.");
 			board.selectedUnit = null;
 			halo.SetActive(false); 
 			return;
@@ -352,6 +367,12 @@ public class Unit : Photon.MonoBehaviour {
 			return;	
 		}
 		
+		if (this.getUnitType () == UnitType.Tower && target.getOwner () != null) { 
+			board.setErrorText ("Towers cannot move.");
+			board.selectedUnit = null;
+			halo.SetActive(false); 
+			return;	
+		}
 		if (this.getActionType() == ActionType.ClearedTile){
 			board.setErrorText ("Unit has already performed an action this turn");
 			board.selectedUnit = null;
@@ -378,13 +399,26 @@ public class Unit : Photon.MonoBehaviour {
 			if (!combineUnits (target.getUnit ())) {
 				board.selectedUnit = null;
 				halo.SetActive(false); 
-				board.setErrorText ("You can either not afford this or it is an invalid combine.");
+				board.setErrorText ("This combine is either invalid or you don't have the village type to support the new unit.");
 				return;
+			}
+		}
+
+		foreach(Player p in this.board.game.GetPlayers()){
+			foreach(Village v in p.getVillages()){
+				foreach (KeyValuePair<Hex.Direction, Tile> pair in v.getStructTile().getNeighbours()){
+					if(target == pair.Value && v.getVillageType() == VillageType.Castle){
+						board.selectedUnit = null;
+						halo.SetActive(false);
+						board.setErrorText ("The castle is protecting that location.");
+						return; 
+					}
+				}
 			}
 		}
 		
 	 	Unit potentialEnemy = this.getTile().containsEnemyInNeighbour(target); 
-	 	if (potentialEnemy != null && potentialEnemy.getUnitType() != UnitType.Cannon) { 
+	 	if (potentialEnemy != null) { 
 	 		if (!combat (potentialEnemy)) { 
 				board.selectedUnit = null;
 				halo.SetActive(false);
@@ -400,7 +434,7 @@ public class Unit : Photon.MonoBehaviour {
 			return;
 		}
 		
-	 	if (this.getUnitType() == UnitType.Knight && (target.getLandType () == LandType.Tree || target.getLandType () == LandType.Tombstone)){ 
+		if ((this.getUnitType() == UnitType.Knight || this.getUnitType() == UnitType.Cannon)  && (target.getLandType () == LandType.Tree || target.getLandType () == LandType.Tombstone)){ 
 	 		//Debug.Log ("Knights and Cannons cannot clear tombstones/trees"); 
 	 		board.setErrorText ("Knights and cannons cannot clear tombstones or fell trees"); 
 	 		board.selectedUnit = null;
@@ -486,18 +520,24 @@ public class Unit : Photon.MonoBehaviour {
 			List<Tile> visited = new List<Tile>(); 
 			Dictionary<Hex.Direction, Tile> neighbours = cannon.getTile ().getNeighbours (); 
 			foreach (KeyValuePair<Hex.Direction, Tile> pair in neighbours) { 
-				visited.Add (pair.Value); 
+				if (!visited.Contains (pair.Value) && pair.Value.getOwner () != cannon.getOwner ()) visited.Add (pair.Value); 
 				Dictionary<Hex.Direction, Tile>  n2 = pair.Value.getNeighbours (); 
 				foreach (KeyValuePair<Hex.Direction, Tile> p2 in n2) { 
-					if (!visited.Contains (p2.Value)) visited.Add (p2.Value); 
+					if (!visited.Contains (p2.Value) && pair.Value.getOwner () != cannon.getOwner ()) visited.Add (p2.Value); 
 				}
 			}	
+			
 		foreach (Tile t in visited) { 
+			if (t.getStructure() == Structure.Village && t.getOwner () != cannon.getOwner ()){
+				t.getVillage ().cannonHalo.SetActive (select);
+				if (select) t.getVillage ().setAssociatedCannon (this); 
+				else t.getVillage ().setAssociatedCannon (null);
+			}
 			Unit potentialUnit = t.getUnit (); 
 			if (potentialUnit != null) { 
-				if (potentialUnit.getOwner() != this.getOwner ()) { 
+				if (potentialUnit.getOwner() != cannon.getOwner ()) { 
 					if (select)potentialUnit.setAssociatedCannon (cannon); 
-					//else potentialUnit.setAssociatedCannon (null); 
+					else potentialUnit.setAssociatedCannon (null); 
 					potentialUnit.cannonHalo.SetActive (select); 
 				}
 			}
@@ -583,8 +623,16 @@ public class Unit : Photon.MonoBehaviour {
 	}
 
 	public void upgrade(){
-		if(this.getUnitType() < UnitType.Knight && this.getVillage().getGold() >= 10)
-			this.getVillage().GetComponent<PhotonView>().RPC("upgradeUnit", PhotonTargets.All, this.getTile().pos.q, this.getTile().pos.r);
+		if(this.getUnitType() < UnitType.Knight && this.getVillage().getGold() >= 10){
+			if(this.getUnitType() == UnitType.Peasant && this.getVillage().getVillageType() == VillageType.Hovel)
+				this.getVillage().GetComponent<PhotonView>().RPC("upgradeUnit", PhotonTargets.All, this.getTile().pos.q, this.getTile().pos.r);
+			else if(this.getUnitType() <= UnitType.Infantry && this.getVillage().getVillageType() == VillageType.Town)
+				this.getVillage().GetComponent<PhotonView>().RPC("upgradeUnit", PhotonTargets.All, this.getTile().pos.q, this.getTile().pos.r);
+			else if(this.getUnitType() <= UnitType.Soldier && this.getVillage().getVillageType() == VillageType.Fort)
+				this.getVillage().GetComponent<PhotonView>().RPC("upgradeUnit", PhotonTargets.All, this.getTile().pos.q, this.getTile().pos.r);
+			else
+				board.setErrorText ("Your village type can't support this upgrade");
+		}
 		else if(this.getUnitType() == UnitType.Knight){
 			board.setErrorText ("Knights can't be ugraded any further");
 		}
@@ -593,16 +641,6 @@ public class Unit : Photon.MonoBehaviour {
 		}
 		else if(this.getUnitType() != UnitType.Cannon)
 			board.setErrorText ("Not enough money to upgrade");
-	}
-
-	void callCapture(int q, int r){
-		Tile tempTile = null;
-		foreach(Tile t in board.getMap().Values){
-			if(t.pos.q == q && t.pos.r == r){
-				tempTile = t;
-			}
-		}
-		tempTile.getUnit().captureTile();
 	}
 
 	void removeTreeOrTombstone(int q, int r, LandType type){
@@ -619,23 +657,14 @@ public class Unit : Photon.MonoBehaviour {
 
 	void OnMouseUp() {
 		//PAUL RPC
-		
-		if (this.cannonHalo.GetActive ()) {
-			
-			this.getAssociatedCannon().setActionType (ActionType.Moved);
+
+
+		if (this.cannonHalo.GetActive()) {
+			this.getAssociatedCannon().setActionType(ActionType.Moved);
 			this.getAssociatedCannon().halo.SetActive (false);
-			if (this.getAssociatedCannon() != null) Debug.Log ("there is an associated cannon"); 
-			
-			HashSet<Unit> list = this.getVillage ().getUnits (); 
-			
-			foreach (Unit u in list) { 
-				if (u.cannonHalo.GetActive ()) { 
-					u.cannonHalo.SetActive (false); 
-				}
-			}
-			
-			this.kill (true); 
-			
+			//if (this.getAssociatedCannon() != null) Debug.Log ("there is an associated cannon"); 
+			highlight2HexRadius(this.getAssociatedCannon (),false);
+			this.getVillage().GetComponent<PhotonView>().RPC("fireCannon", PhotonTargets.All, this.getTile().pos.q, this.getTile().pos.r);
 		}
 		
 		if(this.transform.root.GetComponent<Game>().GetCurrPlayer() == this.transform.root.GetComponent<Game>().GetLocalPlayer() && this.getOwner() == this.transform.root.GetComponent<Game>().GetLocalPlayer()){
@@ -645,19 +674,26 @@ public class Unit : Photon.MonoBehaviour {
 					foreach(Unit u in v.getUnits()){
 						u.halo.SetActive(false);
 						}
+				halo.renderer.material.color = Color.cyan;
 				halo.SetActive(true);
 				if (this.getUnitType() == UnitType.Cannon){
-					 if (this.getVillage ().getWood () > 1) {
+					 if (this.getVillage ().getWood () > 1 && this.getActionType() != ActionType.Moved) {
 					 	highlight2HexRadius(this,true);
 					 }
-					 else Debug.Log ("You cannot afford to shoot Cannons. Not enough Wood."); 
+					 else Debug.Log ("You cannot afford to shoot Cannons Or Cannon Already Moved This Turn."); 
 				}	 
 			}
-			else{
+			else if(canBeUpgraded == true){
 				board.selectedUnit = null;
+				halo.renderer.material.color = Color.cyan;
 				halo.SetActive(false);
 				if (this.getUnitType() == UnitType.Cannon) highlight2HexRadius(this,false); 
 				this.upgrade();
+				canBeUpgraded = false;
+			}
+			else{
+				canBeUpgraded = true;
+				halo.renderer.material.color = Color.black;
 			}
 		}
 	}

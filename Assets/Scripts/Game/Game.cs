@@ -13,6 +13,8 @@ public class Game : MonoBehaviour {
 	public NetworkManager nm;
 	public GameObject playerColor;
 	public Button endTurnButton;
+	public GameObject InGameButtons;
+
 	//public UnityEngine.UI.Text panel;
 
 	private List<Player> players = new List<Player>();
@@ -78,16 +80,20 @@ public class Game : MonoBehaviour {
 	}
 
 	void Start () {
+		InGameButtons.SetActive (false);
 		currPlayer = 0;
 	}
 
 	void Update () {
 		if (Input.GetKeyDown(KeyCode.F5))
 			GetComponent<PhotonView>().RPC("SaveGame", PhotonTargets.All);
-		else if (Input.GetKeyDown(KeyCode.F6))
+		if (Input.GetKeyDown(KeyCode.F6))
 			GetComponent<PhotonView>().RPC("LoadGame", PhotonTargets.All);
+		if (Input.GetKey (KeyCode.Escape)) {
+			board.setErrorText (" ");
+		}
 	}
-
+	
 	[RPC]
 	public void InitBoard()
 	{
@@ -99,6 +105,7 @@ public class Game : MonoBehaviour {
 		
 		//Debug.Log("About to init board with " + players.Count + " players...");
 		board.init((int) PhotonNetwork.room.customProperties["s"]);
+		InGameButtons.SetActive (true);
 		endTurnButton.image.color = players[currPlayer].getColor();
 		endTurnButton.interactable = (localPlayer == currPlayer);
 		TombstonePhase();
@@ -187,7 +194,10 @@ public class Game : MonoBehaviour {
 				}
 				else if(u.getActionType() == ActionType.BuildingRoad){
 					u.setActionType(ActionType.ReadyForOrders);
-					u.getTile().setLandType(LandType.Road);
+					if(u.getTile().getLandType() != LandType.Meadow)
+						u.getTile().setLandType(LandType.Road);
+					else
+						u.getTile().setLandType(LandType.RoadMeadow);
 				}
 			}
 		}
@@ -198,7 +208,7 @@ public class Game : MonoBehaviour {
 			foreach(Tile t in v.getTiles()){
 				if(t.getLandType() == LandType.Grass)
 					v.changeGold(1);
-				else if(t.getLandType() == LandType.Meadow)
+				else if(t.getLandType() == LandType.Meadow || t.getLandType() == LandType.RoadMeadow)
 					v.changeGold(2);
 			}
 		}
@@ -332,6 +342,10 @@ public class Game : MonoBehaviour {
 
 	public Player GetPlayer(int index) {
 		return players[index];
+	}
+
+	public List<Player> GetPlayers(){
+		return players;
 	}
 
 	private Player AddPlayer(PhotonPlayer pp)

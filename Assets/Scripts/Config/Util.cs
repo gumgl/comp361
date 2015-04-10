@@ -8,6 +8,7 @@ using SimpleJSON;
 public static class Config {
 	private static Dictionary<UnitType, int> unitUpkeep = new Dictionary<UnitType, int>();
 	private static Dictionary<UnitType, int> unitCombatLevel = new Dictionary<UnitType, int>();
+	private static Dictionary<UnitType, int> structureHealth = new Dictionary<UnitType, int>();
 	private static Dictionary<UnitType, int> unitCost = new Dictionary<UnitType, int>();
 	private static Dictionary<LandType, bool> tileMovementAllowed = new Dictionary<LandType, bool>();
 	private static Dictionary<Hex.Direction, Hex> hexDirectionDelta = new Dictionary<Hex.Direction, Hex>();
@@ -18,6 +19,8 @@ public static class Config {
 	public const int maxTiles = 300;
 
 	static Config() {
+	
+		
 		unitUpkeep[UnitType.Peasant] = 2;
 		unitUpkeep[UnitType.Infantry] = 6;
 		unitUpkeep[UnitType.Soldier] = 18;
@@ -29,6 +32,7 @@ public static class Config {
 		unitCost[UnitType.Soldier] = 30;
 		unitCost[UnitType.Knight] = 40;
 		unitCost[UnitType.Cannon] = 35;
+		unitCost[UnitType.Tower] = 0;
 
 		villageUpgradeCost[VillageType.Hovel] = 8;
 		villageUpgradeCost[VillageType.Town] = 8;
@@ -41,6 +45,7 @@ public static class Config {
 		tileMovementAllowed[LandType.Tree] = false;
 		tileMovementAllowed[LandType.Water] = false;
 		tileMovementAllowed[LandType.Tombstone] = false;
+		tileMovementAllowed[LandType.RoadMeadow] = true;
 		
 		hexDirectionDelta[Hex.Direction.Up] = new Hex(0, -1);
 		hexDirectionDelta[Hex.Direction.RightUp] = new Hex(1, -1);

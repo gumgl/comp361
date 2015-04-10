@@ -4,5 +4,6 @@
 	Meadow,
 	Water,
 	Road,
-	Tombstone
+	Tombstone,
+	RoadMeadow
 }
