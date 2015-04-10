@@ -271,7 +271,7 @@ public class Tile : Photon.MonoBehaviour {
 				if(this.getVillage().getStructTile().HexDistanceTo(this) > 1.8 && this.getOwner().getUnitToBuild() == 4){
 					board.setErrorText ("Cannons must be built adjacent to castles.");
 				}
-				else if (village.coolDown <= 0){
+				else{
 					village.GetComponent<PhotonView>().RPC("hireVillager", PhotonTargets.All, this.pos.q, this.pos.r, this.getOwner().getUnitToBuild());
 					village.setUpgradable(false);
 				

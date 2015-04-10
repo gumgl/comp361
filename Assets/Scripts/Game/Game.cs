@@ -109,10 +109,8 @@ public class Game : MonoBehaviour {
 			GetComponent<PhotonView>().RPC("NextTurn", PhotonTargets.All);
 			HashSet<Village> listVillages = this.players[localPlayer].getVillages ();
 			foreach (Village v in listVillages) {
-				v.coolDown--;
 				if (v.isActive == true) { 
 					v.isActive = false; 
-					v.setUpgradable(false);
 					HashSet<Tile> tiles = v.getTiles ();
 					foreach (Tile t in tiles) {  
 						t.transform.GetChild(0).renderer.material.color = this.players[localPlayer].getColor ();
