@@ -1,9 +1,9 @@
+using System;
 using System.Collections.Generic;
 using SimpleJSON;
 using UnityEngine;
 
-public class Player
-{
+public class Player {
 	public Game currGame;
 	public readonly PhotonPlayer photonPlayer;
 	private HashSet<Village> villages = new HashSet<Village>();
@@ -11,11 +11,13 @@ public class Player
 	private int losses = 0;
 	private Color color = Color.clear;
 	private int unitToBuild = 6;
+	private bool hasLost = false;
 
 	public JSONNode Serialize() {
 		var node = new JSONClass();
 
 		node["name"] = SerializeID();
+		node["lost"].AsInt = Convert.ToInt32(hasLost);
 
 		node["villages"] = new JSONArray();
 		foreach (var village in getVillages()) {
@@ -26,6 +28,8 @@ public class Player
 	}
 
 	public void UnSerialize(JSONNode node) {
+		hasLost = Convert.ToBoolean(node["lost"]);
+
 		var villages = node["villages"].AsArray;
 		foreach (JSONNode villageNode in villages) {
 			Debug.Log("Unserializing a village for player "+SerializeID());
@@ -83,6 +87,15 @@ public class Player
 
 	public Color getColor() {
 		return color;
+	}
+
+	public bool CheckLost() {
+		if (villages.Count == 0)
+			hasLost = true;
+	}
+
+	public bool HasLost() {
+		return hasLost;
 	}
 
 	public string GetName()

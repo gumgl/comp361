@@ -82,9 +82,9 @@ public class Game : MonoBehaviour {
 	}
 
 	void Update () {
-		if (Input.GetKeyDown(KeyCode.S))
+		if (Input.GetKeyDown(KeyCode.F5))
 			GetComponent<PhotonView>().RPC("SaveGame", PhotonTargets.All);
-		else if (Input.GetKeyDown(KeyCode.L))
+		else if (Input.GetKeyDown(KeyCode.F6))
 			GetComponent<PhotonView>().RPC("LoadGame", PhotonTargets.All);
 	}
 
@@ -102,6 +102,9 @@ public class Game : MonoBehaviour {
 		endTurnButton.image.color = players[currPlayer].getColor();
 		endTurnButton.interactable = (localPlayer == currPlayer);
 		TombstonePhase();
+		BuildPhase();
+		IncomePhase();
+		PaymentPhase();
 	}
 
 	[RPC]
@@ -163,7 +166,6 @@ public class Game : MonoBehaviour {
 						t.Value.setLandType(LandType.Tree);
 				}
 			}
-		TombstonePhase();
 	}
 
 	void TombstonePhase(){
@@ -171,7 +173,6 @@ public class Game : MonoBehaviour {
 			foreach(Tile t in v.getTiles())
 				if(t.getLandType() == LandType.Tombstone)
 					t.setLandType(LandType.Tree);
-		BuildPhase();
 	}
 
 	void BuildPhase(){
@@ -190,7 +191,6 @@ public class Game : MonoBehaviour {
 				}
 			}
 		}
-		IncomePhase();
 	}
 
 	void IncomePhase(){
@@ -202,7 +202,6 @@ public class Game : MonoBehaviour {
 					v.changeGold(2);
 			}
 		}
-		PaymentPhase();
 	}
 
 	void PaymentPhase(){
@@ -273,35 +272,51 @@ public class Game : MonoBehaviour {
 	}
 	
 	public void onOkClick () { 
-		board.setErrorText (" "); 
+		board.setErrorText (""); 
 	}
 	
 	/// <summary>Move to next player phase (also modifies currPlayer)</summary>
 	[RPC]
 	void NextTurn(){
 		this.board.unitCostsPanel.text = "";
-		currPlayer = NextPlayer();
+
+		GetCurrPlayer().CheckLost();
+		if (GetCurrPlayer().HasLost()) { // The player who's turn just ended
+			if (currPlayer == localPlayer) {
+				board.setErrorText("You have lost!\nYou cannot play buy you can watch or quit...");
+			}
+			else {
+				board.setErrorText(GetCurrPlayer().GetName() + " has lost the game and is now a spectator.");
+			}
+		}
+		if (CheckEndOfGame()) {
+			Player winner = null;
+			foreach (var player in players)
+				if (!player.HasLost())
+					winner = player;
+
+			if (winner == null)
+				Debug.LogError("Oh wtf, everybody has lost?");
+			else {
+				board.setErrorText(winner.GetName() + " has won the game!\nYou may now quit...");
+			}
+		}
+
+		do { // Get the next player who doesn't HasLost (LOL YOLOOO)
+			currPlayer = NextPlayer();
+		} while ( GetCurrPlayer().HasLost());
+
 		endTurnButton.image.color = players[currPlayer].getColor();
 		endTurnButton.interactable = false;
-		if(currPlayer == 0){
-			//currPhase = Phase.TreeGrowth;
+
+		if(currPlayer == 0) // Only at beginning of round
 			TreeGrowth();
-		}
-		else{
-			//currPhase = Phase.Tombstone;
-			TombstonePhase();
-		}
+
+		TombstonePhase();
+		BuildPhase();
+		IncomePhase();
+		PaymentPhase();
 	}
-	/*void NextPhase() {
-		if (currPhase == Phase.Move) { // Last phase of a player
-			currPhase = Phase.Tombstone;
-			if (currPlayer == players.Count - 1) { // Last player
-				// TODO refactor
-				TreeGrowth();
-			}
-			currPlayer = NextPlayer();
-		}
-	}*/
 
 	int NextPlayer() {
 		return (currPlayer + 1) % players.Count;
@@ -356,9 +371,16 @@ public class Game : MonoBehaviour {
 	}
 
 	public int GetSeed() {
-		if (PhotonNetwork.room != null && PhotonNetwork.room.customProperties.ContainsKey("s"))
-			return (int) PhotonNetwork.room.customProperties["s"];
-		else
-			return 0;
+		return PhotonNetwork.room != null && PhotonNetwork.room.customProperties.ContainsKey("s")
+			? (int) PhotonNetwork.room.customProperties["s"]
+			: 0;
+	}
+
+	public bool CheckEndOfGame() {
+		int count = 0; // # players still in the game
+		foreach (var player in players)
+			if (!player.HasLost())
+				count ++;
+		return (count <= 1);
 	}
 }
