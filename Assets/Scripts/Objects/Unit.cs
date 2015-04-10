@@ -301,43 +301,40 @@ public class Unit : Photon.MonoBehaviour {
 	//different villages? FIX TODO
 	public bool combineUnits (Unit other) { 
 		
-		if (this.getActionType () == ActionType.ReadyForOrders && other.getActionType() == ActionType.ReadyForOrders){
-			if (this.getUnitType() == UnitType.Peasant && other.getUnitType() == UnitType.Peasant) { 
-				int totalGold = 0; 
-				if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
-				else totalGold = this.getVillage().getGold() + other.getVillage().getGold (); 
-				if (this.getVillage().getVillageType() >= VillageType.Hovel) { //only upkeep
-					this.setUnitType (UnitType.Infantry); 
-				//	other.getVillage().getUnits().Remove(other);
-					other.kill (false); 
-					return true; 
-				}
+		if (this.getUnitType() == UnitType.Peasant && other.getUnitType() == UnitType.Peasant) { 
+			int totalGold = 0; 
+			if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
+			else totalGold = this.getVillage().getGold() + other.getVillage().getGold (); 
+			if (this.getVillage().getVillageType() >= VillageType.Hovel) { //only upkeep
+				this.setUnitType (UnitType.Infantry); 
+			//	other.getVillage().getUnits().Remove(other);
+				other.kill (false); 
+				return true; 
 			}
-			else if ((this.getUnitType() == UnitType.Infantry && other.getUnitType() == UnitType.Peasant) || (this.getUnitType() == UnitType.Peasant && other.getUnitType() == UnitType.Infantry)) { 
-				int totalGold = 0; 
-				if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
-				else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
-				if (this.getVillage().getVillageType() >= VillageType.Town) { //only upkeep
-					this.setUnitType (UnitType.Soldier); 
-					//other.getVillage().getUnits().Remove(other);
-					other.kill (false); 
-					return true; 
-				}
-			}
-			
-			else if (this.getUnitType() == UnitType.Infantry && other.getUnitType() == UnitType.Infantry) { 
-				int totalGold = 0; 
-				if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
-				else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
-				if (this.getVillage().getVillageType() >= VillageType.Fort) { //only upkeep
-					this.setUnitType (UnitType.Knight); 
-					//other.getVillage().getUnits().Remove(other);
-					other.kill (false); 
-					return true;
-				}
+		}
+		else if ((this.getUnitType() == UnitType.Infantry && other.getUnitType() == UnitType.Peasant) || (this.getUnitType() == UnitType.Peasant && other.getUnitType() == UnitType.Infantry)) { 
+			int totalGold = 0; 
+			if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
+			else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
+			if (this.getVillage().getVillageType() >= VillageType.Town) { //only upkeep
+				this.setUnitType (UnitType.Soldier); 
+				//other.getVillage().getUnits().Remove(other);
+				other.kill (false); 
+				return true; 
 			}
 		}
 		
+		else if (this.getUnitType() == UnitType.Infantry && other.getUnitType() == UnitType.Infantry) { 
+			int totalGold = 0; 
+			if (this.getVillage() == other.getVillage ()) totalGold = this.getVillage().getGold (); 
+			else totalGold = this.getVillage().getGold() + other.getVillage().getGold ();
+			if (this.getVillage().getVillageType() >= VillageType.Fort) { //only upkeep
+				this.setUnitType (UnitType.Knight); 
+				//other.getVillage().getUnits().Remove(other);
+				other.kill (false); 
+				return true;
+			}
+		}
 		return false; 
 		
 	}
