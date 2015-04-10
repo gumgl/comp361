@@ -228,7 +228,7 @@ public class Unit : Photon.MonoBehaviour {
 		UnitType thisType = this.getUnitType(); 
 		UnitType otherType = other.getUnitType (); 
 		
-		if (thisType.getCombatLevel() > otherType.getCombatLevel ()) return true;
+		if (thisType.getCombatLevel() > otherType.getCombatLevel()) return true;
 		else return false;   
 		
 	}
@@ -363,7 +363,7 @@ public class Unit : Photon.MonoBehaviour {
 		}
 		
 	 	Unit potentialEnemy = this.getTile().containsEnemyInNeighbour(target); 
-	 	if (potentialEnemy != null && potentialEnemy.getUnitType() != UnitType.Cannon) { 
+	 	if (potentialEnemy != null) { 
 	 		if (!combat (potentialEnemy)) { 
 				board.selectedUnit = null;
 				halo.SetActive(false);
@@ -471,12 +471,13 @@ public class Unit : Photon.MonoBehaviour {
 					if (!visited.Contains (p2.Value)) visited.Add (p2.Value); 
 				}
 			}	
+			
 		foreach (Tile t in visited) { 
 			Unit potentialUnit = t.getUnit (); 
 			if (potentialUnit != null) { 
-				if (potentialUnit.getOwner() != this.getOwner ()) { 
+				if (potentialUnit.getOwner() != cannon.getOwner ()) { 
 					if (select)potentialUnit.setAssociatedCannon (cannon); 
-					//else potentialUnit.setAssociatedCannon (null); 
+					else potentialUnit.setAssociatedCannon (null); 
 					potentialUnit.cannonHalo.SetActive (select); 
 				}
 			}
@@ -600,19 +601,10 @@ public class Unit : Photon.MonoBehaviour {
 		//PAUL RPC
 		
 		if (this.cannonHalo.GetActive ()) {
-			
 			this.getAssociatedCannon().setActionType (ActionType.Moved);
 			this.getAssociatedCannon().halo.SetActive (false);
 			if (this.getAssociatedCannon() != null) Debug.Log ("there is an associated cannon"); 
-			
-			HashSet<Unit> list = this.getVillage ().getUnits (); 
-			
-			foreach (Unit u in list) { 
-				if (u.cannonHalo.GetActive ()) { 
-					u.cannonHalo.SetActive (false); 
-				}
-			}
-			
+			highlight2HexRadius(this.getAssociatedCannon (),false);
 			this.kill (true); 
 			
 		}
@@ -626,10 +618,10 @@ public class Unit : Photon.MonoBehaviour {
 						}
 				halo.SetActive(true);
 				if (this.getUnitType() == UnitType.Cannon){
-					 if (this.getVillage ().getWood () > 1) {
+					 if (this.getVillage ().getWood () > 1 && this.getActionType() != ActionType.Moved) {
 					 	highlight2HexRadius(this,true);
 					 }
-					 else Debug.Log ("You cannot afford to shoot Cannons. Not enough Wood."); 
+					 else Debug.Log ("You cannot afford to shoot Cannons Or Cannon Already Moved This Turn."); 
 				}	 
 			}
 			else{
