@@ -121,9 +121,6 @@ public class Game : MonoBehaviour {
 	public void PressInfantry (){
 		players[currPlayer].setUnitToBuild(1);
 	}
-<<<<<<< HEAD
-	
-=======
 
 	public void PressSoldier (){
 		players[currPlayer].setUnitToBuild(2);
@@ -143,7 +140,6 @@ public class Game : MonoBehaviour {
 
 
 
->>>>>>> ca2e6acecbb3883372236e92d1d7f6162223a55c
 	[RPC]
 	public void InitBoard()
 	{

@@ -4,6 +4,7 @@ using SimpleJSON;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using Random = UnityEngine.Random;
 
 public class Village : MonoBehaviour {
 	VillageType myType;
