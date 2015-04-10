@@ -32,8 +32,8 @@ public class Unit : Photon.MonoBehaviour {
 		setTile(board.getTile(pos));
 		positionOverTile();
 
-		myType = (UnitType) node["unitType"].AsInt;
-		currentAction = (ActionType) node["actionType"].AsInt;
+		setUnitType((UnitType) node["unitType"].AsInt);
+		setActionType((ActionType) node["actionType"].AsInt);
 	}
 
 	void Start()

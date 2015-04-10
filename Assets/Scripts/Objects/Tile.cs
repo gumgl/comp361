@@ -26,8 +26,9 @@ public class Tile : Photon.MonoBehaviour {
 	public void UnSerialize(JSONNode node)
 	{
 		pos = new Hex(node["pos"]);
-		structure = (Structure) node["structure"].AsInt;
-		type = (LandType) node["type"].AsInt;
+		setStructure((Structure) node["structure"].AsInt);
+		setLandType((LandType) node["type"].AsInt);
+		transform.position = board.TileCoordToWorldCoord(getPixelPos());
 	}
 
 	public bool hasStructure() {

@@ -9,13 +9,13 @@ public class Board : Photon.MonoBehaviour {
 	#endregion
 
 	public Game game;
-	public Unit selectedUnit;
+	public Unit selectedUnit = null;
 	public UnityEngine.UI.Text woodText;
 	public UnityEngine.UI.Text goldText;
-	Village activeVillage; 
+	Village activeVillage;
 	//LandType[,] tileTypes;
 	//Tile[,] grid;
-	Dictionary<Hex, Tile> map;
+	Dictionary<Hex, Tile> map = new Dictionary<Hex, Tile>();
 
 //	int mapSizeX = 10;
 //	int mapSizeY = 10;
@@ -52,7 +52,7 @@ public class Board : Photon.MonoBehaviour {
 	public void generateHexagonalGrid(int sd) {
 		Debug.Log("Generating grid with seed " + sd.ToString());
 		Random.seed = sd;
-		map = new Dictionary<Hex, Tile>();
+		map.Clear();
 		for (int q = -mapRadius; q <= mapRadius; q++) {
 			for (int r = -mapRadius; r <= mapRadius; r++) {
 				if (Mathf.Abs(q + r) <= mapRadius) { // Within hex-shaped grid

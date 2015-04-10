@@ -24,14 +24,13 @@ public class NetworkManager : MonoBehaviour
 	// Use this for initialization
 	void Start () {
 		profilePath = Application.persistentDataPath + "/profile.json";
-		Debug.Log(profilePath);
 		//ConnectToLobby ();
 		LoadProfile();
 	}
 
 	public void ConnectToLobby() {
 		// connects to the server that is defined in our usersettings file, checking version names match
-		PhotonNetwork.ConnectUsingSettings ("game-lobby");
+		PhotonNetwork.ConnectUsingSettings ("serialization");
 	}
 
 	public void JoinARoom() {

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using SimpleJSON;
 using System.Collections;
@@ -26,7 +27,7 @@ public class Village : MonoBehaviour {
 
 		node["wood"].AsInt = this.getWood();
 		node["gold"].AsInt = this.getGold();
-		node["building"].AsBool = this.areBuilding();
+		node["building"].AsInt = Convert.ToInt32(this.areBuilding());
 		//node["owner"] = this.getOwner().photonPlayer.name;
 
 		node["tiles"] = new JSONArray();
@@ -46,23 +47,32 @@ public class Village : MonoBehaviour {
 
 		var HQpos = new Hex(node["HQpos"]);
 		structTile = board.getTile(HQpos);
+		structTile.setStructure(Structure.Village); // let the tile know that it is the HQ
+
+		transform.position = board.TileCoordToWorldCoord(structTile.getPixelPos());
 
 		wood = node["wood"].AsInt;
 		gold = node["gold"].AsInt;
+		building = Convert.ToBoolean(node["building"].AsInt);
 		//node["owner"] = this.getOwner().photonPlayer.name;
 
 		var tileNodes = node["tiles"].AsArray;
 		foreach (JSONNode tileNode in tileNodes) {
 			var pos = new Hex(tileNode);
-			tiles.Add(board.getTile(pos));
+			var tile = board.getTile(pos);
+			//tiles.(board.getTile(pos));
+			addTile(tile);
+			tile.setVillage(this);
 		}
 
 		var unitNodes = node["units"].AsArray;
 		foreach (JSONNode unitNode in unitNodes) {
 			Unit unit = Instantiate(unitPrefab, Vector3.zero, Quaternion.identity) as Unit;
 			unit.transform.parent = board.transform;
+			unit.board = this.board;
 			unit.UnSerialize(unitNode);
 			unit.setVillage(this);
+			units.Add(unit);
 		}
 	}
 
@@ -209,6 +219,10 @@ public class Village : MonoBehaviour {
 	public void buildRoad(Unit u) {
 		
 	}
+
+	public void setBoard(Board bd) {
+		board = bd;
+	}
 	
 	public void setVillageType(VillageType type) {
 		myType = type;
@@ -225,17 +239,13 @@ public class Village : MonoBehaviour {
 	public Village checkForMerge() {
 		return null;
 	}
-	
+
 	public Player getOwner() {
 		return owner;
 	}
-	
-	public void setTiles(HashSet<Tile> tiles) {
-		
-	}
-	
-	public void newPath() {
-		
+
+	public void setOwner(Player who) {
+		owner = who;
 	}
 	
 	public HashSet<Tile> findPath(Tile start, Tile dest) {

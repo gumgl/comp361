@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using SimpleJSON;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -26,7 +27,6 @@ public class Game : MonoBehaviour {
 	{
 		var node = new JSONClass();
 
-		node["colorIterator"].AsInt = colorIterator;
 		node["currPlayer"] = GetCurrPlayer().SerializeID();
 
 		node["players"] = new JSONArray();
@@ -42,11 +42,50 @@ public class Game : MonoBehaviour {
 		return node;
 	}
 
+	public void UnSerialize(JSONNode node) {
+		// Create all the tiles, position them and add them to map
+		board.getMap().Clear();
+		foreach (JSONNode tileNode in node["tiles"].AsArray) {
+			Tile tile = Instantiate(board.landPrefab, Vector3.zero, Quaternion.identity) as Tile;
+			tile.transform.parent = board.transform;
+			tile.board = this.board;
+			tile.UnSerialize(tileNode);
+			board.getMap().Add(tile.pos, tile);
+		}
+		board.connectNeighbours();
+
+		foreach (JSONNode playerNode in node["players"].AsArray) {
+			string name = playerNode["name"]; // name in saved game
+			PhotonPlayer photonPlayer = null;
+			foreach (var p in PhotonNetwork.playerList) {
+				if (p.customProperties.ContainsKey("n") && p.customProperties["n"].Equals(name))
+					photonPlayer = p;
+			}
+			if (photonPlayer == null) {
+				Debug.LogError("We have a player in saved game \"" + name + "\" but no one with that name is currently connected.");
+			} else {
+				Debug.Log("We found network player \"" + name + "\" ("+(photonPlayer.isLocal?"local":"remote")+")");
+				Player player = photonPlayer.isLocal ? RegisterLocalPlayer(photonPlayer) : RegisterOtherPlayer(photonPlayer);
+				player.currGame = this;
+				player.UnSerialize(playerNode);
+			}
+		}
+		// Set the correct current player according to saved ID
+		for (int i=0; i<players.Count; i++) {
+			if (players[i].SerializeID().Equals(node["currPlayer"]))
+				currPlayer = i;
+		}
+	}
+
 	void Start () {
 		currPlayer = 0;
 	}
 
 	void Update () {
+		if (Input.GetKeyDown(KeyCode.S))
+			GetComponent<PhotonView>().RPC("SaveGame", PhotonTargets.All);
+		else if (Input.GetKeyDown(KeyCode.L))
+			GetComponent<PhotonView>().RPC("LoadGame", PhotonTargets.All);
 	}
 
 	[RPC]
@@ -62,60 +101,55 @@ public class Game : MonoBehaviour {
 		board.init((int) PhotonNetwork.room.customProperties["s"]);
 		endTurnButton.image.color = players[currPlayer].getColor();
 		endTurnButton.interactable = (localPlayer == currPlayer);
-
-		var json = Serialize();
-		Debug.Log(json.ToJSON(1));
 	}
 
 	[RPC]
 	public void LoadGame()
 	{
-		string filePath = Application.persistentDataPath + "/game.json";
+		nm.lobby.SetActive(false);
+		string filePath = Application.persistentDataPath + "/load.json";
+		Debug.Log("LoadGame() from " + filePath);
 
-		var game = JSONNode.LoadFromFile(filePath);
-		colorIterator = game["colorIterator"].AsInt;
-		currPlayer = game["currPlayer"].AsInt;
+		var stream = new StreamReader(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read));
+		var game = JSON.Parse(stream.ReadToEnd());
+		stream.Close();
+		UnSerialize(game);
 
-		// First clear everything
-		foreach (Transform child in board.transform) {
-			Destroy(child.gameObject);
-		}
-		board.getMap().Clear();
-		players.Clear();
-		
-		/*
-		foreach (var player in players)
-		{
-			foreach (var village in player.getVillages())
-			{
-				
-				Destroy(village.gameObject);
-			}
-		}
-
-		foreach(var entry in board.getMap())
-			Destroy(entry.Value.gameObject);
-		board.getMap().Clear();
-		*/
-
-		// Then recreate it all from saved game
-
-		foreach (var tile in game["tiles"].AsArray)
-		{
-			
-		}
-
-		foreach (var player in game["players"].AsArray)
-		{
-			
-		}
-
+		//board.init((int)PhotonNetwork.room.customProperties["s"]);
+		endTurnButton.image.color = GetCurrPlayer().getColor();
+		endTurnButton.interactable = (localPlayer == currPlayer);
+		playerColor.GetComponent<Image>().color = GetLocalPlayer().getColor();
+		playerColor.SetActive(true);
 	}
 
 	[RPC]
 	public void SaveGame()
 	{
-		
+		string filePath = Application.persistentDataPath + "/"+GetSeed().ToString()+".json";
+		Debug.Log("SaveGame() to " + filePath);
+		var sw = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Write));
+		JSONNode toSave = Serialize();
+		sw.Write(toSave.ToJSON(1));
+		sw.Close();
+		/*StreamWriter sw = null;
+		try
+		{
+			sw = new StreamWriter(filePath);
+
+			JSONNode toSave = Serialize();
+
+			sw.Write(toSave.ToJSON(1));
+			Debug.Log("Saving successful!");
+		}
+		catch (Exception e)
+		{
+			Debug.LogError("Error saving gamestate to disk");
+		}
+		finally
+		{
+			if (sw != null)
+				sw.Close();
+		}*/
 	}
 
 	void AddPlayers() {
@@ -292,24 +326,25 @@ public class Game : MonoBehaviour {
 		return players[index];
 	}
 
-	private void AddPlayer(PhotonPlayer pp)
+	private Player AddPlayer(PhotonPlayer pp)
 	{
 		Player player = new Player(pp);
 		//player.transform.parent = this.transform;
 		player.setColor(GetNextColor());
 		player.currGame = this;
 		players.Add(player);
+		return player;
 	}
 
-	public void RegisterLocalPlayer(PhotonPlayer pp) {
+	public Player RegisterLocalPlayer(PhotonPlayer pp) {
 		//Debug.Log("RegisterLocalPlayer");
 		localPlayer = players.Count;
-		AddPlayer(pp);
+		return AddPlayer(pp);
 	}
 
-	public void RegisterOtherPlayer(PhotonPlayer pp) {
+	public Player RegisterOtherPlayer(PhotonPlayer pp) {
 		//Debug.Log("RegisterOtherPlayer");
-		AddPlayer(pp);
+		return AddPlayer(pp);
 	}
 
 	private Color GetNextColor() {
@@ -325,5 +360,12 @@ public class Game : MonoBehaviour {
 			return null;
 		else
 			return players[choice];
+	}
+
+	public int GetSeed() {
+		if (PhotonNetwork.room != null && PhotonNetwork.room.customProperties.ContainsKey("s"))
+			return (int) PhotonNetwork.room.customProperties["s"];
+		else
+			return 0;
 	}
 }

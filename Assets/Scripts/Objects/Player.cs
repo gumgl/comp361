@@ -14,7 +14,7 @@ public class Player
 	public JSONNode Serialize() {
 		var node = new JSONClass();
 
-		node["name"] = photonPlayer.name;
+		node["name"] = SerializeID();
 
 		node["villages"] = new JSONArray();
 		foreach (var village in getVillages()) {
@@ -24,9 +24,21 @@ public class Player
 		return node;
 	}
 
-	public JSONNode SerializeID()
-	{
-		return new JSONData(photonPlayer.name);
+	public void UnSerialize(JSONNode node) {
+		var villages = node["villages"].AsArray;
+		foreach (JSONNode villageNode in villages) {
+			Debug.Log("Unserializing a village for player "+SerializeID());
+			Village village = GameObject.Instantiate(currGame.board.villagePrefab, Vector3.zero, Quaternion.identity) as Village;
+			village.transform.parent = currGame.board.transform;
+			village.setBoard(currGame.board);
+			village.setOwner(this);
+			addVillage(village);
+			village.UnSerialize(villageNode);
+		}
+	}
+
+	public JSONNode SerializeID() {
+		return GetName();
 	}
 
 	public Player(PhotonPlayer pp) {
