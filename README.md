@@ -19,14 +19,14 @@ While it might be unintuitive, here are the keyboard "shortcuts" to play the gam
 
 Key  | Action
 ------------- | -------------
-`Enter` | End your turn
-`C` | Cultivate meadow under selected unit
-`B` | Build road under selected unit
-`Esc` | Dismiss current action or message
-`1` to `6` | Select type of unit to spawn
-`F4` | Quit game
-`F5` | Save game
-`F6` | Load game
+<kbd>Enter</kbd> | End your turn
+<kbd>C</kbd> | Cultivate meadow under selected unit
+<kbd>B</kbd> | Build road under selected unit
+<kbd>Esc</kbd> | Dismiss current action or message
+<kbd>1</kbd> to <kbd>6</kbd> | Select type of unit to spawn
+<kbd>F4</kbd> | Quit game
+<kbd>F5</kbd> | Save game
+<kbd>F6</kbd> | Load game
 
 
 Requirements
